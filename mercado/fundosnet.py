@@ -39,7 +39,16 @@ CATEGORIES = {
     "Relatórios": 7,
     "Termo de Securitização": 17,
 }
-TYPES_BY_CATEGORY = {0: [],
+FUND_TYPES = {
+    "Todos": "",
+    "ETF": 3,
+    "ETF RF": 4,
+    "FIDC": 2,
+    "Fundo Imobiliário": 1,
+    "Fundo Setorial": 7,
+}
+TYPES_BY_CATEGORY = {  # TODO: simplify structure
+ 0: [],
  19: [],
  2: [{'id': 1,
    'descricao': 'AGO',
@@ -424,10 +433,14 @@ class FundosNet:
         )
 
     @cached_property
+    def main_page(self):
+        response = self.request("GET", "abrirGerenciadorDocumentosCVM", xhr=False)
+        return response.text
+
+    @cached_property
     def csrf_token(self):
         # TODO: expires crsf_token after some time
-        response = self.request("GET", "abrirGerenciadorDocumentosCVM", xhr=False)
-        matches = REGEXP_CSRF_TOKEN.findall(response.text)
+        matches = REGEXP_CSRF_TOKEN.findall(self.main_page)
         if not matches:
             raise RuntimeError("Cannot find CSRF token")
 
@@ -435,12 +448,26 @@ class FundosNet:
 
     @cached_property
     def categories(self):
-        response = self.request("GET", "abrirGerenciadorDocumentosCVM", xhr=False)
-        tree = document_fromstring(response.text)
+        tree = document_fromstring(self.main_page)
         return {
             option.xpath("./text()")[0].strip(): int(option.xpath("./@value")[0])
             for option in tree.xpath("//select[@id = 'categoriaDocumento']/option")
         }
+
+    @cached_property
+    def fund_types(self):
+        tree = document_fromstring(self.main_page)
+        options = tree.xpath("//select[@id = 'tipoFundo']/option")
+        result = {}
+        for option in options:
+            key = option.xpath("./text()")[0].strip()
+            value = option.xpath("./@value")[0].strip()
+            if not value:
+                key = "Todos"
+            else:
+                value = int(value)
+            result[key] = value
+        return result
 
     @cached_property
     def types(self):
@@ -472,7 +499,7 @@ class FundosNet:
             params["_"] = int(time.time() * 1000)
             finished = params["s"] >= total_rows
 
-    def search(self, category="Todos", type_="Todos", start_date=None, end_date=None, ordering_field="dataEntrega", order="desc", items_per_page=200):
+    def search(self, category="Todos", type_="Todos", fund_type="Todos", start_date=None, end_date=None, ordering_field="dataEntrega", order="desc", items_per_page=200):
         assert order in ("asc", "desc")
         assert ordering_field in ("b3CategoriaDescricao", "denominacaoSocial", "tipoDescricao", "especieDocumento", "dataReferencia", "dataEntrega", "situacaoDocumento", "versao", "modalidade")
         assert category in CATEGORIES
@@ -482,20 +509,24 @@ class FundosNet:
             type_id = 0
         else:
             type_id = [item for item in TYPES_BY_CATEGORY[category_id] if item["descricao"] == type_][0]["id"]
+        assert fund_type in FUND_TYPES
+        fund_type_id = FUND_TYPES[fund_type]
         # TODO: filter other fields, like:
         # - administrador
         # - cnpj
         # - cnpjFundo
         # - idEspecieDocumento
         # - situacao
-        # - tipoFundo
         # (there are others)
+        # TODO: get all possible especie
+        # TODO: get all administradores https://fnet.bmfbovespa.com.br/fnet/publico/buscarAdministrador?term=&page=2&paginaCertificados=false&_=1655592601540
         yield from self.paginate(
             path="pesquisarGerenciadorDocumentosDados",
             params={
                 f"o[0][{ordering_field}]": order,
                 "idCategoriaDocumento": category_id,
                 "idTipoDocumento": type_id,
+                "tipoFundo": fund_type_id,
                 "idEspecieDocumento": "0",
                 "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
                 "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
@@ -504,9 +535,6 @@ class FundosNet:
             items_per_page=items_per_page,
         )
 
-
-# TODO: get all possible especie
-# TODO: get all administradores https://fnet.bmfbovespa.com.br/fnet/publico/buscarAdministrador?term=&page=2&paginaCertificados=false&_=1655592601540
 
 def download(document_ids, path):
     downloader = Downloader.subclasses()["aria2c"](path=path)
