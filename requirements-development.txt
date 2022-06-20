@@ -1,0 +1,7 @@
+-r requirements.txt
+
+autoflake
+black
+ipython
+isort
+pytest
