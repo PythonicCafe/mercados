@@ -407,6 +407,7 @@ field_types = OrderedDict([
 # TODO: implementar crawler/parser para antes de 2016
 # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultListaPartic.aspx?TPConsulta=9>
 
+# https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM
 class FundosNet:
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
