@@ -8,9 +8,10 @@ from urllib.parse import urljoin
 import requests
 import rows
 from lxml.html import document_fromstring
-from rows.utils.download import Downloader, Download
+from rows.utils.download import Download, Downloader
 
 from . import choices
+from .document import DocumentMeta
 
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
@@ -42,41 +43,43 @@ class PtBrDateTimeField(rows.fields.Field):
         return datetime.datetime.strptime(value, "%d/%m/%Y %H:%M")
 
 
-field_types = OrderedDict([
-    ("id", rows.fields.IntegerField),
-    ("descricaoFundo", rows.fields.TextField),
-    ("categoriaDocumento", rows.fields.TextField),
-    ("tipoDocumento", rows.fields.TextField),
-    ("especieDocumento", rows.fields.TextField),
-    ("dataReferencia", rows.fields.TextField),
-    ("dataEntrega", PtBrDateTimeField),
-    ("status", rows.fields.TextField),
-    ("descricaoStatus", rows.fields.TextField),
-    ("analisado", PtBrBoolField),
-    ("situacaoDocumento", rows.fields.TextField),
-    ("assuntos", rows.fields.TextField),
-    ("altaPrioridade", rows.fields.BoolField),
-    ("formatoDataReferencia", rows.fields.IntegerField),
-    ("versao", rows.fields.IntegerField),
-    ("modalidade", rows.fields.TextField),
-    ("descricaoModalidade", rows.fields.TextField),
-    ("nomePregao", rows.fields.TextField),
-    ("informacoesAdicionais", rows.fields.TextField),
-    ("arquivoEstruturado", rows.fields.TextField),
-    ("formatoEstruturaDocumento", rows.fields.TextField),
-    ("nomeAdministrador", rows.fields.TextField),
-    ("cnpjAdministrador", rows.fields.TextField),
-    ("cnpjFundo", rows.fields.TextField),
-    ("idTemplate", rows.fields.IntegerField),
-    ("idSelectNotificacaoConvenio", rows.fields.TextField),
-    ("idSelectItemConvenio", rows.fields.IntegerField),
-    ("indicadorFundoAtivoB3", rows.fields.BoolField),
-    ("idEntidadeGerenciadora", rows.fields.TextField),
-    ("ofertaPublica", rows.fields.TextField),
-    ("numeroEmissao", rows.fields.TextField),
-    ("tipoPedido", rows.fields.TextField),
-    ("dda", rows.fields.TextField),
-])
+field_types = OrderedDict(
+    [
+        ("id", rows.fields.IntegerField),
+        ("descricaoFundo", rows.fields.TextField),
+        ("categoriaDocumento", rows.fields.TextField),
+        ("tipoDocumento", rows.fields.TextField),
+        ("especieDocumento", rows.fields.TextField),
+        ("dataReferencia", rows.fields.TextField),
+        ("dataEntrega", PtBrDateTimeField),
+        ("status", rows.fields.TextField),
+        ("descricaoStatus", rows.fields.TextField),
+        ("analisado", PtBrBoolField),
+        ("situacaoDocumento", rows.fields.TextField),
+        ("assuntos", rows.fields.TextField),
+        ("altaPrioridade", rows.fields.BoolField),
+        ("formatoDataReferencia", rows.fields.IntegerField),
+        ("versao", rows.fields.IntegerField),
+        ("modalidade", rows.fields.TextField),
+        ("descricaoModalidade", rows.fields.TextField),
+        ("nomePregao", rows.fields.TextField),
+        ("informacoesAdicionais", rows.fields.TextField),
+        ("arquivoEstruturado", rows.fields.TextField),
+        ("formatoEstruturaDocumento", rows.fields.TextField),
+        ("nomeAdministrador", rows.fields.TextField),
+        ("cnpjAdministrador", rows.fields.TextField),
+        ("cnpjFundo", rows.fields.TextField),
+        ("idTemplate", rows.fields.IntegerField),
+        ("idSelectNotificacaoConvenio", rows.fields.TextField),
+        ("idSelectItemConvenio", rows.fields.IntegerField),
+        ("indicadorFundoAtivoB3", rows.fields.BoolField),
+        ("idEntidadeGerenciadora", rows.fields.TextField),
+        ("ofertaPublica", rows.fields.TextField),
+        ("numeroEmissao", rows.fields.TextField),
+        ("tipoPedido", rows.fields.TextField),
+        ("dda", rows.fields.TextField),
+    ]
+)
 
 
 # TODO: implementar crawler/parser para antes de 2016
@@ -92,7 +95,9 @@ class FundosNet:
         self.session.headers["CSRFToken"] = self.csrf_token
         self.draw = 0
 
-    def request(self, method, path, headers=None, params=None, data=None, json=None, xhr=False):
+    def request(
+        self, method, path, headers=None, params=None, data=None, json=None, xhr=False
+    ):
         params = params or {}
         headers = headers or {}
         if xhr:
@@ -149,7 +154,12 @@ class FundosNet:
     def types(self):
         result = {}
         for category_id in self.categories.values():
-            response = self.request("GET", "listarTodosTiposPorCategoria", params={"idCategoria": category_id}, xhr=True)
+            response = self.request(
+                "GET",
+                "listarTodosTiposPorCategoria",
+                params={"idCategoria": category_id},
+                xhr=True,
+            )
             result[category_id] = []
             for row in response.json():
                 row["descricao"] = row["descricao"].strip()
@@ -168,16 +178,34 @@ class FundosNet:
             if total_rows is None:
                 total_rows = response_data["recordsTotal"]
             data = response_data["data"]
-            # TODO: convert row
-            # formatodatareferencia: {'2': '05/2022', '3': '17/06/2022', '4': '13/06/2022 15:00'}
             yield from data
             params["s"] += len(data)
             params["_"] = int(time.time() * 1000)
             finished = params["s"] >= total_rows
 
-    def search(self, category="Todos", type_="Todos", fund_type="Todos", start_date=None, end_date=None, ordering_field="dataEntrega", order="desc", items_per_page=200):
+    def search(
+        self,
+        category="Todos",
+        type_="Todos",
+        fund_type="Todos",
+        start_date=None,
+        end_date=None,
+        ordering_field="dataEntrega",
+        order="desc",
+        items_per_page=200,
+    ):
         assert order in ("asc", "desc")
-        assert ordering_field in ("b3CategoriaDescricao", "denominacaoSocial", "tipoDescricao", "especieDocumento", "dataReferencia", "dataEntrega", "situacaoDocumento", "versao", "modalidade")
+        assert ordering_field in (
+            "b3CategoriaDescricao",
+            "denominacaoSocial",
+            "tipoDescricao",
+            "especieDocumento",
+            "dataReferencia",
+            "dataEntrega",
+            "situacaoDocumento",
+            "versao",
+            "modalidade",
+        )
         assert category in choices.DOCUMENTO_CATEGORIA_DICT
         category_id = choices.DOCUMENTO_CATEGORIA_DICT[category]
         assert type_ == "Todos" or type_ in choices.DOCUMENTO_TIPO_DICT
@@ -195,7 +223,7 @@ class FundosNet:
         # (there are others)
         # TODO: get all possible especie
         # TODO: get all administradores https://fnet.bmfbovespa.com.br/fnet/publico/buscarAdministrador?term=&page=2&paginaCertificados=false&_=1655592601540
-        yield from self.paginate(
+        result = self.paginate(
             path="pesquisarGerenciadorDocumentosDados",
             params={
                 f"o[0][{ordering_field}]": order,
@@ -209,6 +237,8 @@ class FundosNet:
             xhr=True,
             items_per_page=items_per_page,
         )
+        for row in result:
+            yield DocumentMeta.from_json(row)
 
 
 def download(document_ids, path):
@@ -225,18 +255,22 @@ def download(document_ids, path):
 
 if __name__ == "__main__":
     import argparse
+    from dataclasses import asdict
 
     from rows.utils import CsvLazyDictWriter
     from rows.utils.date import date_range
     from tqdm import tqdm
 
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--download-path")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
-    parser.add_argument("--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA])
-    parser.add_argument("--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO])
+    parser.add_argument(
+        "--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA]
+    )
+    parser.add_argument(
+        "--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO]
+    )
     parser.add_argument("output_filename")
     args = parser.parse_args()
     if args.start_date:
@@ -266,6 +300,6 @@ if __name__ == "__main__":
         filters["end_date"] = stop
         result = fnet.search(**filters)
         for row in result:
-            writer.writerow(row)
+            writer.writerow(asdict(row))
             progress.update()
     writer.close()
