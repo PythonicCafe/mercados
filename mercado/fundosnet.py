@@ -221,3 +221,51 @@ def download(document_ids, path):
             )
         )
     downloader.run()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    from rows.utils import CsvLazyDictWriter
+    from rows.utils.date import date_range
+    from tqdm import tqdm
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--download-path")
+    parser.add_argument("--start-date")
+    parser.add_argument("--end-date")
+    parser.add_argument("--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA])
+    parser.add_argument("--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO])
+    parser.add_argument("output_filename")
+    args = parser.parse_args()
+    if args.start_date:
+        start_date = datetime.datetime.strptime(args.start_date, "%Y-%m-%d").date()
+    else:
+        start_date = datetime.date(2016, 1, 1)
+    if args.end_date:
+        end_date = datetime.datetime.strptime(args.end_date, "%Y-%m-%d").date()
+    else:
+        end_date = datetime.datetime.now().date()
+    months = list(date_range(start_date, end_date, step="monthly"))
+    if months[-1] != end_date:
+        months.append(end_date)
+
+    filters = {}
+    if args.category:
+        filters["category"] = args.category
+    if args.document_type:
+        filters["type_"] = args.document_type
+    fnet = FundosNet()
+    progress = tqdm()
+    writer = CsvLazyDictWriter(args.output_filename)
+    for start, stop in zip(months, months[1:]):
+        stop = stop - datetime.timedelta(days=1) if stop != end_date else stop
+        progress.desc = f"Downloading {start} to {stop}"
+        filters["start_date"] = start
+        filters["end_date"] = stop
+        result = fnet.search(**filters)
+        for row in result:
+            writer.writerow(row)
+            progress.update()
+    writer.close()
