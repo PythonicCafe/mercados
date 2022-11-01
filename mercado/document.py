@@ -7,17 +7,10 @@ from functools import cached_property
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
-from rows.fields import slug
-
-REGEXP_CAMELCASE_1 = re.compile("(.)([A-Z][a-z]+)")
-REGEXP_CAMELCASE_2 = re.compile("([a-z0-9])([A-Z])")
+from rows.fields import camel_to_snake, slug
 
 
-def camel_to_snake(value):
-    # Adapted from <https://stackoverflow.com/a/1176023/1299446>
-    return slug(
-        REGEXP_CAMELCASE_2.sub(r"\1_\2", REGEXP_CAMELCASE_1.sub(r"\1_\2", value))
-    )
+BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
 
 def element_to_dict(element):
@@ -231,9 +224,6 @@ class Document:
     @cached_property
     def data(self):
         return self.type.from_tree(self._tree)
-
-
-BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
 
 def parse_reference_date(fmt, value):

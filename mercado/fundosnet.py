@@ -1,3 +1,4 @@
+import csv
 import datetime
 import re
 import time
@@ -241,27 +242,30 @@ class FundosNet:
             yield DocumentMeta.from_json(row)
 
 
+def download_url(document_id):
+    return f"https://fnet.bmfbovespa.com.br/fnet/publico/downloadDocumento?id={document_id}"
+
+
 def download(document_ids, path):
     downloader = Downloader.subclasses()["aria2c"](path=path)
     for doc_id in document_ids:
-        downloader.add(
-            Download(
-                url=f"https://fnet.bmfbovespa.com.br/fnet/publico/downloadDocumento?id={doc_id}",
-                filename=f"{doc_id}",
-            )
-        )
+        downloader.add(Download(url=download_url(doc_id), filename=str(doc_id)))
     downloader.run()
 
 
 if __name__ == "__main__":
     import argparse
     from dataclasses import asdict
+    from pathlib import Path
 
-    from rows.utils import CsvLazyDictWriter
+    from rows.utils import CsvLazyDictWriter, open_compressed
     from rows.utils.date import date_range
+    from rows.utils.download import Downloader, Download
+    from rows.plugins.utils import ipartition
     from tqdm import tqdm
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--download-path")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
@@ -284,6 +288,11 @@ if __name__ == "__main__":
     months = list(date_range(start_date, end_date, step="monthly"))
     if months[-1] != end_date:
         months.append(end_date)
+    download_path = args.download_path
+    if download_path:
+        download_path = Path(download_path)
+        if not download_path.exists():
+            download_path.mkdir(parents=True)
 
     filters = {}
     if args.category:
@@ -293,6 +302,7 @@ if __name__ == "__main__":
     fnet = FundosNet()
     progress = tqdm()
     writer = CsvLazyDictWriter(args.output_filename)
+    counter = 0
     for start, stop in zip(months, months[1:]):
         stop = stop - datetime.timedelta(days=1) if stop != end_date else stop
         progress.desc = f"Downloading {start} to {stop}"
@@ -300,6 +310,19 @@ if __name__ == "__main__":
         filters["end_date"] = stop
         result = fnet.search(**filters)
         for row in result:
+            counter += 1
             writer.writerow(asdict(row))
             progress.update()
     writer.close()
+
+    if download_path:
+        progress = tqdm(desc="Downloading files", total=counter)
+        fobj = open_compressed(args.output_filename)
+        reader = csv.DictReader(fobj)
+        for batch in ipartition(reader, args.batch_size):
+            downloader = Downloader.subclasses()["aria2c"](path=download_path, quiet=True)
+            for row in batch:
+                downloader.add(Download(url=download_url(row["id"]), filename=row["id"]))
+            downloader.run()
+            progress.update(len(batch))
+        progress.close()
