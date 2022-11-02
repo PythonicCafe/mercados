@@ -14,7 +14,6 @@ from rows.utils.download import Download, Downloader
 from . import choices
 from .document import DocumentMeta
 
-
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 
 
@@ -104,11 +103,13 @@ field_types = OrderedDict(
 # TODO: implementar crawler/parser para antes de 2016
 # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultListaPartic.aspx?TPConsulta=9>
 
+
 class FundosNet:
     """Scraper de metadados dos documentos publicados no FundoNet
 
     https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM
     """
+
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
     def __init__(self, user_agent="mercado/python"):
@@ -279,15 +280,17 @@ if __name__ == "__main__":
     from dataclasses import asdict
     from pathlib import Path
 
+    from rows.plugins.utils import ipartition
     from rows.utils import CsvLazyDictWriter, open_compressed
     from rows.utils.date import date_range
-    from rows.utils.download import Downloader, Download
-    from rows.plugins.utils import ipartition
+    from rows.utils.download import Download, Downloader
     from tqdm import tqdm
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch-size", type=int, default=100)
-    parser.add_argument("--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"])
+    parser.add_argument(
+        "--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"]
+    )
     parser.add_argument("--download-path")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
@@ -348,10 +351,16 @@ if __name__ == "__main__":
         fobj = open_compressed(args.output_filename)
         reader = csv.DictReader(fobj)
         for batch in ipartition(reader, args.batch_size):
-            downloader = Downloader.subclasses()["aria2c"](path=download_path, quiet=True)
+            downloader = Downloader.subclasses()["aria2c"](
+                path=download_path, quiet=True
+            )
             for row in batch:
                 doc = DocumentMeta.from_dict(row)
-                downloader.add(Download(url=doc.url, filename=format_document_path(path_pattern, doc)))
+                downloader.add(
+                    Download(
+                        url=doc.url, filename=format_document_path(path_pattern, doc)
+                    )
+                )
             downloader.run()
             progress.update(len(batch))
         progress.close()

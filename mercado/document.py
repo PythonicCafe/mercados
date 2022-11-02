@@ -1,14 +1,12 @@
 import datetime
 import decimal
-import re
 from dataclasses import dataclass
 from dataclasses import fields as class_fields
 from functools import cached_property
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
-from rows.fields import camel_to_snake, slug
-
+from rows.fields import camel_to_snake
 
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
@@ -33,7 +31,7 @@ def parse_bool(value):
         "n": False,
         "nao": False,
         "não": False,
-        "": None
+        "": None,
     }[value.lower()]
 
 
@@ -301,7 +299,9 @@ class DocumentMeta:
             analisado={"N": False, "S": True}[row["analisado"]],
             categoria=row["categoriaDocumento"].replace("  ", " ").strip(),
             datahora_entrega=parse_reference_date("4", row["dataEntrega"]),
-            datahora_referencia=parse_reference_date(row["formatoDataReferencia"], row["dataReferencia"]),
+            datahora_referencia=parse_reference_date(
+                row["formatoDataReferencia"], row["dataReferencia"]
+            ),
             especie=row["especieDocumento"].strip(),
             fundo=row["descricaoFundo"].strip(),
             fundo_pregao=row["nomePregao"].strip(),
