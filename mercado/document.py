@@ -22,6 +22,21 @@ def element_to_dict(element):
     return {child.tag: element_to_dict(child) for child in children}
 
 
+def parse_bool(value):
+    return {
+        "t": True,
+        "true": True,
+        "s": True,
+        "sim": True,
+        "f": False,
+        "false": False,
+        "n": False,
+        "nao": False,
+        "não": False,
+        "": None
+    }[value.lower()]
+
+
 def make_data_object(Class, row):
     new = {}
     for field in class_fields(Class):
@@ -234,27 +249,32 @@ def parse_reference_date(fmt, value):
         fmt = "%d/%m/%Y"
     elif fmt == "4":
         fmt = "%d/%m/%Y %H:%M"
+    elif fmt is None:
+        fmt = "%Y-%m-%d %H:%M:%S%z"
     return datetime.datetime.strptime(value, fmt).replace(tzinfo=BRT)
 
 
 @dataclass
 class DocumentMeta:
     id: int
-    datahora_entrega: datetime.datetime
-    datahora_referencia: datetime.datetime
-    versao: int
-    tipo: int
-    categoria: int
-    modalidade: int
-    status: int
     alta_prioridade: bool
     analisado: bool
-    indicador_fundo_ativo_b3: bool  # Sempre 'False'
+    categoria: str
+    datahora_entrega: datetime.datetime
+    datahora_referencia: datetime.datetime
     fundo: str
     fundo_pregao: str
+    modalidade: str
+    status: str
+    tipo: str
+    versao: int
     situacao: str = None
     especie: str = None
     informacoes_adicionais: str = None
+
+    @property
+    def url(self):
+        return f"https://fnet.bmfbovespa.com.br/fnet/publico/downloadDocumento?id={self.id}"
 
     @classmethod
     def from_json(cls, row):
@@ -273,104 +293,42 @@ class DocumentMeta:
         #      - nomeAdministrador
         #      - cnpjAdministrador
         #      - cnpjFundo
-
-        # TODO: convert to int: tipo
-        #  Informe Mensal Estruturado                                   | 74785
-        #  Informe Diário                                               | 69860
-        #                                                               | 21252
-        #  Rendimentos e Amortizações                                   | 16800
-        #  AGE                                                          | 14117
-        #  Relatório Gerencial                                          | 13091
-        #  Informe Trimestral Estruturado                               | 12336
-        #  Informe Trimestral                                           | 11295
-        #  Demonstrações Financeiras                                    |  6470
-        #  AGO                                                          |  6331
-        #  Outros Comunicados Não Considerados Fatos Relevantes         |  5932
-        #  Relatório de Agência de Rating                               |  5150
-        #  Rentabilidade                                                |  3959
-        #  Instrumento Particular de Alteração do Regulamento           |  3742
-        #  Informe Anual Estruturado                                    |  3277
-        #  AGO/E                                                        |  2530
-        #  Informe Mensal                                               |  2315
-        #  Balancete                                                    |  2070
-        #  Composição da Carteira (CDA)                                 |  1921
-        #  Outros Relatórios                                            |  1587
-        #  Outros Documentos                                            |  1169
-        #  Instrumento Particular de Constituição/Encerramento do Fundo |  1120
-        #  Prospecto                                                    |  1069
-        #  Instrumento Particular de Emissão de Cotas                   |  1058
-        #  Esclarecimentos de consulta B3 / CVM                         |   687
-        #  Restritos - ICVM 476                                         |   645
-        #  Anúncio de Encerramento                                      |   639
-        #  Aviso ao Mercado                                             |   522
-        #  Anúncio de Início                                            |   454
-        #  Perfil do Fundo                                              |   378
-        #  Informe Semestral - DFC e Relatório do Administrador         |   336
-        #  Anexo 39-V (art. 10 §1º, inciso I da ICVM 472)               |   253
-        #  Formulário de Liberação para Negociação das Cotas            |   140
-        #  Relatório Anual                                              |    90
-        #  Perfil do Fundo (Estruturado)                                |    79
-        #  Demonstração Financeira de Encerramento                      |    71
-        #  Formulário de Subscrição de Cotas (Estruturado)              |    67
-        #  Relação das demandas judiciais ou extrajudiciais             |    59
-        #  Aviso de Modificação de Oferta                               |    55
-        #  Relatório do Representante de Cotistas                       |    15
-        #  Demonstrações Financeiras de Devedores ou Coobrigados        |    13
-        #  Manifestação do Administrador / Gestor                       |     5
-        #  Edital de Oferta Pública de Aquisição de Cotas               |     5
-        #  Formulário de Liberação para Negociação das Cotas            |     4
-        #  Press - Release                                              |     2
-        #  Material de Divulgação                                       |     1
-        #  Informe Anual                                                |     1
-
-        # TODO: convert to int: categoria
-        #  Informes Periódicos                          | 184848
-        #  Assembleia                                   |  22978
-        #  Relatórios                                   |  19896
-        #  Aviso aos Cotistas - Estruturado             |  16800
-        #  Regulamento                                  |   9005
-        #  Comunicado ao Mercado                        |   6881
-        #  Aviso aos Cotistas                           |   6052
-        #  Atos de Deliberação do Administrador         |   5920
-        #  Fato Relevante                               |   5613
-        #  Outras Informações                           |   5250
-        #  Oferta Pública de Distribuição de Cotas      |   4180
-        #  Laudo de Avaliação (Conclusão de Negócio)    |    320
-        #  Oferta Pública de Aquisição de Cotas         |     10
-        #  Documentos de Oferta de Distribuição Pública |      4
-
-        # TODO: convert to int: modalidade
-        #  AP         | Apresentação                 | 243035
-        #  RE         | Reapresentação Espontânea    |  43753
-        #  RC         | Reapresentação por Exigência |    969
-
-        # TODO: convert to int: situacao
-        #  A                 | 239796
-        #  I                 |  44079
-        #  C                 |   3882
-
-        # TODO: convert to int: status
-        #  AC     | Ativo com visualização     | 239796
-        #  IC     | Inativo com visualização   |  44079
-        #  CC     | Cancelado com visualização |   3882
+        #      - indicadorFundoAtivoB3 (sempre 'False')
 
         return cls(
             id=row["id"],
-            versao=row["versao"],
-            datahora_entrega=parse_reference_date("4", row["dataEntrega"]),
-            datahora_referencia=parse_reference_date(
-                row["formatoDataReferencia"], row["dataReferencia"]
-            ),
-            tipo=row["tipoDocumento"],
-            categoria=row["categoriaDocumento"],
-            modalidade=row["descricaoModalidade"],
-            status=row["descricaoStatus"],
-            situacao=row["situacaoDocumento"],
-            especie=row["especieDocumento"],
             alta_prioridade=row["altaPrioridade"],
             analisado={"N": False, "S": True}[row["analisado"]],
-            fundo=row["descricaoFundo"],
-            fundo_pregao=row["nomePregao"],
-            informacoes_adicionais=row["informacoesAdicionais"],
-            indicador_fundo_ativo_b3=row["indicadorFundoAtivoB3"],
+            categoria=row["categoriaDocumento"].replace("  ", " ").strip(),
+            datahora_entrega=parse_reference_date("4", row["dataEntrega"]),
+            datahora_referencia=parse_reference_date(row["formatoDataReferencia"], row["dataReferencia"]),
+            especie=row["especieDocumento"].strip(),
+            fundo=row["descricaoFundo"].strip(),
+            fundo_pregao=row["nomePregao"].strip(),
+            informacoes_adicionais=row["informacoesAdicionais"].strip(),
+            modalidade=row["descricaoModalidade"].strip(),
+            situacao=row["situacaoDocumento"].strip(),
+            status=row["descricaoStatus"].strip(),
+            tipo=row["tipoDocumento"].strip(),
+            versao=row["versao"],
+        )
+
+    @classmethod
+    def from_dict(cls, row):
+        return cls(
+            id=int(row["id"]),
+            alta_prioridade=parse_bool(row["alta_prioridade"]),
+            analisado=parse_bool(row["analisado"]),
+            categoria=row["categoria"],
+            datahora_entrega=parse_reference_date(None, row["datahora_entrega"]),
+            datahora_referencia=parse_reference_date(None, row["datahora_referencia"]),
+            especie=row["especie"],
+            fundo=row["fundo"],
+            fundo_pregao=row["fundo_pregao"],
+            informacoes_adicionais=row["informacoes_adicionais"],
+            modalidade=row["modalidade"],
+            situacao=row["situacao"],
+            status=row["status"],
+            tipo=row["tipo"],
+            versao=int(row["versao"]),
         )

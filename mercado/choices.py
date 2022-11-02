@@ -1,3 +1,9 @@
+def reverse_choices(data):
+    return {value: key for key, value in data}
+
+
+# TODO: usar mesmos códigos internos da API do sistema fnet (baixar todas
+# categorias, espécies etc.)
 DOCUMENTO_CATEGORIA = (
     (0, "Todos"),
     (1, "Fato Relevante"),
@@ -23,7 +29,37 @@ DOCUMENTO_CATEGORIA = (
     (21, "Informações para Registro de Oferta de CRA"),
     (22, "Informações para Registro de Oferta de CRI"),
     (23, "Informações para Registro Provisório de Oferta de CRI"),
-    (24, "Listagem e  Admissão à  Negociação  de Cotas"),
+    (24, "Listagem e Admissão à Negociação de Cotas"),
+)
+DOCUMENTO_ESPECIE = (
+    (1, "Ata da Assembleia"),
+    (2, "Boletim de voto a distância"),
+    (3, "Carta Consulta"),
+    (4, "Definitivo"),
+    (5, "Edital de Convocação"),
+    (6, "Laudo de Avaliação"),
+    (7, "Mapa sintético de instruções de voto"),
+    (8, "Outros Documentos"),
+    (9, "Preliminar"),
+    (10, "Proposta do Administrador"),
+    (11, "Protocolo e Justificativa de Cisão, Fusão ou Incorporação"),
+    (12, "Relatório do Representante de Cotistas"),
+    (13, "Sumário das Decisões"),
+)
+DOCUMENTO_MODALIDADE = (
+    ("AP", "Apresentação"),
+    ("RE", "Reapresentação Espontânea"),
+    ("RC", "Reapresentação por Exigência"),
+)
+DOCUMENTO_SITUACAO = (
+    ("A", "Ativo"),
+    ("I", "Inativo"),
+    ("C", "Cancelado"),
+)
+DOCUMENTO_STATUS = (
+    ("AC", "Ativo com visualização"),
+    ("IC", "Inativo com visualização"),
+    ("CC", "Cancelado com visualização"),
 )
 DOCUMENTO_TIPO = (
     (0, "Todos"),
@@ -92,6 +128,7 @@ DOCUMENTO_TIPO = (
     (86, "Informe Mensal de CRI (Anexo 32, II ICVM 480)"),
     (90, "Anexo 39-V (art. 10 §1º, inciso I da ICVM 472)"),
     (91, "Demonstrações Financeiras do Devedor ou Coobrigado"),
+    (91, "Demonstrações Financeiras de Devedores ou Coobrigados"),
     (92, "Protocolo Inicial"),
     (93, "Protocolo para Cumprimento de Exigências"),
     (94, "Protocolo para Pedido de Prorrogação/Interrupção"),
@@ -100,16 +137,7 @@ DOCUMENTO_TIPO = (
     (101, "Perfil do Fundo (Estruturado)"),
     (103, "Formulário de Liberação para Negociação das Cotas"),
 )
-DOCUMENTO_MODALIDADE = (
-    ("AP", "Apresentação"),
-    ("RE", "Reapresentação Espontânea"),
-    ("RC", "Reapresentação por Exigência"),
-)
-DOCUMENTO_STATUS = (
-    ("AC", "Ativo com visualização"),
-    ("IC", "Inativo com visualização"),
-    ("CC", "Cancelado com visualização"),
-)
+
 FUNDO_TIPO = (
     (0, "Todos"),
     (1, "Fundo Imobiliário"),
@@ -119,6 +147,10 @@ FUNDO_TIPO = (
     (7, "Fundo Setorial"),
 )
 
-DOCUMENTO_CATEGORIA_DICT = {value: key for key, value in DOCUMENTO_CATEGORIA}
-FUNDO_TIPO_DICT = {value: key for key, value in FUNDO_TIPO}
-DOCUMENTO_TIPO_DICT = {value: key for key, value in DOCUMENTO_TIPO}
+DOCUMENTO_CATEGORIA_DICT = reverse_choices(DOCUMENTO_CATEGORIA)
+DOCUMENTO_ESPECIE_DICT = reverse_choices(DOCUMENTO_ESPECIE)
+DOCUMENTO_MODALIDADE_DICT = reverse_choices(DOCUMENTO_MODALIDADE)
+DOCUMENTO_SITUACAO_DICT = reverse_choices(DOCUMENTO_SITUACAO)
+DOCUMENTO_STATUS_DICT = reverse_choices(DOCUMENTO_STATUS)
+DOCUMENTO_TIPO_DICT = reverse_choices(DOCUMENTO_TIPO)
+FUNDO_TIPO_DICT = reverse_choices(FUNDO_TIPO)
