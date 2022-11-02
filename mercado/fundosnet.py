@@ -18,6 +18,24 @@ from .document import DocumentMeta
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 
 
+def format_document_path(pattern, doc):
+    doc_id = int(doc.id)
+    doc_id8 = f"{int(doc_id):08d}"
+    return pattern.format(
+        **{
+            "doc_id": doc_id,
+            "doc_id8": doc_id8,
+            "p4": doc_id8[-2:],
+            "p3": doc_id8[-4:-2],
+            "p2": doc_id8[-6:-4],
+            "p1": doc_id8[-8:-6],
+            "year": doc.datahora_entrega.year,
+            "month": f"{doc.datahora_entrega.month:02d}",
+            "day": f"{doc.datahora_entrega.day:02d}",
+        }
+    )
+
+
 class PtBrBoolField(rows.fields.BoolField):
     @classmethod
     def deserialize(cls, value):
@@ -86,8 +104,11 @@ field_types = OrderedDict(
 # TODO: implementar crawler/parser para antes de 2016
 # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultListaPartic.aspx?TPConsulta=9>
 
-# https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM
 class FundosNet:
+    """Scraper de metadados dos documentos publicados no FundoNet
+
+    https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM
+    """
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
     def __init__(self, user_agent="mercado/python"):
@@ -266,6 +287,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch-size", type=int, default=100)
+    parser.add_argument("--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"])
     parser.add_argument("--download-path")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
@@ -288,6 +310,11 @@ if __name__ == "__main__":
     months = list(date_range(start_date, end_date, step="monthly"))
     if months[-1] != end_date:
         months.append(end_date)
+    path_pattern = {
+        "by-date": "{year}/{month}/{day}/{doc_id}",
+        "by-id": "{doc_id}",
+        "by-id-8": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
+    }[args.path_pattern]
     download_path = args.download_path
     if download_path:
         download_path = Path(download_path)
@@ -313,6 +340,7 @@ if __name__ == "__main__":
             counter += 1
             writer.writerow(asdict(row))
             progress.update()
+    progress.close()
     writer.close()
 
     if download_path:
@@ -322,7 +350,8 @@ if __name__ == "__main__":
         for batch in ipartition(reader, args.batch_size):
             downloader = Downloader.subclasses()["aria2c"](path=download_path, quiet=True)
             for row in batch:
-                downloader.add(Download(url=download_url(row["id"]), filename=row["id"]))
+                doc = DocumentMeta.from_dict(row)
+                downloader.add(Download(url=doc.url, filename=format_document_path(path_pattern, doc)))
             downloader.run()
             progress.update(len(batch))
         progress.close()
