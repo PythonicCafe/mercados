@@ -6,7 +6,7 @@ from functools import cached_property, lru_cache
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
-from rows.fields import camel_to_snake as rows_camel_to_snake
+from rows.fields import camel_to_snake as rows_camel_to_snake, slug
 
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
@@ -430,6 +430,12 @@ class DocumentMeta:
         #      - cnpjAdministrador
         #      - cnpjFundo
         #      - indicadorFundoAtivoB3 (sempre 'False')
+        informacoes_adicionais = row["informacoesAdicionais"].strip()
+        fundo_pregao = row["nomePregao"].strip()
+        if informacoes_adicionais.endswith(";"):
+            informacoes_adicionais = informacoes_adicionais[:-1].strip()
+        if informacoes_adicionais == fundo_pregao or not informacoes_adicionais:
+            informacoes_adicionais = None
 
         return cls(
             id=row["id"],
@@ -442,8 +448,8 @@ class DocumentMeta:
             ),
             especie=row["especieDocumento"].strip(),
             fundo=row["descricaoFundo"].strip(),
-            fundo_pregao=row["nomePregao"].strip(),
-            informacoes_adicionais=row["informacoesAdicionais"].strip(),
+            fundo_pregao=fundo_pregao,
+            informacoes_adicionais=informacoes_adicionais,
             modalidade=row["descricaoModalidade"].strip(),
             situacao=row["situacaoDocumento"].strip(),
             status=row["descricaoStatus"].strip(),
