@@ -2,13 +2,42 @@ import datetime
 import decimal
 from dataclasses import dataclass
 from dataclasses import fields as class_fields
-from functools import cached_property
+from functools import cached_property, lru_cache
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
-from rows.fields import camel_to_snake
+from rows.fields import camel_to_snake as rows_camel_to_snake
 
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
+
+
+def fix_date(value):
+    if value.startswith("22021-"):
+        value = value[1:]
+    return value
+
+
+def fix_year(value):
+    if not value.isdigit():
+        value = ""
+    return value
+
+
+def fix_codigo_negociacao(value):
+    if value.upper() in ("N/A", "0", "-"):
+        value = ""
+    return value
+
+
+def fix_ato(value):
+    if slug(value) in ("nao_e_o_caso", ""):
+        value = ""
+    return value
+
+
+@lru_cache(maxsize=1024)
+def camel_to_snake(*args, **kwargs):
+    return rows_camel_to_snake(*args, **kwargs)
 
 
 def element_to_dict(element):
@@ -20,6 +49,7 @@ def element_to_dict(element):
     return {child.tag: element_to_dict(child) for child in children}
 
 
+@lru_cache(maxsize=20)
 def parse_bool(value):
     return {
         "t": True,
@@ -39,10 +69,10 @@ def make_data_object(Class, row):
     new = {}
     for field in class_fields(Class):
         value = row.get(field.name)
-        if value is None:
+        if value is None or not value:
             continue
         elif field.type is bool:
-            value = {"true": True, "false": False}.get(str(value or "").strip().lower())
+            value = parse_bool(str(value or ""))
         elif field.type is datetime.date:
             value = datetime.datetime.strptime(value, "%Y-%m-%d").date()
         elif field.type is int:
@@ -57,6 +87,113 @@ def camel_dict(data, prefix=""):
     if data is None:
         return {}
     return {prefix + camel_to_snake(key): value for key, value in data.items()}
+
+
+@dataclass
+class InformeRendimentos:
+    tipo: str
+    fundo: str
+    fundo_cnpj: str
+    administrador: str
+    administrador_cnpj: str
+    responsavel: str
+    telefone: str
+    codigo_isin: str
+    valor_por_cota: decimal.Decimal
+    data_informacao: datetime.date = None
+    codigo_negociacao: str = None
+    data_aprovacao: datetime.date = None
+    data_base: datetime.date = None
+    data_pagamento: datetime.date = None
+    periodo_referencia: str = None
+    ano: int = None
+    ato_societario_aprovacao: str = None
+    isento_ir: bool = None
+
+    @classmethod
+    def from_tree(cls, tree):
+        result = []
+        data = element_to_dict(tree)
+
+        gerais = data.pop("DadosGerais", {}) or {}
+        row = {
+            "fundo": gerais.pop("NomeFundo"),
+            "fundo_cnpj": gerais.pop("CNPJFundo"),
+            "administrador": gerais.pop("NomeAdministrador"),
+            "administrador_cnpj": gerais.pop("CNPJAdministrador"),
+            "responsavel": gerais.pop("ResponsavelInformacao"),
+            "telefone": gerais.pop("TelefoneContato"),
+            "codigo_isin": gerais.pop("CodISINCota", ""),
+            "codigo_negociacao": fix_codigo_negociacao(
+                gerais.pop("CodNegociacaoCota", "") or ""
+            ),
+            "data_informacao": gerais.pop("DataInformacao", ""),
+            "ano": gerais.pop("Ano", ""),
+        }
+        assert not gerais, f"gerais: {gerais}"
+
+        rendimentos = data.pop("InformeRendimentos", {}) or {}
+        provento = rendimentos.pop("Provento", {}) or {}
+        if provento:
+            row["codigo_isin"] = provento.pop("CodISIN")
+            row["codigo_negociacao"] = fix_codigo_negociacao(
+                provento.pop("CodNegociacao") or ""
+            )
+            rendimento = provento.pop("Rendimento", {}) or {}
+            amortizacao = provento.pop("Amortizacao", {}) or {}
+            assert not provento, f"provento: {provento}"
+        else:
+            rendimento = rendimentos.pop("Rendimento", {}) or {}
+            amortizacao = rendimentos.pop("Amortizacao", {}) or {}
+        assert not rendimentos, f"rendimentos: {rendimentos}"
+        assert not data, f"data: {data}"
+
+        # TODO: parse periodo_referencia
+        if rendimento and (
+            rendimento.get("ValorProventoCota") or rendimento.get("ValorProvento")
+        ):
+            part = {
+                "tipo": "Rendimento",
+                "ato_societario_aprovacao": fix_ato(
+                    rendimento.pop("AtoSocietarioAprovacao", "")
+                ),
+                "data_aprovacao": fix_date(rendimento.pop("DataAprovacao", "")),
+                "data_base": fix_date(rendimento.pop("DataBase", "")),
+                "data_pagamento": fix_date(rendimento.pop("DataPagamento", "")),
+                "valor_por_cota": rendimento.pop("ValorProventoCota", "")
+                or rendimento.pop("ValorProvento"),
+                "periodo_referencia": str(
+                    rendimento.pop("PeriodoReferencia", "") or ""
+                ).lower(),
+                "ano": fix_year(rendimento.pop("Ano", "")),
+                "isento_ir": rendimento.pop("RendimentoIsentoIR", "false") or "false",
+            }
+            if not part["ano"]:
+                del part["ano"]
+            result.append(make_data_object(cls, {**row, **part}))
+            assert not rendimento, f"rendimento: {rendimento}"
+        if amortizacao:
+            part = {
+                "tipo": "Amortização",
+                "ato_societario_aprovacao": fix_ato(
+                    amortizacao.pop("AtoSocietarioAprovacao", "")
+                ),
+                "data_aprovacao": fix_date(amortizacao.pop("DataAprovacao", "")),
+                "data_base": fix_date(amortizacao.pop("DataBase", "")),
+                "data_pagamento": fix_date(amortizacao.pop("DataPagamento", "")),
+                "valor_por_cota": amortizacao.pop("ValorProventoCota", "")
+                or amortizacao.pop("ValorProvento"),
+                "periodo_referencia": str(
+                    amortizacao.pop("PeriodoReferencia", "") or ""
+                ).lower(),
+                "ano": fix_year(amortizacao.pop("Ano", "")),
+                "isento_ir": amortizacao.pop("RendimentoIsentoIR", "false") or "false",
+            }
+            if not part["ano"]:
+                del part["ano"]
+            result.append(make_data_object(cls, {**row, **part}))
+            assert not amortizacao, f"amortizacao: {amortizacao}"
+        return result
 
 
 @dataclass
@@ -124,7 +261,7 @@ class OfertaPublica:
         cota = data.pop("DadosCota", {}) or {}
         cota2 = cota.pop("Cota", {}) or {}
         row.update({camel_to_snake(key): value for key, value in cota2.items()})
-        assert not cota
+        assert not cota, f"cota: {cota}"
 
         dp = data.pop("DireitoPreferencia", {}) or {}
         row.update(camel_dict(dp.pop("ExercicioDireitoPreferenciaB3", {}), "dp_b3_"))
@@ -135,7 +272,7 @@ class OfertaPublica:
             )
         )
         row.update({"dp_escriturador_dt_liquidacao": dp.pop("DtLiquidacao", None)})
-        assert not dp
+        assert not dp, f"dp: {dp}"
 
         ndp = data.pop("NegociacaoDireitoPreferencia", {}) or {}
         row.update(
@@ -147,7 +284,7 @@ class OfertaPublica:
                 "dp_negociacao_escriturador_",
             )
         )
-        assert not ndp
+        assert not ndp, f"ndp: {ndp}"
 
         sobras = data.pop("SobrasSubscricao", {}) or {}
         row.update(
@@ -160,7 +297,7 @@ class OfertaPublica:
             )
         )
         row.update({"sobras_dt_liquidacao": sobras.pop("DtLiquidacao", None)})
-        assert not sobras
+        assert not sobras, f"sobras: {sobras}"
 
         dda = data.pop("SistemaDDA", {}) or {}
         row.update(camel_dict(dda.pop("PeriodoSubscricao", {}), "dda_subscricao_"))
@@ -168,7 +305,7 @@ class OfertaPublica:
         row.update(camel_dict(dda.pop("PeriodoAlocacao", {}), "dda_alocacao_"))
         row.update({"dda_dt_liquidacao": dda.pop("DtLiquidacao", None)})
         row.update({"dda_chamada_capital": dda.pop("ChamadaCapital", None)})
-        assert not dda
+        assert not dda, f"dda: {dda}"
 
         montante_adicional = data.pop("MontanteAdicional", {}) or {}
         row.update(
@@ -190,7 +327,7 @@ class OfertaPublica:
                 )
             }
         )
-        assert not montante_adicional
+        assert not montante_adicional, f"montante_adicional: {montante_adicional}"
 
         for key in list(data):
             value = data[key]
@@ -198,7 +335,7 @@ class OfertaPublica:
                 row[camel_to_snake(key)] = value
                 del data[key]
 
-        assert not data, data
+        assert not data, f"data: {data}"
         return make_data_object(
             cls,
             {
@@ -211,7 +348,8 @@ class OfertaPublica:
 
 
 DOCUMENT_TYPES = {
-    "DireitoPreferenciaSubscricaoCotas": OfertaPublica,  # TODO: change to dataclass
+    "DireitoPreferenciaSubscricaoCotas": OfertaPublica,
+    "DadosEconomicoFinanceiros": InformeRendimentos,
 }
 
 
