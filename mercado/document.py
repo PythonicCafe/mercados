@@ -107,9 +107,7 @@ class InformeRendimentos:
             "responsavel": gerais.pop("ResponsavelInformacao"),
             "telefone": gerais.pop("TelefoneContato"),
             "codigo_isin": gerais.pop("CodISINCota", ""),
-            "codigo_negociacao": fix_codigo_negociacao(
-                gerais.pop("CodNegociacaoCota", "") or ""
-            ),
+            "codigo_negociacao": fix_codigo_negociacao(gerais.pop("CodNegociacaoCota", "") or ""),
             "data_informacao": gerais.pop("DataInformacao", ""),
             "ano": gerais.pop("Ano", ""),
         }
@@ -119,9 +117,7 @@ class InformeRendimentos:
         provento = rendimentos.pop("Provento", {}) or {}
         if provento:
             row["codigo_isin"] = provento.pop("CodISIN")
-            row["codigo_negociacao"] = fix_codigo_negociacao(
-                provento.pop("CodNegociacao") or ""
-            )
+            row["codigo_negociacao"] = fix_codigo_negociacao(provento.pop("CodNegociacao") or "")
             rendimento = provento.pop("Rendimento", {}) or {}
             amortizacao = provento.pop("Amortizacao", {}) or {}
             assert not provento, f"provento: {provento}"
@@ -132,22 +128,15 @@ class InformeRendimentos:
         assert not data, f"data: {data}"
 
         # TODO: parse periodo_referencia
-        if rendimento and (
-            rendimento.get("ValorProventoCota") or rendimento.get("ValorProvento")
-        ):
+        if rendimento and (rendimento.get("ValorProventoCota") or rendimento.get("ValorProvento")):
             part = {
                 "tipo": "Rendimento",
-                "ato_societario_aprovacao": fix_ato(
-                    rendimento.pop("AtoSocietarioAprovacao", "")
-                ),
+                "ato_societario_aprovacao": fix_ato(rendimento.pop("AtoSocietarioAprovacao", "")),
                 "data_aprovacao": fix_date(rendimento.pop("DataAprovacao", "")),
                 "data_base": fix_date(rendimento.pop("DataBase", "")),
                 "data_pagamento": fix_date(rendimento.pop("DataPagamento", "")),
-                "valor_por_cota": rendimento.pop("ValorProventoCota", "")
-                or rendimento.pop("ValorProvento"),
-                "periodo_referencia": str(
-                    rendimento.pop("PeriodoReferencia", "") or ""
-                ).lower(),
+                "valor_por_cota": rendimento.pop("ValorProventoCota", "") or rendimento.pop("ValorProvento"),
+                "periodo_referencia": str(rendimento.pop("PeriodoReferencia", "") or "").lower(),
                 "ano": fix_year(rendimento.pop("Ano", "")),
                 "isento_ir": rendimento.pop("RendimentoIsentoIR", "false") or "false",
             }
@@ -158,17 +147,12 @@ class InformeRendimentos:
         if amortizacao:
             part = {
                 "tipo": "Amortização",
-                "ato_societario_aprovacao": fix_ato(
-                    amortizacao.pop("AtoSocietarioAprovacao", "")
-                ),
+                "ato_societario_aprovacao": fix_ato(amortizacao.pop("AtoSocietarioAprovacao", "")),
                 "data_aprovacao": fix_date(amortizacao.pop("DataAprovacao", "")),
                 "data_base": fix_date(amortizacao.pop("DataBase", "")),
                 "data_pagamento": fix_date(amortizacao.pop("DataPagamento", "")),
-                "valor_por_cota": amortizacao.pop("ValorProventoCota", "")
-                or amortizacao.pop("ValorProvento"),
-                "periodo_referencia": str(
-                    amortizacao.pop("PeriodoReferencia", "") or ""
-                ).lower(),
+                "valor_por_cota": amortizacao.pop("ValorProventoCota", "") or amortizacao.pop("ValorProvento"),
+                "periodo_referencia": str(amortizacao.pop("PeriodoReferencia", "") or "").lower(),
                 "ano": fix_year(amortizacao.pop("Ano", "")),
                 "isento_ir": amortizacao.pop("RendimentoIsentoIR", "false") or "false",
             }
@@ -258,9 +242,7 @@ class OfertaPublica:
         assert not dp, f"dp: {dp}"
 
         ndp = data.pop("NegociacaoDireitoPreferencia", {}) or {}
-        row.update(
-            camel_dict(ndp.pop("ExercicioNegociacaoDireitoB3", {}), "dp_negociacao_b3_")
-        )
+        row.update(camel_dict(ndp.pop("ExercicioNegociacaoDireitoB3", {}), "dp_negociacao_b3_"))
         row.update(
             camel_dict(
                 ndp.pop("ExercicioNegociacaoDireitoEscriturador", {}),
@@ -270,9 +252,7 @@ class OfertaPublica:
         assert not ndp, f"ndp: {ndp}"
 
         sobras = data.pop("SobrasSubscricao", {}) or {}
-        row.update(
-            camel_dict(sobras.pop("ExercicioSobrasSubscricaoB3", {}), "sobras_b3_")
-        )
+        row.update(camel_dict(sobras.pop("ExercicioSobrasSubscricaoB3", {}), "sobras_b3_"))
         row.update(
             camel_dict(
                 sobras.pop("ExercicioSobrasSubscricaoEscriturador", {}),
@@ -303,13 +283,7 @@ class OfertaPublica:
                 "montante_adicional_exercicio_escriturador_",
             )
         )
-        row.update(
-            {
-                "montante_adicional_dt_liquidacao": montante_adicional.pop(
-                    "DtLiquidacao", None
-                )
-            }
-        )
+        row.update({"montante_adicional_dt_liquidacao": montante_adicional.pop("DtLiquidacao", None)})
         assert not montante_adicional, f"montante_adicional: {montante_adicional}"
 
         for key in list(data):
@@ -322,9 +296,7 @@ class OfertaPublica:
         return make_data_object(
             cls,
             {
-                key.replace("_dt_", "_data_")
-                .replace("_fim_prazo", "_fim")
-                .replace("_inicio_prazo", "_inicio"): value
+                key.replace("_dt_", "_data_").replace("_fim_prazo", "_fim").replace("_inicio_prazo", "_inicio"): value
                 for key, value in row.items()
             },
         )
@@ -413,9 +385,7 @@ class DocumentMeta:
             analisado={"N": False, "S": True}[row["analisado"]],
             categoria=row["categoriaDocumento"].replace("  ", " ").strip(),
             datahora_entrega=parse_date("4", row["dataEntrega"]),
-            datahora_referencia=parse_date(
-                row["formatoDataReferencia"], row["dataReferencia"]
-            ),
+            datahora_referencia=parse_date(row["formatoDataReferencia"], row["dataReferencia"]),
             especie=row["especieDocumento"].strip(),
             fundo=row["descricaoFundo"].strip(),
             fundo_pregao=fundo_pregao,
@@ -434,12 +404,8 @@ class DocumentMeta:
             alta_prioridade=parse_bool(row["alta_prioridade"]),
             analisado=parse_bool(row["analisado"]),
             categoria=row["categoria"],
-            datahora_entrega=parse_reference_date(
-                "iso-datetime-tz", row["datahora_entrega"]
-            ),
-            datahora_referencia=parse_reference_date(
-                "iso-datetime-tz", row["datahora_referencia"]
-            ),
+            datahora_entrega=parse_reference_date("iso-datetime-tz", row["datahora_entrega"]),
+            datahora_referencia=parse_reference_date("iso-datetime-tz", row["datahora_referencia"]),
             especie=row["especie"],
             fundo=row["fundo"],
             fundo_pregao=row["fundo_pregao"],

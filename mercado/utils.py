@@ -7,9 +7,7 @@ from rows.fields import camel_to_snake as rows_camel_to_snake
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")
-REGEXP_DATE_RANGE = re.compile(
-    "^(?:de )?([0-9]{2}/[0-9]{2}/[0-9]{4}) ?[aà–-] ?([0-9]{2}/[0-9]{2}/[0-9]{4})$"
-)
+REGEXP_DATE_RANGE = re.compile("^(?:de )?([0-9]{2}/[0-9]{2}/[0-9]{4}) ?[aà–-] ?([0-9]{2}/[0-9]{2}/[0-9]{4})$")
 REGEXP_ALPHA_MONTH_YEAR = re.compile("^([^0-9]+)[ /-]([0-9]{4})$")
 REGEXP_YEAR_PART = re.compile(
     "^(1º|2º|3º|4º|1°|2°|3°|4°|1|2|3|4|primeiro|segundo|terceiro) (trimestre|semestre)( [0-9]{4})?$"

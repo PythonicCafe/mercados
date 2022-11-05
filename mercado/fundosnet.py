@@ -118,9 +118,7 @@ class FundosNet:
         self.session.headers["CSRFToken"] = self.csrf_token
         self.draw = 0
 
-    def request(
-        self, method, path, headers=None, params=None, data=None, json=None, xhr=False
-    ):
+    def request(self, method, path, headers=None, params=None, data=None, json=None, xhr=False):
         params = params or {}
         headers = headers or {}
         if xhr:
@@ -288,18 +286,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch-size", type=int, default=100)
-    parser.add_argument(
-        "--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"]
-    )
+    parser.add_argument("--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"])
     parser.add_argument("--download-path")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
-    parser.add_argument(
-        "--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA]
-    )
-    parser.add_argument(
-        "--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO]
-    )
+    parser.add_argument("--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA])
+    parser.add_argument("--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO])
     parser.add_argument("output_filename")
     args = parser.parse_args()
     if args.start_date:
@@ -351,16 +343,10 @@ if __name__ == "__main__":
         fobj = open_compressed(args.output_filename)
         reader = csv.DictReader(fobj)
         for batch in ipartition(reader, args.batch_size):
-            downloader = Downloader.subclasses()["aria2c"](
-                path=download_path, quiet=True
-            )
+            downloader = Downloader.subclasses()["aria2c"](path=download_path, quiet=True)
             for row in batch:
                 doc = DocumentMeta.from_dict(row)
-                downloader.add(
-                    Download(
-                        url=doc.url, filename=format_document_path(path_pattern, doc)
-                    )
-                )
+                downloader.add(Download(url=doc.url, filename=format_document_path(path_pattern, doc)))
             downloader.run()
             progress.update(len(batch))
         progress.close()
