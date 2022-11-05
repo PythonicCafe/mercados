@@ -2,13 +2,12 @@ import datetime
 import decimal
 from dataclasses import dataclass
 from dataclasses import fields as class_fields
-from functools import cached_property, lru_cache
+from functools import cached_property
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
-from rows.fields import camel_to_snake as rows_camel_to_snake, slug
 
-BRT = datetime.timezone(-datetime.timedelta(hours=3))
+from mercado.utils import camel_to_snake, parse_bool, parse_date
 
 
 def fix_date(value):
@@ -35,11 +34,6 @@ def fix_ato(value):
     return value
 
 
-@lru_cache(maxsize=1024)
-def camel_to_snake(*args, **kwargs):
-    return rows_camel_to_snake(*args, **kwargs)
-
-
 def element_to_dict(element):
     if isinstance(element, lxml.etree._ElementTree):
         element = element.getroot()
@@ -47,22 +41,6 @@ def element_to_dict(element):
     if not children:
         return element.text.strip() if element.text is not None else None
     return {child.tag: element_to_dict(child) for child in children}
-
-
-@lru_cache(maxsize=20)
-def parse_bool(value):
-    return {
-        "t": True,
-        "true": True,
-        "s": True,
-        "sim": True,
-        "f": False,
-        "false": False,
-        "n": False,
-        "nao": False,
-        "não": False,
-        "": None,
-    }[value.lower()]
 
 
 def make_data_object(Class, row):
@@ -377,19 +355,6 @@ class Document:
         return self.type.from_tree(self._tree)
 
 
-def parse_reference_date(fmt, value):
-    if fmt == "2":
-        value = f"01/{value}"
-        fmt = "%d/%m/%Y"
-    elif fmt == "3":
-        fmt = "%d/%m/%Y"
-    elif fmt == "4":
-        fmt = "%d/%m/%Y %H:%M"
-    elif fmt is None:
-        fmt = "%Y-%m-%d %H:%M:%S%z"
-    return datetime.datetime.strptime(value, fmt).replace(tzinfo=BRT)
-
-
 @dataclass
 class DocumentMeta:
     id: int
@@ -442,8 +407,8 @@ class DocumentMeta:
             alta_prioridade=row["altaPrioridade"],
             analisado={"N": False, "S": True}[row["analisado"]],
             categoria=row["categoriaDocumento"].replace("  ", " ").strip(),
-            datahora_entrega=parse_reference_date("4", row["dataEntrega"]),
-            datahora_referencia=parse_reference_date(
+            datahora_entrega=parse_date("4", row["dataEntrega"]),
+            datahora_referencia=parse_date(
                 row["formatoDataReferencia"], row["dataReferencia"]
             ),
             especie=row["especieDocumento"].strip(),
@@ -464,8 +429,12 @@ class DocumentMeta:
             alta_prioridade=parse_bool(row["alta_prioridade"]),
             analisado=parse_bool(row["analisado"]),
             categoria=row["categoria"],
-            datahora_entrega=parse_reference_date(None, row["datahora_entrega"]),
-            datahora_referencia=parse_reference_date(None, row["datahora_referencia"]),
+            datahora_entrega=parse_reference_date(
+                "iso-datetime-tz", row["datahora_entrega"]
+            ),
+            datahora_referencia=parse_reference_date(
+                "iso-datetime-tz", row["datahora_referencia"]
+            ),
             especie=row["especie"],
             fundo=row["fundo"],
             fundo_pregao=row["fundo_pregao"],
