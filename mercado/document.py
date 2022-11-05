@@ -6,8 +6,13 @@ from functools import cached_property
 
 import lxml.etree
 from lxml.etree import fromstring as parse_xml
+from rows.fields import slug
 
 from mercado.utils import camel_to_snake, parse_bool, parse_date
+
+
+def clean_cnpj(value):
+    return value.replace(".", "").replace("-", "").replace("/", "")
 
 
 def fix_date(value):
@@ -96,9 +101,9 @@ class InformeRendimentos:
         gerais = data.pop("DadosGerais", {}) or {}
         row = {
             "fundo": gerais.pop("NomeFundo"),
-            "fundo_cnpj": gerais.pop("CNPJFundo"),
+            "fundo_cnpj": clean_cnpj(gerais.pop("CNPJFundo")),
             "administrador": gerais.pop("NomeAdministrador"),
-            "administrador_cnpj": gerais.pop("CNPJAdministrador"),
+            "administrador_cnpj": clean_cnpj(gerais.pop("CNPJAdministrador")),
             "responsavel": gerais.pop("ResponsavelInformacao"),
             "telefone": gerais.pop("TelefoneContato"),
             "codigo_isin": gerais.pop("CodISINCota", ""),

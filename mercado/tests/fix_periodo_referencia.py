@@ -5,14 +5,15 @@ from tqdm import tqdm
 
 from mercado.utils import fix_periodo_referencia, parse_date
 
-
 fobj = open_compressed("rendimentos.csv.gz")
 data = set()
 for row in tqdm(csv.DictReader(fobj)):
     data.add(
         (
             row["periodo_referencia"],
-            int(row["ano"]) if row["ano"] else parse_date("iso-date", row["data_base"]).year
+            int(row["ano"])
+            if row["ano"]
+            else parse_date("iso-date", row["data_base"]).year,
         )
     )
 
