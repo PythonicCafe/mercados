@@ -94,9 +94,16 @@ class InformeRendimentos:
     isento_ir: bool = None
 
     @classmethod
+    def check_content(cls, data):
+        return "InformeRendimentos" in data
+
+    @classmethod
     def from_tree(cls, tree):
+        return cls.from_data(element_to_dict(tree))
+
+    @classmethod
+    def from_data(cls, data):
         result = []
-        data = element_to_dict(tree)
 
         gerais = data.pop("DadosGerais", {}) or {}
         row = {
@@ -218,8 +225,15 @@ class OfertaPublica:
     montante_adicional_data_liquidacao: datetime.date = None
 
     @classmethod
+    def check_content(cls, data):
+        return "DireitoPreferencia" in data
+
+    @classmethod
     def from_tree(cls, tree):
-        data = element_to_dict(tree)
+        return cls.from_data(element_to_dict(tree))
+
+    @classmethod
+    def from_data(cls, data):
         row = {}
 
         gerais = data.pop("DadosGerais", {}) or {}
@@ -302,10 +316,10 @@ class OfertaPublica:
         )
 
 
-DOCUMENT_TYPES = {
-    "DireitoPreferenciaSubscricaoCotas": OfertaPublica,
-    "DadosEconomicoFinanceiros": InformeRendimentos,
-}
+DOCUMENT_TYPES = [
+    InformeRendimentos,
+    OfertaPublica,
+]
 
 
 class Document:
@@ -317,19 +331,21 @@ class Document:
     def __init__(self, xml_content):
         self._xml = xml_content
         self._tree = parse_xml(self._xml)
+        self._data = element_to_dict(self._tree)
         self.__type = None
 
     @cached_property
     def type(self):
-        first_tag = self._tree.xpath("/*[1]")[0].tag
-        result = DOCUMENT_TYPES.get(first_tag)
-        if result is None:
-            raise ValueError(f"Unknown first tag {repr(first_tag)}")
-        return result
+        if self.__type is None:
+            for DocumentType in DOCUMENT_TYPES:
+                if DocumentType.check_content(self._data):
+                    self.__type = DocumentType
+                    break
+        return self.__type
 
     @cached_property
     def data(self):
-        return self.type.from_tree(self._tree)
+        return self.type.from_data(self._data)
 
 
 @dataclass
