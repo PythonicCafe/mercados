@@ -266,8 +266,8 @@ def download_url(document_id):
     return f"https://fnet.bmfbovespa.com.br/fnet/publico/downloadDocumento?id={document_id}"
 
 
-def download(document_ids, path):
-    downloader = Downloader.subclasses()["aria2c"](path=path)
+def download(document_ids, path, quiet=False):
+    downloader = Downloader.subclasses()["aria2c"](path=path, quiet=quiet)
     for doc_id in document_ids:
         downloader.add(Download(url=download_url(doc_id), filename=str(doc_id)))
     downloader.run()

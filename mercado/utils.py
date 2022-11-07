@@ -45,7 +45,10 @@ def parse_date(fmt, value):
     elif fmt == "4":
         fmt = "%d/%m/%Y %H:%M"
     elif fmt == "iso-datetime-tz":
-        fmt = "%Y-%m-%d %H:%M:%S%z"
+        if "T" in value:
+            fmt = "%Y-%m-%dT%H:%M:%S%z"
+        else:
+            fmt = "%Y-%m-%d %H:%M:%S%z"
     elif fmt == "iso-date":
         fmt = "%Y-%m-%d"
     elif fmt == "br-date":
