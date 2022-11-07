@@ -5,6 +5,7 @@ import json
 from urllib.parse import urljoin
 
 import requests
+from rows.utils.date import date_range
 
 
 class B3:
@@ -125,6 +126,20 @@ class B3:
         reader = csv.DictReader(io.StringIO(decoded_data), delimiter=";")
         yield from reader
 
+    def negociacao_balcao(self, date):
+        response = self._session.get(
+            "https://bvmf.bmfbovespa.com.br/NegociosRealizados/Registro/DownloadArquivoDiretorio",
+            params={"data": date.strftime("%d-%m-%Y")},
+        )
+        decoded_data = base64.b64decode(response.text).decode("ISO-8859-1")
+        csv_data = decoded_data[decoded_data.find("\n") + 1:]
+        reader = csv.DictReader(io.StringIO(csv_data), delimiter=";")
+        for row in reader:
+            for field in ('Cod. Isin', 'Data Liquidacao'):
+                if field not in row:
+                    row[field] = None
+            yield row
+
 
 if __name__ == "__main__":
     import argparse
@@ -149,6 +164,7 @@ if __name__ == "__main__":
             "fip-dividends",
             "fip-documents",
             "fip-subscriptions",
+            "negociacao-balcao",
         ],
     )
     args = parser.parse_args()
@@ -293,4 +309,19 @@ if __name__ == "__main__":
         writer = CsvLazyDictWriter("debentures.csv.gz")
         for row in tqdm(b3.debentures()):
             writer.writerow(row)
+        writer.close()
+
+    elif args.command == "negociacao-balcao":
+        b3 = B3()
+        today = datetime.datetime.now().date()
+        start_date = datetime.date(today.year, 1, 1)
+        end_date = today + datetime.timedelta(days=1)
+        writer = CsvLazyDictWriter(f"negociacao-balcao-{today.year}.csv.gz")
+        progress = tqdm()
+        for date in date_range(start_date, end_date):
+            progress.desc = str(date)
+            for row in b3.negociacao_balcao(date):
+                writer.writerow(row)
+                progress.update()
+        progress.close()
         writer.close()
