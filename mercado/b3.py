@@ -67,6 +67,30 @@ class B3:
             url_params={"identifierFund": identificador, "type": 1},
         )
 
+    def fips(self):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
+            url_params={"typeFund": 21},
+        )
+
+    def fip_detail(self, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
+            url_params={"typeFund": 21, "identifierFund": identificador},
+        )
+
+    def fip_dividends(self, cnpj, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
+            url_params={"cnpj": cnpj, "identifierFund": identificador, "typeFund": 21},
+        )
+
+    def fip_documents(self, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            url_params={"identifierFund": identificador, "type": 1},
+        )
+
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
 
@@ -113,11 +137,20 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["cri-documents", "cra-documents",
-                                            "fiinfra-dividends",
-                                            "fiinfra-documents",
-                                            "fiinfra-subscriptions",
-                                            "debentures"])
+    parser.add_argument(
+        "command",
+        choices=[
+            "cra-documents",
+            "cri-documents",
+            "debentures",
+            "fiinfra-dividends",
+            "fiinfra-documents",
+            "fiinfra-subscriptions",
+            "fip-dividends",
+            "fip-documents",
+            "fip-subscriptions",
+        ],
+    )
     args = parser.parse_args()
 
     if args.command == "cri-documents":
@@ -200,6 +233,54 @@ if __name__ == "__main__":
             detail_fund["codes"] = ", ".join(detail_fund["codes"])
             base_fund_data = {**detail_fund, **share_holder}
             data = next(b3.fiinfra_dividends(cnpj=detail_fund["cnpj"], identificador=fiinfra["acronym"]))
+            dividends = data.pop("cashDividends")
+            subscriptions = data.pop("subscriptions")
+            stockDividends = data.pop("stockDividends")
+            for subscription in subscriptions:
+                writer.writerow({**base_fund_data, **data, **subscription})
+        writer.close()
+
+    elif args.command == "fip-dividends":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fip-dividends.csv.gz")
+        for fip in tqdm(b3.fips()):
+            detalhes = next(b3.fip_detail(fip["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder") or {}
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            data = next(b3.fip_dividends(cnpj=detail_fund["cnpj"], identificador=fip["acronym"]))
+            dividends = data.pop("cashDividends")
+            subscriptions = data.pop("subscriptions")
+            stockDividends = data.pop("stockDividends")
+            for dividend in dividends:
+                writer.writerow({**base_fund_data, **data, **dividend})
+        writer.close()
+
+    elif args.command == "fip-documents":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fip-documents.csv.gz")
+        for fip in tqdm(b3.fips()):
+            detalhes = next(b3.fip_detail(fip["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder") or {}
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            for doc in b3.fip_documents(identificador=fip["acronym"]):
+                doc["url"] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fip['acronym']}&strData={doc['date']}"
+                writer.writerow({**base_fund_data, **doc})
+        writer.close()
+
+    elif args.command == "fip-subscriptions":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fip-subscriptions.csv.gz")
+        for fip in tqdm(b3.fips()):
+            detalhes = next(b3.fip_detail(fip["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder") or {}
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            data = next(b3.fip_dividends(cnpj=detail_fund["cnpj"], identificador=fip["acronym"]))
             dividends = data.pop("cashDividends")
             subscriptions = data.pop("subscriptions")
             stockDividends = data.pop("stockDividends")
