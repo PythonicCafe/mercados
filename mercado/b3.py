@@ -1,4 +1,6 @@
 import base64
+import csv
+import io
 import json
 from urllib.parse import urljoin
 
@@ -90,6 +92,15 @@ class B3:
             },
         )
 
+    def debentures(self):
+        response = self._session.get(
+            "https://sistemaswebb3-balcao.b3.com.br/featuresDebenturesProxy/DebenturesCall/GetDownload",
+            verify=False,
+        )
+        decoded_data = base64.b64decode(response.text).decode("ISO-8859-1")
+        reader = csv.DictReader(io.StringIO(decoded_data), delimiter=";")
+        yield from reader
+
 
 if __name__ == "__main__":
     import argparse
@@ -102,7 +113,11 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["cri-documents", "cra-documents", "fiinfra-dividends", "fiinfra-documents", "fiinfra-subscriptions"])
+    parser.add_argument("command", choices=["cri-documents", "cra-documents",
+                                            "fiinfra-dividends",
+                                            "fiinfra-documents",
+                                            "fiinfra-subscriptions",
+                                            "debentures"])
     args = parser.parse_args()
 
     if args.command == "cri-documents":
@@ -190,4 +205,11 @@ if __name__ == "__main__":
             stockDividends = data.pop("stockDividends")
             for subscription in subscriptions:
                 writer.writerow({**base_fund_data, **data, **subscription})
+        writer.close()
+
+    elif args.command == "debentures":
+        b3 = B3()
+        writer = CsvLazyDictWriter("debentures.csv.gz")
+        for row in tqdm(b3.debentures()):
+            writer.writerow(row)
         writer.close()
