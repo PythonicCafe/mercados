@@ -74,11 +74,17 @@ class B3:
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRI"},
         )
 
-    def cri_documents(self, identificador_cri, start_date, end_date):
+    def cras(self, cnpj_securitizadora):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedCertified/"),
+            url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRA"},
+        )
+
+    def certificate_documents(self, identificador, start_date, end_date):  # CRI or CRA
         yield from self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedDocumentsTypeHistory/"),
             url_params={
-                "cnpj": identificador_cri,
+                "cnpj": identificador,
                 "dateInitial": start_date.strftime("%Y-%m-%d"),
                 "dateFinal": end_date.strftime("%Y-%m-%d"),
             },
@@ -96,7 +102,7 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["cri-documents", "fiinfra-dividends", "fiinfra-documents", "fiinfra-subscriptions"])
+    parser.add_argument("command", choices=["cri-documents", "cra-documents", "fiinfra-dividends", "fiinfra-documents", "fiinfra-subscriptions"])
     args = parser.parse_args()
 
     if args.command == "cri-documents":
@@ -107,12 +113,30 @@ if __name__ == "__main__":
         progress = tqdm()
         for securitizadora in securitizadoras:
             progress.desc = securitizadora["companyName"]
-            cris = b3.cris(securitizadora["cnpj"])
-            for cri in cris:
+            for cri in b3.cris(securitizadora["cnpj"]):
                 start_date = parse_date("iso-datetime-tz", cri["issueDate"])
                 for year in range(start_date.year, current_year + 1):
                     start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                    documents = list(b3.cri_documents(cri["identificationCode"], start_date=start, end_date=stop))
+                    documents = list(b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop))
+                    for doc in documents:
+                        writer.writerow(doc)
+                    progress.update(len(documents))
+        progress.close()
+        writer.close()
+
+    if args.command == "cra-documents":
+        writer = CsvLazyDictWriter("cra-documents.csv.gz")
+        current_year = datetime.datetime.now().year
+        b3 = B3()
+        securitizadoras = b3.securitizadoras()
+        progress = tqdm()
+        for securitizadora in securitizadoras:
+            progress.desc = securitizadora["companyName"]
+            for cra in b3.cras(securitizadora["cnpj"]):
+                start_date = parse_date("iso-datetime-tz", cra["issueDate"])
+                for year in range(start_date.year, current_year + 1):
+                    start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+                    documents = list(b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop))
                     for doc in documents:
                         writer.writerow(doc)
                     progress.update(len(documents))
