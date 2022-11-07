@@ -34,9 +34,36 @@ class B3:
                 yield from response
                 finished = True
             elif isinstance(response, dict):
-                yield from response["results"]
-                finished = url_params["pageNumber"] >= response["page"]["totalPages"]
-                url_params["pageNumber"] += 1
+                if "results" in response:
+                    yield from response["results"]
+                    finished = url_params["pageNumber"] >= response["page"]["totalPages"]
+                    url_params["pageNumber"] += 1
+                else:
+                    yield response
+
+    def fiinfras(self):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
+            url_params={"typeFund": 27},
+        )
+
+    def fiinfra_detail(self, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
+            url_params={"typeFund": 27, "identifierFund": identificador},
+        )
+
+    def fiinfra_dividends(self, cnpj, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
+            url_params={"cnpj": cnpj, "identifierFund": identificador, "typeFund": 27},
+        )
+
+    def fiinfra_documents(self, identificador):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            url_params={"identifierFund": identificador, "type": 1},
+        )
 
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
@@ -47,7 +74,7 @@ class B3:
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRI"},
         )
 
-    def documents(self, identificador_cri, start_date, end_date):
+    def cri_documents(self, identificador_cri, start_date, end_date):
         yield from self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedDocumentsTypeHistory/"),
             url_params={
@@ -59,6 +86,7 @@ class B3:
 
 
 if __name__ == "__main__":
+    import argparse
     import datetime
 
     from rows.utils import CsvLazyDictWriter
@@ -67,21 +95,75 @@ if __name__ == "__main__":
     from utils import parse_date
 
 
-    writer = CsvLazyDictWriter("cri-documents.csv.gz")
-    current_year = datetime.datetime.now().year
-    b3 = B3()
-    securitizadoras = b3.securitizadoras()
-    progress = tqdm()
-    for securitizadora in securitizadoras:
-        progress.desc = securitizadora["companyName"]
-        cris = b3.cris(securitizadora["cnpj"])
-        for cri in cris:
-            start_date = parse_date("iso-datetime-tz", cri["issueDate"])
-            for year in range(start_date.year, current_year + 1):
-                start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                documents = list(b3.documents(cri["identificationCode"], start_date=start, end_date=stop))
-                for doc in documents:
-                    writer.writerow(doc)
-                progress.update(len(documents))
-    progress.close()
-    writer.close()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=["cri-documents", "fiinfra-dividends", "fiinfra-documents", "fiinfra-subscriptions"])
+    args = parser.parse_args()
+
+    if args.command == "cri-documents":
+        writer = CsvLazyDictWriter("cri-documents.csv.gz")
+        current_year = datetime.datetime.now().year
+        b3 = B3()
+        securitizadoras = b3.securitizadoras()
+        progress = tqdm()
+        for securitizadora in securitizadoras:
+            progress.desc = securitizadora["companyName"]
+            cris = b3.cris(securitizadora["cnpj"])
+            for cri in cris:
+                start_date = parse_date("iso-datetime-tz", cri["issueDate"])
+                for year in range(start_date.year, current_year + 1):
+                    start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+                    documents = list(b3.cri_documents(cri["identificationCode"], start_date=start, end_date=stop))
+                    for doc in documents:
+                        writer.writerow(doc)
+                    progress.update(len(documents))
+        progress.close()
+        writer.close()
+
+    elif args.command == "fiinfra-dividends":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiinfra-dividends.csv.gz")
+        for fiinfra in tqdm(b3.fiinfras()):
+            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder")
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            data = next(b3.fiinfra_dividends(cnpj=detail_fund["cnpj"], identificador=fiinfra["acronym"]))
+            dividends = data.pop("cashDividends")
+            subscriptions = data.pop("subscriptions")
+            stockDividends = data.pop("stockDividends")
+            for dividend in dividends:
+                writer.writerow({**base_fund_data, **data, **dividend})
+        writer.close()
+
+
+    elif args.command == "fiinfra-documents":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiinfra-documents.csv.gz")
+        for fiinfra in tqdm(b3.fiinfras()):
+            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder")
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            for doc in b3.fiinfra_documents(identificador=fiinfra["acronym"]):
+                doc["url"] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fiinfra['acronym']}&strData={doc['date']}"
+                writer.writerow({**base_fund_data, **doc})
+        writer.close()
+
+    elif args.command == "fiinfra-subscriptions":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiinfra-subscriptions.csv.gz")
+        for fiinfra in tqdm(b3.fiinfras()):
+            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
+            detail_fund = detalhes.pop("detailFund")
+            share_holder = detalhes.pop("shareHolder")
+            detail_fund["codes"] = ", ".join(detail_fund["codes"])
+            base_fund_data = {**detail_fund, **share_holder}
+            data = next(b3.fiinfra_dividends(cnpj=detail_fund["cnpj"], identificador=fiinfra["acronym"]))
+            dividends = data.pop("cashDividends")
+            subscriptions = data.pop("subscriptions")
+            stockDividends = data.pop("stockDividends")
+            for subscription in subscriptions:
+                writer.writerow({**base_fund_data, **data, **subscription})
+        writer.close()
