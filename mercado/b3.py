@@ -179,11 +179,12 @@ if __name__ == "__main__":
             progress.desc = securitizadora["companyName"]
             for cri in b3.cris(securitizadora["cnpj"]):
                 start_date = parse_date("iso-datetime-tz", cri["issueDate"])
+                base_row = {**securitizadora, **cri}
                 for year in range(start_date.year, current_year + 1):
                     start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
                     documents = list(b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop))
                     for doc in documents:
-                        writer.writerow(doc)
+                        writer.writerow({**base_row, **doc})
                     progress.update(len(documents))
         progress.close()
         writer.close()
@@ -198,11 +199,12 @@ if __name__ == "__main__":
             progress.desc = securitizadora["companyName"]
             for cra in b3.cras(securitizadora["cnpj"]):
                 start_date = parse_date("iso-datetime-tz", cra["issueDate"])
+                base_row = {**securitizadora, **cra}
                 for year in range(start_date.year, current_year + 1):
                     start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
                     documents = list(b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop))
                     for doc in documents:
-                        writer.writerow(doc)
+                        writer.writerow({**base_row, **doc})
                     progress.update(len(documents))
         progress.close()
         writer.close()
