@@ -1,11 +1,82 @@
 import base64
 import csv
+import datetime
+import decimal
 import io
 import json
+from dataclasses import dataclass, asdict
 from urllib.parse import urljoin
 
 import requests
 from rows.utils.date import date_range
+
+from .utils import parse_date, parse_br_decimal
+
+
+@dataclass
+class NegociacaoBalcao:
+    codigo: str
+    codigo_if: str
+    instrumento: str
+    datahora: datetime.date
+    quantidade: decimal.Decimal
+    preco: decimal.Decimal
+    volume: decimal.Decimal
+    origem: str
+    codigo_isin: str = None
+    data_liquidacao: datetime.date = None
+    emissor: str = None
+    taxa: decimal.Decimal = None
+
+    @classmethod
+    def from_dict(cls, row):
+        day, month, year = row.pop("Data Negocio").split("/")
+        date = f"{year}-{int(month):02d}-{int(day):02d}"
+        quantidade = parse_br_decimal(row.pop("Quantidade Negociada"))
+        preco = parse_br_decimal(row.pop("Preco Negocio"))
+        volume = parse_br_decimal(row.pop("Volume Financeiro R$").replace("################", ""))
+        if volume is None:  # Only in 2 cases in 2021
+            volume = quantidade * preco
+        data_liquidacao = str(row.pop("Data Liquidacao") or "").strip()
+        data_liquidacao = data_liquidacao.split()[0] if data_liquidacao else None
+        data_liquidacao = parse_date("br-date", data_liquidacao)
+        obj = cls(
+            codigo=row.pop("Cod. Identificador do Negocio"),
+            codigo_if=row.pop("Codigo IF"),
+            codigo_isin=row.pop("Cod. Isin"),
+            data_liquidacao=data_liquidacao,
+            datahora=parse_date("iso-datetime-tz", f"{date}T{row.pop('Horario Negocio')}-03:00"),
+            emissor=row.pop("Emissor"),
+            instrumento=row.pop("Instrumento Financeiro"),
+            taxa=parse_br_decimal(row.pop("Taxa Negocio")),
+            quantidade=quantidade,
+            preco=preco,
+            volume=volume,
+            origem=row.pop("Origem Negocio"),
+        )
+        assert not row
+        return obj
+
+    @classmethod
+    def from_converted_dict(cls, row):
+        data_liquidacao = row.pop("data_liquidacao")
+        taxa = row.pop("taxa")
+        obj = cls(
+            codigo=row.pop("codigo"),
+            codigo_if=row.pop("codigo_if"),
+            instrumento=row.pop("instrumento"),
+            datahora=parse_date("iso-datetime-tz", row.pop("datahora")),
+            quantidade=decimal.Decimal(row.pop("quantidade")),
+            preco=decimal.Decimal(row.pop("preco")),
+            volume=decimal.Decimal(row.pop("volume")),
+            origem=row.pop("origem"),
+            codigo_isin=row.pop("codigo_isin") or None,
+            data_liquidacao=parse_date("iso-date", data_liquidacao) if data_liquidacao else None,
+            emissor=row.pop("emissor") or None,
+            taxa=decimal.Decimal(taxa) if taxa else None,
+        )
+        assert not row
+        return obj
 
 
 class B3:
@@ -138,7 +209,7 @@ class B3:
             for field in ('Cod. Isin', 'Data Liquidacao'):
                 if field not in row:
                     row[field] = None
-            yield row
+            yield NegociacaoBalcao.from_dict(row)
 
 
 if __name__ == "__main__":
@@ -147,8 +218,6 @@ if __name__ == "__main__":
 
     from rows.utils import CsvLazyDictWriter
     from tqdm import tqdm
-
-    from utils import parse_date
 
 
     parser = argparse.ArgumentParser()
@@ -318,12 +387,12 @@ if __name__ == "__main__":
         today = datetime.datetime.now().date()
         start_date = datetime.date(today.year, 1, 1)
         end_date = today + datetime.timedelta(days=1)
-        writer = CsvLazyDictWriter(f"negociacao-balcao-{today.year}.csv.gz")
+        writer = CsvLazyDictWriter(f"negociacao-balcao-{start_date.year}.csv.gz")
         progress = tqdm()
         for date in date_range(start_date, end_date):
             progress.desc = str(date)
             for row in b3.negociacao_balcao(date):
-                writer.writerow(row)
+                writer.writerow(asdict(row))
                 progress.update()
         progress.close()
         writer.close()

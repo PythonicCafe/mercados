@@ -400,8 +400,8 @@ class DocumentMeta:
             alta_prioridade=row["altaPrioridade"],
             analisado={"N": False, "S": True}[row["analisado"]],
             categoria=row["categoriaDocumento"].replace("  ", " ").strip(),
-            datahora_entrega=parse_date("4", row["dataEntrega"]),
-            datahora_referencia=parse_date(row["formatoDataReferencia"], row["dataReferencia"]),
+            datahora_entrega=parse_date("4", row["dataEntrega"], full=True),
+            datahora_referencia=parse_date(row["formatoDataReferencia"], row["dataReferencia"], full=True),
             especie=row["especieDocumento"].strip(),
             fundo=row["descricaoFundo"].strip(),
             fundo_pregao=fundo_pregao,
@@ -415,7 +415,7 @@ class DocumentMeta:
 
     @classmethod
     def from_dict(cls, row):
-        return cls(
+        obj = cls(
             id=int(row["id"]),
             alta_prioridade=parse_bool(row["alta_prioridade"]),
             analisado=parse_bool(row["analisado"]),
@@ -432,3 +432,5 @@ class DocumentMeta:
             tipo=row["tipo"],
             versao=int(row["versao"]),
         )
+        assert not row
+        return obj

@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import re
 from functools import lru_cache
 
@@ -36,24 +37,41 @@ def parse_bool(value):
     }[value.lower()]
 
 
-def parse_date(fmt, value):
-    if fmt == "2":
+def parse_br_decimal(value):
+    value = str(value or "").strip()
+    if not value:
+        return None
+    return decimal.Decimal(value.replace(",", "."))
+
+
+def parse_date(fmt, value, full=False):
+    value = str(value or "").strip()
+    if not value:
+        return None
+    elif fmt == "2":
         value = f"01/{value}"
         fmt = "%d/%m/%Y"
-    elif fmt == "3":
+        obj_type = "date"
+    elif fmt in ("3", "br-date"):
         fmt = "%d/%m/%Y"
+        obj_type = "date"
     elif fmt == "4":
         fmt = "%d/%m/%Y %H:%M"
+        obj_type = "datetime"
     elif fmt == "iso-datetime-tz":
         if "T" in value:
             fmt = "%Y-%m-%dT%H:%M:%S%z"
         else:
             fmt = "%Y-%m-%d %H:%M:%S%z"
+        obj_type = "datetime"
     elif fmt == "iso-date":
         fmt = "%Y-%m-%d"
-    elif fmt == "br-date":
-        fmt = "%d/%m/%Y"
-    return datetime.datetime.strptime(value, fmt).replace(tzinfo=BRT)
+        obj_type = "date"
+    obj = datetime.datetime.strptime(value, fmt).replace(tzinfo=BRT)
+    if full or obj_type == "datetime":
+        return obj
+    elif obj_type == "date":
+        return obj.date()
 
 
 @lru_cache(maxsize=120)
