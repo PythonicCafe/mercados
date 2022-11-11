@@ -4,8 +4,7 @@ from dataclasses import dataclass
 from dataclasses import fields as class_fields
 from functools import cached_property
 
-import lxml.etree
-from lxml.etree import fromstring as parse_xml
+import xmltodict
 from rows.fields import slug
 
 from mercado.utils import camel_to_snake, parse_bool, parse_date
@@ -37,15 +36,6 @@ def fix_ato(value):
     if slug(value) in ("nao_e_o_caso", ""):
         value = ""
     return value
-
-
-def element_to_dict(element):
-    if isinstance(element, lxml.etree._ElementTree):
-        element = element.getroot()
-    children = element.getchildren()
-    if not children:
-        return element.text.strip() if element.text is not None else None
-    return {child.tag: element_to_dict(child) for child in children}
 
 
 def make_data_object(Class, row):
@@ -92,18 +82,24 @@ class InformeRendimentos:
     ano: int = None
     ato_societario_aprovacao: str = None
     isento_ir: bool = None
+    tipo_amortizacao: str = None
 
     @classmethod
     def check_content(cls, data):
         return "InformeRendimentos" in data
 
     @classmethod
-    def from_tree(cls, tree):
-        return cls.from_data(element_to_dict(tree))
+    def from_xml(cls, xml):
+        return cls.from_data(xmltodict.parse(xml))
 
     @classmethod
-    def from_data(cls, data):
+    def from_data(cls, original_data):
         result = []
+        data = original_data.pop("DadosEconomicoFinanceiros", {}) or {}
+        original_data = {
+            key: value for key, value in original_data.items() if not key.startswith("@")  # Remove namespace info
+        }
+        assert not original_data
 
         gerais = data.pop("DadosGerais", {}) or {}
         row = {
@@ -120,22 +116,36 @@ class InformeRendimentos:
         }
         assert not gerais, f"gerais: {gerais}"
 
-        rendimentos = data.pop("InformeRendimentos", {}) or {}
-        provento = rendimentos.pop("Provento", {}) or {}
-        if provento:
-            row["codigo_isin"] = provento.pop("CodISIN")
-            row["codigo_negociacao"] = fix_codigo_negociacao(provento.pop("CodNegociacao") or "")
-            rendimento = provento.pop("Rendimento", {}) or {}
-            amortizacao = provento.pop("Amortizacao", {}) or {}
-            assert not provento, f"provento: {provento}"
-        else:
-            rendimento = rendimentos.pop("Rendimento", {}) or {}
-            amortizacao = rendimentos.pop("Amortizacao", {}) or {}
-        assert not rendimentos, f"rendimentos: {rendimentos}"
-        assert not data, f"data: {data}"
+        informe_rendimentos = data.pop("InformeRendimentos", {}) or {}
+        rendimentos, amortizacoes = [], []
+        for key in list(informe_rendimentos.keys()):
+            if key == "Rendimento":
+                rendimentos.append(informe_rendimentos.pop(key, {}) or {})
+            elif key == "Amortizacao":
+                amortizacao = informe_rendimentos.pop(key, {}) or {}
+                if amortizacao != {"@tipo": ""}:
+                    amortizacoes.append(amortizacao)
+            elif key == "Provento":
+                value = informe_rendimentos.pop(key)
+                if isinstance(value, dict):
+                    value = [value]
+                for provento in value:
+                    provento_base = {
+                        "codigo_isin": provento.pop("CodISIN"),
+                        "codigo_negociacao": provento.pop("CodNegociacao"),
+                    }
+                    if "Rendimento" in provento:
+                        rendimento = provento.pop("Rendimento", {}) or {}
+                        rendimentos.append({**provento_base, **rendimento})
+                    if "Amortizacao" in provento:
+                        amortizacao = provento.pop("Amortizacao", {}) or {}
+                        if amortizacao != {"@tipo": ""}:
+                            amortizacoes.append({**provento_base, **amortizacao})
+                    assert not provento, f"provento: {provento}"
+        assert not informe_rendimentos, f"informe_rendimentos: {informe_rendimentos}"
 
         # TODO: parse periodo_referencia
-        if rendimento and (rendimento.get("ValorProventoCota") or rendimento.get("ValorProvento")):
+        for rendimento in rendimentos:
             part = {
                 "tipo": "Rendimento",
                 "ato_societario_aprovacao": fix_ato(rendimento.pop("AtoSocietarioAprovacao", "")),
@@ -147,11 +157,15 @@ class InformeRendimentos:
                 "ano": fix_year(rendimento.pop("Ano", "")),
                 "isento_ir": rendimento.pop("RendimentoIsentoIR", "false") or "false",
             }
+            for key in ("codigo_isin", "codigo_negociacao"):
+                if key in rendimento:
+                    part[key] = rendimento.pop(key)
             if not part["ano"]:
                 del part["ano"]
             result.append(make_data_object(cls, {**row, **part}))
             assert not rendimento, f"rendimento: {rendimento}"
-        if amortizacao:
+
+        for amortizacao in amortizacoes:
             part = {
                 "tipo": "Amortização",
                 "ato_societario_aprovacao": fix_ato(amortizacao.pop("AtoSocietarioAprovacao", "")),
@@ -162,11 +176,16 @@ class InformeRendimentos:
                 "periodo_referencia": str(amortizacao.pop("PeriodoReferencia", "") or "").lower(),
                 "ano": fix_year(amortizacao.pop("Ano", "")),
                 "isento_ir": amortizacao.pop("RendimentoIsentoIR", "false") or "false",
+                "tipo_amortizacao": amortizacao.pop("@tipo", None),
             }
+            for key in ("codigo_isin", "codigo_negociacao"):
+                if key in amortizacao:
+                    part[key] = amortizacao.pop(key)
             if not part["ano"]:
                 del part["ano"]
             result.append(make_data_object(cls, {**row, **part}))
             assert not amortizacao, f"amortizacao: {amortizacao}"
+
         return result
 
 
@@ -229,8 +248,8 @@ class OfertaPublica:
         return "DireitoPreferencia" in data
 
     @classmethod
-    def from_tree(cls, tree):
-        return cls.from_data(element_to_dict(tree))
+    def from_xml(cls, xml):
+        return cls.from_data(xmltodict.parse(xml))
 
     @classmethod
     def from_data(cls, data):
@@ -330,8 +349,7 @@ class Document:
 
     def __init__(self, xml_content):
         self._xml = xml_content
-        self._tree = parse_xml(self._xml)
-        self._data = element_to_dict(self._tree)
+        self._data = xmltodict.parse(self._xml)
         self.__type = None
 
     @cached_property

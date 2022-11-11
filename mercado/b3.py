@@ -4,13 +4,13 @@ import datetime
 import decimal
 import io
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from urllib.parse import urljoin
 
 import requests
 from rows.utils.date import date_range
 
-from .utils import parse_date, parse_br_decimal
+from .utils import parse_br_decimal, parse_date
 
 
 @dataclass
@@ -203,10 +203,10 @@ class B3:
             params={"data": date.strftime("%d-%m-%Y")},
         )
         decoded_data = base64.b64decode(response.text).decode("ISO-8859-1")
-        csv_data = decoded_data[decoded_data.find("\n") + 1:]
+        csv_data = decoded_data[decoded_data.find("\n") + 1 :]
         reader = csv.DictReader(io.StringIO(csv_data), delimiter=";")
         for row in reader:
-            for field in ('Cod. Isin', 'Data Liquidacao'):
+            for field in ("Cod. Isin", "Data Liquidacao"):
                 if field not in row:
                     row[field] = None
             yield NegociacaoBalcao.from_dict(row)
@@ -218,7 +218,6 @@ if __name__ == "__main__":
 
     from rows.utils import CsvLazyDictWriter
     from tqdm import tqdm
-
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -251,7 +250,9 @@ if __name__ == "__main__":
                 base_row = {**securitizadora, **cri}
                 for year in range(start_date.year, current_year + 1):
                     start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                    documents = list(b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop))
+                    documents = list(
+                        b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop)
+                    )
                     for doc in documents:
                         writer.writerow({**base_row, **doc})
                     progress.update(len(documents))
@@ -271,7 +272,9 @@ if __name__ == "__main__":
                 base_row = {**securitizadora, **cra}
                 for year in range(start_date.year, current_year + 1):
                     start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                    documents = list(b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop))
+                    documents = list(
+                        b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop)
+                    )
                     for doc in documents:
                         writer.writerow({**base_row, **doc})
                     progress.update(len(documents))
@@ -295,7 +298,6 @@ if __name__ == "__main__":
                 writer.writerow({**base_fund_data, **data, **dividend})
         writer.close()
 
-
     elif args.command == "fiinfra-documents":
         b3 = B3()
         writer = CsvLazyDictWriter("fiinfra-documents.csv.gz")
@@ -306,7 +308,9 @@ if __name__ == "__main__":
             detail_fund["codes"] = ", ".join(detail_fund["codes"])
             base_fund_data = {**detail_fund, **share_holder}
             for doc in b3.fiinfra_documents(identificador=fiinfra["acronym"]):
-                doc["url"] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fiinfra['acronym']}&strData={doc['date']}"
+                doc[
+                    "url"
+                ] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fiinfra['acronym']}&strData={doc['date']}"
                 writer.writerow({**base_fund_data, **doc})
         writer.close()
 
@@ -354,7 +358,9 @@ if __name__ == "__main__":
             detail_fund["codes"] = ", ".join(detail_fund["codes"])
             base_fund_data = {**detail_fund, **share_holder}
             for doc in b3.fip_documents(identificador=fip["acronym"]):
-                doc["url"] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fip['acronym']}&strData={doc['date']}"
+                doc[
+                    "url"
+                ] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fip['acronym']}&strData={doc['date']}"
                 writer.writerow({**base_fund_data, **doc})
         writer.close()
 
