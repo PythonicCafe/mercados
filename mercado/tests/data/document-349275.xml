@@ -1,0 +1,24 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>GALAPAGOS RECEB&#205;VEIS DO AGRONEG&#211;CIO - FIAGRO - FII</NomeFundo>
+		<CNPJFundo>37037297000170</CNPJFundo>
+		<NomeAdministrador>Singulare Corretora de Valores e Titulos Mobiliarios S.A</NomeAdministrador>
+		<CNPJAdministrador>62285390000140</CNPJAdministrador>
+		<ResponsavelInformacao>Daniel Doll Lemos</ResponsavelInformacao>
+		<TelefoneContato>(11) 2827-3905</TelefoneContato>
+		<CodISINCota>BRGCRACTF005</CodISINCota>
+		<CodNegociacaoCota>GCRA11</CodNegociacaoCota>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Rendimento>
+			<DataAprovacao>2022-09-08</DataAprovacao>
+			<DataBase>2022-09-08</DataBase>
+			<DataPagamento>2022-09-15</DataPagamento>
+			<ValorProventoCota>1.2</ValorProventoCota>
+			<PeriodoReferencia>Agosto</PeriodoReferencia>
+			<Ano>2022</Ano>
+			<RendimentoIsentoIR>true</RendimentoIsentoIR>
+		</Rendimento>
+		<Amortizacao tipo="Parcial"/>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

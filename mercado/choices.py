@@ -5,6 +5,11 @@ def reverse_choices(data):
 # TODO: usar mesmos códigos internos da API do sistema fnet (baixar todas
 # categorias, espécies etc.)
 
+AMORTIZACAO_TIPO = (
+    (1, "Parcial"),
+    (2, "Total"),
+)
+
 ATIVO_TIPO = (
     ("BDR", "BDR"),
     ("BNS", "SUBSCRIPTION BONUS FOR MISCELLANEOUS"),
@@ -341,6 +346,7 @@ RENDIMENTO_TIPO = (
     (2, "Amortização"),
 )
 
+AMORTIZACAO_TIPO_DICT = reverse_choices(AMORTIZACAO_TIPO)
 ATIVO_TIPO_BDI_DICT = reverse_choices(ATIVO_TIPO_BDI)
 ATIVO_TIPO_DICT = reverse_choices(ATIVO_TIPO)
 BALCAO_ORIGEM_DICT = reverse_choices(BALCAO_ORIGEM)

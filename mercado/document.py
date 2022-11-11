@@ -14,6 +14,10 @@ def clean_cnpj(value):
     return value.replace(".", "").replace("-", "").replace("/", "")
 
 
+def clean_dict(obj):
+    return {key: value for key, value in obj.items() if value}
+
+
 def fix_date(value):
     if value.startswith("22021-"):
         value = value[1:]
@@ -120,10 +124,13 @@ class InformeRendimentos:
         rendimentos, amortizacoes = [], []
         for key in list(informe_rendimentos.keys()):
             if key == "Rendimento":
-                rendimentos.append(informe_rendimentos.pop(key, {}) or {})
+                rendimento = informe_rendimentos.pop(key, {}) or {}
+                if clean_dict(rendimento):
+                    rendimentos.append(rendimento)
             elif key == "Amortizacao":
                 amortizacao = informe_rendimentos.pop(key, {}) or {}
-                if amortizacao != {"@tipo": ""}:
+                amortizacao = clean_dict(amortizacao)
+                if amortizacao and list(amortizacao.keys()) != ["@tipo"]:
                     amortizacoes.append(amortizacao)
             elif key == "Provento":
                 value = informe_rendimentos.pop(key)
@@ -136,10 +143,11 @@ class InformeRendimentos:
                     }
                     if "Rendimento" in provento:
                         rendimento = provento.pop("Rendimento", {}) or {}
-                        rendimentos.append({**provento_base, **rendimento})
+                        if clean_dict(rendimento):
+                            rendimentos.append({**provento_base, **rendimento})
                     if "Amortizacao" in provento:
-                        amortizacao = provento.pop("Amortizacao", {}) or {}
-                        if amortizacao != {"@tipo": ""}:
+                        amortizacao = clean_dict(provento.pop("Amortizacao", {}) or {})
+                        if amortizacao and list(amortizacao.keys()) != ["@tipo"]:
                             amortizacoes.append({**provento_base, **amortizacao})
                     assert not provento, f"provento: {provento}"
         assert not informe_rendimentos, f"informe_rendimentos: {informe_rendimentos}"

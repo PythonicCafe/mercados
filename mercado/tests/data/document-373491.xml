@@ -1,0 +1,33 @@
+<DadosEconomicoFinanceiros>
+	<DadosGerais>
+		<NomeFundo>IMMOB II FUNDO DE INVESTIMENTO IMOBILI&#193;RIO - FII</NomeFundo>
+		<CNPJFundo>32655589000152</CNPJFundo>
+		<NomeAdministrador>BEM DTVM LTDA</NomeAdministrador>
+		<CNPJAdministrador>00066670000100</CNPJAdministrador>
+		<ResponsavelInformacao>DANIEL SILVA SERAFIM</ResponsavelInformacao>
+		<TelefoneContato>11 2357-8480</TelefoneContato>
+		<DataInformacao>2022-11-08</DataInformacao>
+		<Ano>2022</Ano>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Provento>
+			<CodISIN>BRIMMOCTF010</CodISIN>
+			<CodNegociacao>IMMO13</CodNegociacao>
+			<Rendimento>
+				<AtoSocietarioAprovacao>N&#227;o</AtoSocietarioAprovacao>
+				<DataBase>2022-11-08</DataBase>
+				<ValorProvento>0.1</ValorProvento>
+				<DataPagamento>2022-11-16</DataPagamento>
+				<PeriodoReferencia>NOVEMBRO</PeriodoReferencia>
+				<RendimentoIsentoIR>N&#227;o</RendimentoIsentoIR>
+			</Rendimento>
+			<Amortizacao tipo="Parcial">
+				<AtoSocietarioAprovacao>N&#227;o</AtoSocietarioAprovacao>
+				<DataBase>2022-11-08</DataBase>
+				<ValorProvento>6.44393905</ValorProvento>
+				<DataPagamento>2022-11-16</DataPagamento>
+				<PeriodoReferencia>NOVEMBRO</PeriodoReferencia>
+			</Amortizacao>
+		</Provento>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

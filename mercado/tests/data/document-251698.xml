@@ -1,0 +1,24 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>VLJS - VECTOR QUELUZ LAJES CORPORATIVAS FII</NomeFundo>
+		<CNPJFundo>13842683000176</CNPJFundo>
+		<NomeAdministrador>PLANNER CORRETORA DE VALORES S/A</NomeAdministrador>
+		<CNPJAdministrador>00806535000154</CNPJAdministrador>
+		<ResponsavelInformacao>ANDR&#201;A AIPP</ResponsavelInformacao>
+		<TelefoneContato>1130146017</TelefoneContato>
+		<CodISINCota>BRVLJSCTF020</CodISINCota>
+		<CodNegociacaoCota>VLJS11</CodNegociacaoCota>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Rendimento>
+			<DataAprovacao>2021-12-30</DataAprovacao>
+			<DataBase>2021-12-30</DataBase>
+			<DataPagamento>2022-01-28</DataPagamento>
+			<ValorProventoCota>28.81922098</ValorProventoCota>
+			<PeriodoReferencia>12</PeriodoReferencia>
+			<Ano>2021</Ano>
+			<RendimentoIsentoIR>false</RendimentoIsentoIR>
+		</Rendimento>
+		<Amortizacao tipo=""/>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

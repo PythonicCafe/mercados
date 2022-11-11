@@ -1,0 +1,25 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>VECTOR QUELUZ LAJES CORPORATIVAS FUNDO DE INVESTIMENTO IMOB.</NomeFundo>
+		<CNPJFundo>13842683000176</CNPJFundo>
+		<NomeAdministrador>PLANNER CORRETORA DE VALORES SA</NomeAdministrador>
+		<CNPJAdministrador>00806535000154</CNPJAdministrador>
+		<ResponsavelInformacao>Regiane Cristina de Souza</ResponsavelInformacao>
+		<TelefoneContato>1121722574</TelefoneContato>
+		<CodISINCota>BRVLJSCTF020</CodISINCota>
+		<CodNegociacaoCota>VLJS11</CodNegociacaoCota>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Rendimento>
+		</Rendimento>
+		<Amortizacao tipo="Parcial">
+			<AtoSocietarioAprovacao>05/05/2022</AtoSocietarioAprovacao>
+			<DataAprovacao>2022-11-10</DataAprovacao>
+			<DataBase>2022-11-10</DataBase>
+			<DataPagamento>2022-11-21</DataPagamento>
+			<ValorProventoCota>23.9888159102366</ValorProventoCota>
+			<PeriodoReferencia>NOVEMBRO</PeriodoReferencia>
+			<Ano>2022</Ano>
+		</Amortizacao>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

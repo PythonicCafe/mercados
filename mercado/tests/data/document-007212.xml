@@ -1,0 +1,25 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>Rio Bravo Cr&#233;dito Imobili&#225;rio II FI</NomeFundo>
+		<CNPJFundo>15769670000144</CNPJFundo>
+		<NomeAdministrador>RIO BRAVO INVESTIMENTOS DTVM LTDA</NomeAdministrador>
+		<CNPJAdministrador>72600026000181</CNPJAdministrador>
+		<ResponsavelInformacao>Wagner Gonzalez</ResponsavelInformacao>
+		<TelefoneContato>(11) 3509-6654</TelefoneContato>
+		<CodISINCota>BRRBVOCTF007</CodISINCota>
+		<CodNegociacaoCota>RBVO11</CodNegociacaoCota>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Rendimento>
+			<RendimentoIsentoIR/>
+		</Rendimento>
+		<Amortizacao tipo="Parcial">
+			<DataAprovacao>2016-12-12</DataAprovacao>
+			<DataBase>2016-12-12</DataBase>
+			<DataPagamento>2016-12-20</DataPagamento>
+			<ValorProventoCota>9.77628028</ValorProventoCota>
+			<PeriodoReferencia>20/12/2015 &#8211; 20/12/2016</PeriodoReferencia>
+			<Ano>2016</Ano>
+		</Amortizacao>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

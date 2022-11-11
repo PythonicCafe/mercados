@@ -1,0 +1,25 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>BRADESCO CARTEIRA IMOBILIARIA ATIVA FII</NomeFundo>
+		<CNPJFundo>20216935000117</CNPJFundo>
+		<NomeAdministrador>BANCO BRADESCO S/A</NomeAdministrador>
+		<CNPJAdministrador>60746948000112</CNPJAdministrador>
+		<ResponsavelInformacao>DEBORAH CRISTINA LEITE DE LIMA</ResponsavelInformacao>
+		<TelefoneContato>3684-4398</TelefoneContato>
+		<CodISINCota>BRBCIACTF005</CodISINCota>
+		<CodNegociacaoCota>BCIA11</CodNegociacaoCota>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Rendimento>
+			<AtoSocietarioAprovacao>-</AtoSocietarioAprovacao>
+			<DataAprovacao>2017-04-27</DataAprovacao>
+			<DataBase>2017-04-28</DataBase>
+			<DataPagamento>2017-05-29</DataPagamento>
+			<ValorProventoCota>0.65</ValorProventoCota>
+			<PeriodoReferencia>ABRIL</PeriodoReferencia>
+			<Ano>2017</Ano>
+			<RendimentoIsentoIR>true</RendimentoIsentoIR>
+		</Rendimento>
+		<Amortizacao tipo=""/>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

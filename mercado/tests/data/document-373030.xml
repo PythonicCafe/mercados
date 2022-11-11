@@ -1,0 +1,36 @@
+<DadosEconomicoFinanceiros>
+	<DadosGerais>
+		<NomeFundo>CIDADE JARDIM CONTINENTAL TOWER FII</NomeFundo>
+		<CNPJFundo>10347985000180</CNPJFundo>
+		<NomeAdministrador>HEDGE INVESTMENTS DTVM LTDA.</NomeAdministrador>
+		<CNPJAdministrador>07253654000176</CNPJAdministrador>
+		<ResponsavelInformacao>Maria Cecilia Carrazedo de Andrade</ResponsavelInformacao>
+		<TelefoneContato>(11) 5412-5400</TelefoneContato>
+		<DataInformacao>2022-11-07</DataInformacao>
+		<Ano>2022</Ano>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Provento>
+			<CodISIN>BRCJCTCTF001</CodISIN>
+			<CodNegociacao>CJCT11</CodNegociacao>
+			<Amortizacao tipo="Parcial">
+				<AtoSocietarioAprovacao/>
+				<DataBase>2022-11-07</DataBase>
+				<ValorProvento>3.5119</ValorProvento>
+				<DataPagamento>2022-11-17</DataPagamento>
+				<PeriodoReferencia>Novembro</PeriodoReferencia>
+			</Amortizacao>
+		</Provento>
+		<Provento>
+			<CodISIN>BRCJCTCTF001</CodISIN>
+			<CodNegociacao>CJCT11</CodNegociacao>
+			<Amortizacao tipo="Parcial">
+				<AtoSocietarioAprovacao/>
+				<DataBase>2022-11-07</DataBase>
+				<ValorProvento>17.555</ValorProvento>
+				<DataPagamento>2023-11-21</DataPagamento>
+				<PeriodoReferencia>Novembro</PeriodoReferencia>
+			</Amortizacao>
+		</Provento>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

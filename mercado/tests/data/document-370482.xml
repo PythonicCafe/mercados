@@ -1,0 +1,38 @@
+<DadosEconomicoFinanceiros>
+	<DadosGerais>
+		<NomeFundo>KINEA RENDIMENTOS IMOBILI&#193;RIOS FII</NomeFundo>
+		<CNPJFundo>16706958000132</CNPJFundo>
+		<NomeAdministrador>INTRAG DTVM</NomeAdministrador>
+		<CNPJAdministrador>62418140000131</CNPJAdministrador>
+		<ResponsavelInformacao>WALTER HIROAKI WATANABE</ResponsavelInformacao>
+		<TelefoneContato>011 30726090</TelefoneContato>
+		<DataInformacao>2022-10-31</DataInformacao>
+		<Ano>2022</Ano>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Provento>
+			<CodISIN>BRKNCRCTF000</CodISIN>
+			<CodNegociacao>KNCR11</CodNegociacao>
+			<Rendimento>
+				<AtoSocietarioAprovacao/>
+				<DataBase>2022-10-31</DataBase>
+				<ValorProvento>1.1</ValorProvento>
+				<DataPagamento>2022-11-14</DataPagamento>
+				<PeriodoReferencia>outubro 2022</PeriodoReferencia>
+				<RendimentoIsentoIR>Sim</RendimentoIsentoIR>
+			</Rendimento>
+		</Provento>
+		<Provento>
+			<CodISIN>BRKNCRR08M13</CodISIN>
+			<CodNegociacao>KNCR14</CodNegociacao>
+			<Rendimento>
+				<AtoSocietarioAprovacao/>
+				<DataBase>2022-10-31</DataBase>
+				<ValorProvento>1.1</ValorProvento>
+				<DataPagamento>2022-11-14</DataPagamento>
+				<PeriodoReferencia>outubro 2022</PeriodoReferencia>
+				<RendimentoIsentoIR>Sim</RendimentoIsentoIR>
+			</Rendimento>
+		</Provento>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>
