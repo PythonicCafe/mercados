@@ -158,6 +158,7 @@ class FundosNet:
 
     @cached_property
     def fund_types(self):
+        # TODO: add `(0, "Todos")`?
         tree = document_fromstring(self.main_page)
         options = tree.xpath("//select[@id = 'tipoFundo']/option")
         result = {}
