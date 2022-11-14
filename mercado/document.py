@@ -343,37 +343,6 @@ class OfertaPublica:
         )
 
 
-DOCUMENT_TYPES = [
-    InformeRendimentos,
-    OfertaPublica,
-]
-
-
-class Document:
-    @classmethod
-    def from_file(cls, filename):
-        with open(filename, mode="rb") as fobj:
-            return cls(fobj.read())
-
-    def __init__(self, xml_content):
-        self._xml = xml_content
-        self._data = xmltodict.parse(self._xml)
-        self.__type = None
-
-    @cached_property
-    def type(self):
-        if self.__type is None:
-            for DocumentType in DOCUMENT_TYPES:
-                if DocumentType.check_content(self._data):
-                    self.__type = DocumentType
-                    break
-        return self.__type
-
-    @cached_property
-    def data(self):
-        return self.type.from_data(self._data)
-
-
 @dataclass
 class DocumentMeta:
     id: int
