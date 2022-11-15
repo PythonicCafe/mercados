@@ -401,3 +401,34 @@ INDICE_CORRECAO_DICT = reverse_choices(INDICE_CORRECAO)
 MERCADO_TIPO_DICT = reverse_choices(MERCADO_TIPO)
 RENDA_FIXA_TIPO_DICT = reverse_choices(RENDA_FIXA_TIPO)
 RENDIMENTO_TIPO_DICT = reverse_choices(RENDIMENTO_TIPO)
+
+CATEGORIA_TIPO_ESTRUTURADOS_STR = (
+    ("Informes Periódicos", "Informe Mensal Estruturado"),
+    ("Informes Periódicos", "Informe Trimestral Estruturado"),
+    ("Informes Periódicos", "Informe Anual Estruturado"),
+    ("Informes Periódicos", "Composição da Carteira (CDA)"),
+    ("Informes Periódicos", "Informe Diário"),
+    ("Informes Periódicos", "Balancete"),
+    (
+        "Oferta Pública de Distribuição de Cotas",
+        "Anexo 39-V (art. 10 §1º, inciso I da ICVM 472)",
+    ),
+    (
+        "Oferta Pública de Distribuição de Cotas",
+        "Formulário de Subscrição de Cotas (Estruturado)",
+    ),
+    (
+        "Oferta Pública de Distribuição de Cotas",
+        "Formulário de Liberação para Negociação das Cotas",
+    ),
+    ("Outras Informações", "Perfil do Fundo (Estruturado)"),
+    ("Aviso aos Cotistas - Estruturado", "Rendimentos e Amortizações"),
+    (
+        "Documentos de Oferta de Distribuição Pública",
+        "Formulário de Liberação para Negociação das Cotas",
+    ),
+)
+CATEGORIA_TIPO_ESTRUTURADOS_IDS = [
+    (DOCUMENTO_CATEGORIA_DICT[categoria], DOCUMENTO_TIPO_DICT[tipo])
+    for categoria, tipo in CATEGORIA_TIPO_ESTRUTURADOS_STR
+]
