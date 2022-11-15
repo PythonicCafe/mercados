@@ -102,6 +102,15 @@ class InformeRendimentos:
         return cls.from_data(xmltodict.parse(xml))
 
     @classmethod
+    def check_xml(cls, xml):
+        data = xmltodict.parse(xml)
+        return (
+            "DadosEconomicoFinanceiros" in data
+            and "DadosGerais" in data["DadosEconomicoFinanceiros"]
+            and "InformeRendimentos" in data["DadosEconomicoFinanceiros"]
+        )
+
+    @classmethod
     def from_data(cls, original_data):
         result = []
         data = original_data.pop("DadosEconomicoFinanceiros", {}) or {}
@@ -263,6 +272,15 @@ class OfertaPublica:
     @classmethod
     def from_xml(cls, xml):
         return cls.from_data(xmltodict.parse(xml))
+
+    @classmethod
+    def check_xml(cls, xml):
+        data = xmltodict.parse(xml)
+        return (
+            "DadosGerais" in data
+            and "DadosCota" in data
+            and "DireitoPreferencia" in data
+        )
 
     @classmethod
     def from_data(cls, data):
@@ -483,6 +501,15 @@ class InformeMensalFII:
         return cls.from_data(xmltodict.parse(xml))
 
     @classmethod
+    def check_xml(cls, xml):
+        data = xmltodict.parse(xml)
+        return (
+            "DadosEconomicoFinanceiros" in data
+            and "DadosGerais" in data["DadosEconomicoFinanceiros"]
+            and "InformeMensal" in data["DadosEconomicoFinanceiros"]
+        )
+
+    @classmethod
     def from_data(cls, original_data):
         data = {
             key: value
@@ -547,4 +574,4 @@ class InformeMensalFII:
         assert not mercado_negociacao, f"mercado_negociacao: {mercado_negociacao}"
         assert not entidade_administradora, f"entidade_administradora: {entidade_administradora}"
 
-        return cls(**row)
+        return [cls(**row)]
