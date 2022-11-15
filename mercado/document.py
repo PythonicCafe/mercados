@@ -1,3 +1,4 @@
+import copy
 import datetime
 import decimal
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ from functools import cached_property
 import xmltodict
 from rows.fields import slug
 
-from mercado.utils import camel_to_snake, parse_bool, parse_date
+from mercado.utils import camel_to_snake, clean_xml_dict, parse_bool, parse_date, parse_int
 
 
 def clean_cnpj(value):
@@ -19,8 +20,12 @@ def clean_dict(obj):
 
 
 def fix_date(value):
-    if value.startswith("22021-"):
+    if value is None:
+        return None
+    elif value.startswith("22021-"):
         value = value[1:]
+    elif value.startswith("20005-"):
+        value = value.replace("20005-", "2005-")
     return value
 
 
@@ -429,3 +434,117 @@ class DocumentMeta:
         )
         assert not row
         return obj
+
+
+@dataclass
+class InformeMensalFII:
+    fundo: str
+    fundo_cnpj: str
+    administrador: str
+    administrador_cnpj: str
+    data_funcionamento: datetime.date
+    publico_alvo: str
+    codigo_isin: str
+    cotas_emitidas: decimal.Decimal
+    exclusivo: bool
+    vinculo_familiar_cotistas: bool
+    prazo_duracao: str
+    encerramento_exercicio: str
+    mercado_negociacao_bolsa: bool
+    mercado_negociacao_mbo: bool
+    mercado_negociacao_mb: bool
+    adm_bvmf: bool
+    adm_cetip: bool
+    logradouro: str
+    numero: str
+    bairro: str
+    municipio: str
+    uf: str
+    cep: str
+    telefone_1: str
+    site: str
+    email: str
+    competencia: datetime.date
+    patrimonio_liquido: decimal.Decimal
+    ativo: decimal.Decimal
+    patrimonio_por_cota: decimal.Decimal
+    gestao_tipo: str = None
+    segmento: str = None
+    mandato: str = None
+    cotistas: int = None
+    cotistas_pessoa_fisica: int = None
+    complemento: str = None
+    telefone_2: str = None
+    data_prazo: datetime.date = None
+    telefone_3: str = None
+
+    @classmethod
+    def from_xml(cls, xml):
+        return cls.from_data(xmltodict.parse(xml))
+
+    @classmethod
+    def from_data(cls, original_data):
+        data = {
+            key: value
+            for key, value in copy.deepcopy(original_data)["DadosEconomicoFinanceiros"].items()
+            if not key.startswith("@")
+        }
+        gerais = clean_xml_dict(data.pop("DadosGerais"))
+        informe_mensal = clean_xml_dict(data.pop("InformeMensal"))
+        assert not data, f"data: {data}"
+
+        autorregulacao = clean_xml_dict(gerais.pop("Autorregulacao"))
+        entidade_administradora = clean_xml_dict(gerais.pop("EntidadeAdministradora"))
+        mercado_negociacao = clean_xml_dict(gerais.pop("MercadoNegociacao"))
+        cotistas = clean_xml_dict(informe_mensal.pop("Cotistas"))
+        resumo = clean_xml_dict(informe_mensal.pop("Resumo"))
+        row = {
+            "fundo": gerais.pop("NomeFundo"),
+            "fundo_cnpj": gerais.pop("CNPJFundo"),
+            "administrador": gerais.pop("NomeAdministrador"),
+            "administrador_cnpj": gerais.pop("CNPJAdministrador"),
+            "data_funcionamento": parse_date("iso-date", fix_date(gerais.pop("DataFuncionamento"))),
+            "publico_alvo": gerais.pop("PublicoAlvo"),
+            "codigo_isin": gerais.pop("CodigoISIN"),
+            "cotas_emitidas": decimal.Decimal(gerais.pop("QtdCotasEmitidas")),
+            "exclusivo": parse_bool(gerais.pop("FundoExclusivo")),
+            "vinculo_familiar_cotistas": parse_bool(gerais.pop("VinculoFamiliarCotistas")),
+            "mandato": autorregulacao.pop("Mandato", None),
+            "segmento": autorregulacao.pop("SegmentoAtuacao", None),
+            "gestao_tipo": autorregulacao.pop("TipoGestao", None),
+            "prazo_duracao": gerais.pop("PrazoDuracao"),
+            "data_prazo": parse_date("iso-date", gerais.pop("DataPrazoDuracao", None)),
+            "encerramento_exercicio": gerais.pop("EncerramentoExercicio"),
+            "mercado_negociacao_bolsa": parse_bool(mercado_negociacao.pop("Bolsa")),
+            "mercado_negociacao_mbo": parse_bool(mercado_negociacao.pop("MBO")),
+            "mercado_negociacao_mb": parse_bool(mercado_negociacao.pop("MB")),
+            "adm_bvmf": parse_bool(entidade_administradora.pop("BVMF")),
+            "adm_cetip": parse_bool(entidade_administradora.pop("CETIP")),
+            "logradouro": gerais.pop("Logradouro"),
+            "numero": gerais.pop("Numero"),
+            "complemento": gerais.pop("Complemento", ""),
+            "bairro": gerais.pop("Bairro"),
+            "municipio": gerais.pop("Cidade"),
+            "uf": gerais.pop("Estado"),
+            "cep": gerais.pop("CEP"),
+            "telefone_1": gerais.pop("Telefone1"),
+            "telefone_2": gerais.pop("Telefone2", ""),
+            "telefone_3": gerais.pop("Telefone3", ""),
+            "site": gerais.pop("Site"),
+            "email": gerais.pop("Email"),
+            "competencia": parse_date("iso-date", gerais.pop("Competencia")),
+            "cotistas": parse_int(cotistas.pop("@total", None)),
+            "cotistas_pessoa_fisica": parse_int(cotistas.pop("PessoaFisica", None)),
+            "patrimonio_liquido": decimal.Decimal(resumo.pop("PatrimonioLiquido")),
+            "ativo": decimal.Decimal(resumo.pop("Ativo")),
+            "cotas_emitidas": decimal.Decimal(resumo.pop("NumCotasEmitidas")),
+            "patrimonio_por_cota": decimal.Decimal(resumo.pop("ValorPatrCotas")),
+        }
+        # TODO: there are way more data in `informe_mensal` we're ignoring here
+
+        assert not gerais, f"gerais: {gerais}"
+        assert not autorregulacao, f"autorregulacao: {autorregulacao}"
+        assert not mercado_negociacao, f"mercado_negociacao: {mercado_negociacao}"
+        assert not entidade_administradora, f"entidade_administradora: {entidade_administradora}"
+
+        return cls(**row)

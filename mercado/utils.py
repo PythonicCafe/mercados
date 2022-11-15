@@ -219,3 +219,15 @@ def fix_periodo_referencia(value, original_year):
             start = datetime.date(year, months[0], 1)
             end = last_day_of_month(year, months[1])
             return start, end
+
+
+def parse_int(value):
+    return int(value) if value is not None else None
+
+def clean_xml_dict(d):
+    result = {}
+    for key, value in d.items():
+        if isinstance(value, dict) and value.get("@xsi:nil") == "true":
+            continue
+        result[key] = value
+    return result
