@@ -3,7 +3,6 @@ import datetime
 import decimal
 from dataclasses import dataclass
 from dataclasses import fields as class_fields
-from functools import cached_property
 
 import xmltodict
 from rows.fields import slug
@@ -280,11 +279,7 @@ class OfertaPublica:
         if xml is None:
             return False
         data = xmltodict.parse(xml)
-        return (
-            "DadosGerais" in data
-            and "DadosCota" in data
-            and "DireitoPreferencia" in data
-        )
+        return "DadosGerais" in data and "DadosCota" in data and "DireitoPreferencia" in data
 
     @classmethod
     def from_data(cls, data):
@@ -520,15 +515,12 @@ class InformeFII:
 
     @classmethod
     def from_data(cls, original_data):
-        data = {
-            key: value
-            for key, value in copy.deepcopy(original_data)["DadosEconomicoFinanceiros"].items()
-            if not key.startswith("@")
-        }
-        gerais = clean_xml_dict(data.pop("DadosGerais"))
-        informe_mensal = clean_xml_dict(data.pop("InformeMensal", {}) or {})
-        informe_trimestral = clean_xml_dict(data.pop("InformeTrimestral", {}) or {})
-        informe_anual = clean_xml_dict(data.pop("InformeAnual", {}) or {})
+        copied = clean_xml_dict(copy.deepcopy(original_data))
+        data = {key: value for key, value in copied["DadosEconomicoFinanceiros"].items() if not key.startswith("@")}
+        gerais = data.pop("DadosGerais")
+        informe_mensal = data.pop("InformeMensal", {}) or {}
+        informe_trimestral = data.pop("InformeTrimestral", {}) or {}
+        informe_anual = data.pop("InformeAnual", {}) or {}
         assert not data, f"data: {data}"
 
         if informe_mensal:
@@ -540,9 +532,9 @@ class InformeFII:
         else:
             raise ValueError(f"Tipo de informe desconhecido")
 
-        autorregulacao = clean_xml_dict(gerais.pop("Autorregulacao"))
-        entidade_administradora = clean_xml_dict(gerais.pop("EntidadeAdministradora"))
-        mercado_negociacao = clean_xml_dict(gerais.pop("MercadoNegociacao"))
+        autorregulacao = gerais.pop("Autorregulacao")
+        entidade_administradora = gerais.pop("EntidadeAdministradora")
+        mercado_negociacao = gerais.pop("MercadoNegociacao")
         row = {
             "fundo": gerais.pop("NomeFundo"),
             "fundo_cnpj": gerais.pop("CNPJFundo"),
@@ -573,8 +565,8 @@ class InformeFII:
             "uf": gerais.pop("Estado"),
             "cep": gerais.pop("CEP"),
             "telefone_1": gerais.pop("Telefone1"),
-            "telefone_2": gerais.pop("Telefone2", ""),
-            "telefone_3": gerais.pop("Telefone3", ""),
+            "telefone_2": gerais.pop("Telefone2", None),
+            "telefone_3": gerais.pop("Telefone3", None),
             "site": gerais.pop("Site"),
             "email": gerais.pop("Email"),
             "competencia": gerais.pop("Competencia"),
@@ -594,8 +586,8 @@ class InformeFII:
     @property
     def informe_mensal(self):
         informe_mensal = copy.deepcopy(self.dados)
-        cotistas = clean_xml_dict(informe_mensal.pop("Cotistas"))
-        resumo = clean_xml_dict(informe_mensal.pop("Resumo"))
+        cotistas = informe_mensal.pop("Cotistas")
+        resumo = informe_mensal.pop("Resumo")
         # TODO: there are way more data in `informe_mensal` we're ignoring
         # here, so needs parsing
         return InformeMensalFII(

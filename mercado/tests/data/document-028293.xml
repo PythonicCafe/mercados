@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>MÉRITO DESENVOLVIMENTO IMOBILIÁRIO I FII</NomeFundo>
+		<CNPJFundo>16915968000188</CNPJFundo>
+		<DataFuncionamento>2013-03-06</DataFuncionamento>
+		<PublicoAlvo>Investidores em Geral</PublicoAlvo>
+		<CodigoISIN>BRMFIICTF008</CodigoISIN>
+		<QtdCotasEmitidas>2002613</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Mandato>Híbrido</Mandato>
+			<SegmentoAtuacao>Híbrido</SegmentoAtuacao>
+			<TipoGestao>Ativa</TipoGestao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>31/12</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>true</Bolsa>
+			<MBO>false</MBO>
+			<MB>false</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>true</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>PLANNER CORRETORA DE VALORES S.A.</NomeAdministrador>
+		<CNPJAdministrador>00806535000154</CNPJAdministrador>
+		<Logradouro>AV. BRIGADEIRO FARIA LIMA</Logradouro>
+		<Numero>3900</Numero>
+		<Complemento>10 ANDAR</Complemento>
+		<Bairro>ITAIM BIBI</Bairro>
+		<Cidade>SÃO PAULO</Cidade>
+		<Estado>SP</Estado>
+		<CEP>04538132</CEP>
+		<Telefone1>(11) 2138-8200</Telefone1>
+		<Telefone2 xsi:nil="true"/>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.planner.com.br</Site>
+		<Email>afigueiredo@planner.com</Email>
+		<Competencia>2018-05-01</Competencia>
+	</DadosGerais>
+	<InformeMensal>
+		<Cotistas data_informacao="2018-05-30" total="7892">
+			<PessoaFisica xsi:nil="true"/>
+			<PJNaoFinanceira xsi:nil="true"/>
+			<BancoComercial xsi:nil="true"/>
+			<CorretoraDistribuidora xsi:nil="true"/>
+			<OutrasPJFinanceiras xsi:nil="true"/>
+			<InvestidoresNaoResidentes xsi:nil="true"/>
+			<EntidadeAbertaPrevCompl xsi:nil="true"/>
+			<EntidadeFechadaPrevCompl xsi:nil="true"/>
+			<RegimeProprioPrev xsi:nil="true"/>
+			<SociedadeSeguradora xsi:nil="true"/>
+			<SociedadeCapArrendMercantil xsi:nil="true"/>
+			<FundosInvImobiliario xsi:nil="true"/>
+			<OutrosFundosInv xsi:nil="true"/>
+			<CotistasDistFundo xsi:nil="true"/>
+			<OutrosTiposCotistas xsi:nil="true"/>
+		</Cotistas>
+		<Resumo>
+			<Ativo>234059581.59</Ativo>
+			<PatrimonioLiquido>222468575.87</PatrimonioLiquido>
+			<NumCotasEmitidas>2002613</NumCotasEmitidas>
+			<ValorPatrCotas>111.089149960577</ValorPatrCotas>
+			<DespesasTxAdministracao>0.001834</DespesasTxAdministracao>
+			<DespesasAgCustodiante xsi:nil="true"/>
+			<RentEfetivaMensal total="0.000748">
+				<RentPatrimonialMes>-0.00977</RentPatrimonialMes>
+				<DividendYieldMes>0.010518</DividendYieldMes>
+			</RentEfetivaMensal>
+			<AmortizAcoesCotas>0</AmortizAcoesCotas>
+		</Resumo>
+		<InformacoesAtivo>
+			<TotalNecessidadesLiq total="52067006.83">
+				<Disponibilidades xsi:nil="true"/>
+				<TitulosPublicos xsi:nil="true"/>
+				<TitulosPrivados xsi:nil="true"/>
+				<FundosRendaFixa>52067006.83</FundosRendaFixa>
+			</TotalNecessidadesLiq>
+			<TotalInvestido total="181630938.12">
+				<DireitosBensImoveis total="42511550">
+					<Terrenos>42511550</Terrenos>
+					<ImoveisRendaAcabados xsi:nil="true"/>
+					<ImoveisRendaConstrucao xsi:nil="true"/>
+					<ImoveisVendaAcabados xsi:nil="true"/>
+					<ImoveisVendaConstrucao xsi:nil="true"/>
+					<OutrosDireitosReais xsi:nil="true"/>
+				</DireitosBensImoveis>
+				<Acoes xsi:nil="true"/>
+				<Debentures xsi:nil="true"/>
+				<BonusSubscricao xsi:nil="true"/>
+				<CertificadosDepositoValMob xsi:nil="true"/>
+				<CedulasDebentures xsi:nil="true"/>
+				<FIA xsi:nil="true"/>
+				<FIP xsi:nil="true"/>
+				<FII xsi:nil="true"/>
+				<FDIC xsi:nil="true"/>
+				<OutrasCotasFI xsi:nil="true"/>
+				<NotasPromissorias xsi:nil="true"/>
+				<AcoesSociedadesAtivFII xsi:nil="true"/>
+				<CotasSociedadesAtivFII>139119388.12</CotasSociedadesAtivFII>
+				<CEPAC xsi:nil="true"/>
+				<CRI xsi:nil="true"/>
+				<LetrasHipotecarias xsi:nil="true"/>
+				<LCI xsi:nil="true"/>
+				<LIG xsi:nil="true"/>
+				<OutrosValoresMobliarios xsi:nil="true"/>
+			</TotalInvestido>
+			<ValoresReceber total="361636.64">
+				<Alugueis xsi:nil="true"/>
+				<VendaImoveis xsi:nil="true"/>
+				<OutrosValores>361636.64</OutrosValores>
+			</ValoresReceber>
+		</InformacoesAtivo>
+		<InformacoesPassivo>
+			<RendimentosDistribuir>2379794.99</RendimentosDistribuir>
+			<TxAdministracaoPagar>419165.76</TxAdministracaoPagar>
+			<TxPerformancePagar>1597948.02</TxPerformancePagar>
+			<ObrigacoesAquisicaoImov xsi:nil="true"/>
+			<AdiantamentoVendaImov xsi:nil="true"/>
+			<AdiantamentoAlugueis xsi:nil="true"/>
+			<ObrigacoesSecRecebiveis xsi:nil="true"/>
+			<InstrumentosFinanceirosDeriv xsi:nil="true"/>
+			<ProvisoesContigencias xsi:nil="true"/>
+			<OutrosValoresPagar>7194096.95</OutrosValoresPagar>
+			<TotalPassivo>11591005.72</TotalPassivo>
+		</InformacoesPassivo>
+	</InformeMensal>
+</DadosEconomicoFinanceiros>

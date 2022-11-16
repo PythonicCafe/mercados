@@ -1,0 +1,248 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>CEDRO - FUNDO DE INVESTIMENTO IMOBILI&#193;RIO - FII</NomeFundo>
+		<CNPJFundo>20118507000151</CNPJFundo>
+		<DataFuncionamento>2015-01-08</DataFuncionamento>
+		<PublicoAlvo>Investidor Profissional</PublicoAlvo>
+		<CodigoISIN xsi:nil="true"/>
+		<QtdCotasEmitidas>29383.77580773</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<EnquadraNotaSeis>false</EnquadraNotaSeis>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Mandato>Desenvolvimento para Renda</Mandato>
+			<SegmentoAtuacao>Outros</SegmentoAtuacao>
+			<TipoGestao>Ativa</TipoGestao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>31/12</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>false</Bolsa>
+			<MBO>false</MBO>
+			<MB>true</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>false</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>LIMINE TRUST DTVM LTDA.</NomeAdministrador>
+		<CNPJAdministrador>20118507000151</CNPJAdministrador>
+		<Logradouro>Av. Dr. Cardoso de Melo</Logradouro>
+		<Numero>1184</Numero>
+		<Complemento>Cj 91</Complemento>
+		<Bairro>Vila Ol&#237;mpia</Bairro>
+		<Cidade>S&#227;o Paulo</Cidade>
+		<Estado>SP</Estado>
+		<CEP>04548-004</CEP>
+		<Telefone1>(011) 2846-1166</Telefone1>
+		<Telefone2/>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.liminedtvm.com.br</Site>
+		<Email> adm.fundos@liminedtvm.com.br</Email>
+		<Competencia>3/2022</Competencia>
+		<DataEncerTrimestre>2022-09-30</DataEncerTrimestre>
+	</DadosGerais>
+	<InformeTrimestral>
+		<InfoTipoAtivo>
+			<DireitosReaisImoveis>
+				<Terrenos>
+				</Terrenos>
+				<Imoveis>
+					<ImoveisRendaAcabados>
+						<LstImovRendaAcabados>
+							<Imovel>
+								<Nome>Im&#243;vel sede</Nome>
+								<Endereco>SAA/Norte, Quadra 03, Lotes n&#186; 145, 185, 225 e 265, Brasilia - DF</Endereco>
+								<Area>8000</Area>
+								<NumUnidades>1</NumUnidades>
+								<OutrasCaractRelevantes>N/A</OutrasCaractRelevantes>
+								<PercentVacancia>0</PercentVacancia>
+								<PercentInadimplencia>0</PercentInadimplencia>
+								<PercentReceitasFII>1</PercentReceitasFII>
+								<Inquilinos><Inquilino><SetorAtuacao>Laborat&#243;rio de An&#225;lise Clinicas</SetorAtuacao><PercentReceitaImovel>1</PercentReceitaImovel><PercentReceitasFII>1</PercentReceitasFII></Inquilino></Inquilinos></Imovel>
+						</LstImovRendaAcabados>
+						<DistrContratosPrazo>
+							<AteTresMeses/>
+							<TresAteSeisMeses/>
+							<SeisAteNoveMeses/>
+							<NoveAteDozeMeses/>
+							<DozeAteQuinzeMeses/>
+							<QuinzeAteDezoitoMeses/>
+							<DezoitoAteVinteUmMeses/>
+							<VinteUmAteVinteQuatroMeses/>
+							<VinteQuatroAteVinteSeteMeses/>
+							<VinteSeteAteTrintaMeses/>
+							<TrintaAteTrintaTresMeses/>
+							<TrintaTresAteTrintaSeisMeses/>
+							<AcimaTrintaSeisMeses percentReceitaImovel="1" percentReceitasFII="1"/>
+							<PrazoIndeterminado/>
+						</DistrContratosPrazo>
+						<DistrContratosIndexador>
+							<IGPM/>
+							<INPC/>
+							<IPCA percentReceitaImovel="1" percentReceitasFII="1"/>
+							<INCC/>
+							<OutrosIndicadores>
+							</OutrosIndicadores>
+						</DistrContratosIndexador>
+						<CaractContratuaisComuns>Reajuste anual pela varia&#231;&#227;o do IPCA. Multa contratual de 100% do valor residual do contrato por se tratar de um contrato de loca&#231;&#227;o at&#237;pico. Garantia de aliena&#231;&#227;o fiduci&#225;ria do im&#243;vel.</CaractContratuaisComuns>
+						<CaractContratuaisIndividual>
+							<Imovel>
+								<NomeOuEndereco>SAA/Norte, Quadra 03, Lotes n&#186; 145, 185, 225 e 265, Brasilia - DF .</NomeOuEndereco>
+								<CaractContratuais>N/A</CaractContratuais>
+							</Imovel>
+						</CaractContratuaisIndividual>
+						<PoliticaContratacaoSeguro>O contrato de loca&#231;&#227;o exige a contrata&#231;&#227;o de seguro do im&#243;vel.</PoliticaContratacaoSeguro>
+					</ImoveisRendaAcabados>
+					<ImoveisRendaConstrucao>
+						<LstImovRendaConstrucao>
+						</LstImovRendaConstrucao>
+						<JustificativaDesempenho>
+						</JustificativaDesempenho>
+						<PoliticaContratacaoSeguro xsi:nil="true"/>
+					</ImoveisRendaConstrucao>
+					<ImoveisVendaAcabados>
+						<LstImovVendaAcabados>
+						</LstImovVendaAcabados>
+						<PoliticaContratacaoSeguro xsi:nil="true"/>
+					</ImoveisVendaAcabados>
+					<ImoveisVendaConstrucao>
+						<LstImovVendaConstrucao>
+						</LstImovVendaConstrucao>
+						<JustificativaDesempenho>
+						</JustificativaDesempenho>
+						<PoliticaContratacaoSeguro xsi:nil="true"/>
+					</ImoveisVendaConstrucao>
+				</Imoveis>
+				<OutrosDireitosReais>
+				</OutrosDireitosReais>
+			</DireitosReaisImoveis>
+			<AtivosFinanceiros>
+				<FII>
+				</FII>
+				<CRI>
+				</CRI>
+				<LCI>
+				</LCI>
+				<LIG>
+				</LIG>
+				<CEPAC>
+				</CEPAC>
+				<Acoes>
+				</Acoes>
+				<AcoesSocFII>
+				</AcoesSocFII>
+				<CotasSocFII>
+				</CotasSocFII>
+				<FIA>
+				</FIA>
+				<FIP>
+				</FIP>
+				<FIDC>
+				</FIDC>
+				<OutrasCotasFI>
+				</OutrasCotasFI>
+				<OutrosAtivosFinanceiros>
+				</OutrosAtivosFinanceiros>
+			</AtivosFinanceiros>
+			<AtivosNecessidadeLiquidez>
+				<Disponibilidades>30618.84</Disponibilidades>
+				<TitulosPublicos xsi:nil="true"/>
+				<TitulosPrivados xsi:nil="true"/>
+				<FundosRendaFixa xsi:nil="true"/>
+			</AtivosNecessidadeLiquidez>
+		</InfoTipoAtivo>
+		<AquisicoesAlienacoes>
+			<Terrenos>
+				<Aquisicoes>
+				</Aquisicoes>
+				<Alienacoes>
+				</Alienacoes>
+			</Terrenos>
+			<Imoveis>
+				<Aquisicoes>
+				</Aquisicoes>
+				<Alienacoes>
+				</Alienacoes>
+			</Imoveis>
+		</AquisicoesAlienacoes>
+		<OutrasInfo>
+			<RentabilidadeGarantida>
+				<AtivosGarantiaRent>
+				</AtivosGarantiaRent>
+				<RentEfetivaVigGarantia>
+				</RentEfetivaVigGarantia>
+			</RentabilidadeGarantida>
+		</OutrasInfo>
+		<DemonstracoesContabilFinanc>
+			<AtivosImobiliarios>
+				<Estoques>
+					<ReceitasVenda/>
+					<CustoImovEstoque/>
+					<AjusteValor/>
+					<OutrasRecOuDesp/>
+					<ResultadoLiquido contabil="0" financeiro="0"/>
+				</Estoques>
+				<PropriedadesInvest>
+					<ReceitasAlugueis contabil="4437028.81" financeiro="4305826.26"/>
+					<DespManutencaoConservacao/>
+					<ReceitasVenda/>
+					<CustoPropriedadesVendidas/>
+					<AjusteValor/>
+					<OutrasRecOuDesp contabil="-3439653.85"/>
+					<ResultadoLiquido contabil="997374.96" financeiro="4305826.26"/>
+				</PropriedadesInvest>
+				<TVM>
+					<ReceitasJuros/>
+					<AjusteValor/>
+					<ResultadoVenda/>
+					<OutrasRecOuDesp/>
+					<ResultadoLiquido contabil="0" financeiro="0"/>
+				</TVM>
+				<ResultadoLiquidoTotal contabil="997374.96" financeiro="4305826.26"/>
+			</AtivosImobiliarios>
+			<RecursosLiquidez>
+				<ReceitasJurosAplicacoes/>
+				<AjusteValorAplicacoes/>
+				<ResultadoVendaAplicacoes/>
+				<OutrasRecOuDespAplicacoes/>
+				<ResultadoLiquido contabil="0" financeiro="0"/>
+			</RecursosLiquidez>
+			<ResultadoLiquidoDerivativos/>
+			<OutrasReceitasDespesas>
+				<TaxaAdministracao contabil="-274148.16" financeiro="-274148.16"/>
+				<TaxaDesempenho/>
+				<ConsultoriaEspecializada/>
+				<EmpresaEspecializada/>
+				<FormadorMercado/>
+				<CustodiaTitulosValores/>
+				<AuditoriaIndependente contabil="-11715" financeiro="-11715"/>
+				<RepresentantesCotistas/>
+				<TaxasImpostosContribuicoes contabil="-3086.6"/>
+				<ComissoesEmolumentos/>
+				<HonorariosDespesasDefesas contabil="-16725.93" financeiro="-16725.93"/>
+				<GastosContratosSeguros/>
+				<DespesasAvaliacoes/>
+				<TaxasIngressoSaidaFundos/>
+				<DespesasRegistroCartorio/>
+				<OutrasRecOuDesp contabil="-1635.04" financeiro="-4215456.26"/>
+				<Total contabil="-307310.73" financeiro="-4518045.35"/>
+			</OutrasReceitasDespesas>
+			<ResultadoTrimestralLiquido contabil="690064.23" financeiro="-212219.09"/>
+		</DemonstracoesContabilFinanc>
+		<DistrResultadoAcumulado>
+			<ResultadoFinanLiqAcumulado>-212219.09</ResultadoFinanLiqAcumulado>
+			<PercentResultFinanLiqAcumulado>0</PercentResultFinanLiqAcumulado>
+			<ParcelaDistribuidaTriSeguinte xsi:nil="true"/>
+			<ParcelasRendimentosRetidos>
+			</ParcelasRendimentosRetidos>
+			<LucroContabil xsi:nil="true"/>
+			<ResultadoFinanceiroExcedeMinimo xsi:nil="true"/>
+			<RendimentosDeclarados>0</RendimentosDeclarados>
+			<RendimentosPagosAntec>0</RendimentosPagosAntec>
+			<RendimentoPagar>0</RendimentoPagar>
+			<ResultadoLiquidoDeclarado>0</ResultadoLiquidoDeclarado>
+		</DistrResultadoAcumulado>
+	</InformeTrimestral>
+</DadosEconomicoFinanceiros>

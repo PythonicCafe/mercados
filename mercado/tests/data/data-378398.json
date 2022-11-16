@@ -1,0 +1,94 @@
+{
+  "Cotistas": {
+    "@data_informacao": "2022-10-31",
+    "@total": "36155",
+    "PessoaFisica": null,
+    "PJNaoFinanceira": null,
+    "BancoComercial": null,
+    "CorretoraDistribuidora": null,
+    "OutrasPJFinanceiras": null,
+    "InvestidoresNaoResidentes": null,
+    "EntidadeAbertaPrevCompl": null,
+    "EntidadeFechadaPrevCompl": null,
+    "RegimeProprioPrev": null,
+    "SociedadeSeguradora": null,
+    "SociedadeCapArrendMercantil": null,
+    "FundosInvImobiliario": null,
+    "OutrosFundosInv": null,
+    "CotistasDistFundo": null,
+    "OutrosTiposCotistas": null
+  },
+  "Resumo": {
+    "Ativo": "388952420.83",
+    "PatrimonioLiquido": "385237123.41",
+    "NumCotasEmitidas": "43302140",
+    "ValorPatrCotas": "8.89649156854604",
+    "DespesasTxAdministracao": "0.0008",
+    "DespesasAgCustodiante": "0",
+    "RentEfetivaMensal": {
+      "@total": "0.001818",
+      "RentPatrimonialMes": "-0.006778",
+      "DividendYieldMes": "0.008596"
+    },
+    "AmortizAcoesCotas": "0"
+  },
+  "InformacoesAtivo": {
+    "TotalNecessidadesLiq": {
+      "@total": "7329664.54",
+      "Disponibilidades": "450.32",
+      "TitulosPublicos": "0",
+      "TitulosPrivados": "0",
+      "FundosRendaFixa": "7329214.22"
+    },
+    "TotalInvestido": {
+      "@total": "381610247.83",
+      "DireitosBensImoveis": {
+        "@total": "0",
+        "Terrenos": "0",
+        "ImoveisRendaAcabados": "0",
+        "ImoveisRendaConstrucao": "0",
+        "ImoveisVendaAcabados": "0",
+        "ImoveisVendaConstrucao": "0",
+        "OutrosDireitosReais": "0"
+      },
+      "Acoes": "0",
+      "Debentures": "0",
+      "BonusSubscricao": "5384.16",
+      "CertificadosDepositoValMob": "0",
+      "CedulasDebentures": "0",
+      "FIA": "0",
+      "FIP": "0",
+      "FII": "305955108.23",
+      "FDIC": "0",
+      "OutrasCotasFI": "0",
+      "NotasPromissorias": "0",
+      "AcoesSociedadesAtivFII": "0",
+      "CotasSociedadesAtivFII": "0",
+      "CEPAC": "0",
+      "CRI": "75649755.44",
+      "LetrasHipotecarias": "0",
+      "LCI": "0",
+      "LIG": "0",
+      "OutrosValoresMobliarios": "0"
+    },
+    "ValoresReceber": {
+      "@total": "12508.46",
+      "Alugueis": "0",
+      "VendaImoveis": "0",
+      "OutrosValores": "12508.46"
+    }
+  },
+  "InformacoesPassivo": {
+    "RendimentosDistribuir": "3334264.78",
+    "TxAdministracaoPagar": "308167.95",
+    "TxPerformancePagar": "40447.09",
+    "ObrigacoesAquisicaoImov": "0",
+    "AdiantamentoVendaImov": "0",
+    "AdiantamentoAlugueis": "0",
+    "ObrigacoesSecRecebiveis": "0",
+    "InstrumentosFinanceirosDeriv": "0",
+    "ProvisoesContigencias": "0",
+    "OutrosValoresPagar": "32417.60",
+    "TotalPassivo": "3715297.42"
+  }
+}

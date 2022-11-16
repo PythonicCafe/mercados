@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DadosGerais>
+    <NomeFundo>CAPITANIA FOF FII</NomeFundo>
+    <CNPJFundo>34081611000123</CNPJFundo>
+    <DataFuncionamento>2019-12-23</DataFuncionamento>
+    <PublicoAlvo>Investidores em Geral</PublicoAlvo>
+    <CodigoISIN>BRCPFFCTF000</CodigoISIN>
+    <QtdCotasEmitidas>3973771</QtdCotasEmitidas>
+    <FundoExclusivo>false</FundoExclusivo>
+    <VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+    <Autorregulacao>
+      <Mandato>Títulos e Valores Mobiliários</Mandato>
+      <SegmentoAtuacao>Títulos e Val. Mob.</SegmentoAtuacao>
+      <TipoGestao>Ativa</TipoGestao>
+    </Autorregulacao>
+    <PrazoDuracao>Indeterminado</PrazoDuracao>
+    <DataPrazoDuracao xsi:nil="true" />
+    <EncerramentoExercicio>30/06</EncerramentoExercicio>
+    <MercadoNegociacao>
+      <Bolsa>true</Bolsa>
+      <MBO>false</MBO>
+      <MB>false</MB>
+    </MercadoNegociacao>
+    <EntidadeAdministradora>
+      <BVMF>true</BVMF>
+      <CETIP>false</CETIP>
+    </EntidadeAdministradora>
+    <NomeAdministrador>BTG PACTUAL SERVICOS FINANCEIROS S/A DTVM</NomeAdministrador>
+    <CNPJAdministrador>59281253000123</CNPJAdministrador>
+    <Logradouro>Praia de Botafogo</Logradouro>
+    <Numero>501</Numero>
+    <Complemento>6º Andar</Complemento>
+    <Bairro>Botafogo</Bairro>
+    <Cidade>Rio de Janeiro</Cidade>
+    <Estado>RJ</Estado>
+    <CEP>22.250-040</CEP>
+    <Telefone1>55 11 3383-3102</Telefone1>
+    <Telefone2 xsi:nil="true" />
+    <Telefone3 xsi:nil="true" />
+    <Site>www.btgpactual.com</Site>
+    <Email>ri.fundoslistados@btgpactual.com</Email>
+    <Competencia>2021-06-30</Competencia>
+  </DadosGerais>
+  <InformeMensal>
+    <Cotistas data_informacao="2021-06-30" total="12506">
+      <PessoaFisica>12324</PessoaFisica>
+      <PJNaoFinanceira>145</PJNaoFinanceira>
+      <BancoComercial>0</BancoComercial>
+      <CorretoraDistribuidora>0</CorretoraDistribuidora>
+      <OutrasPJFinanceiras>1</OutrasPJFinanceiras>
+      <InvestidoresNaoResidentes>3</InvestidoresNaoResidentes>
+      <EntidadeAbertaPrevCompl>0</EntidadeAbertaPrevCompl>
+      <EntidadeFechadaPrevCompl>0</EntidadeFechadaPrevCompl>
+      <RegimeProprioPrev>0</RegimeProprioPrev>
+      <SociedadeSeguradora>0</SociedadeSeguradora>
+      <SociedadeCapArrendMercantil>0</SociedadeCapArrendMercantil>
+      <FundosInvImobiliario>6</FundosInvImobiliario>
+      <OutrosFundosInv>27</OutrosFundosInv>
+      <CotistasDistFundo>0</CotistasDistFundo>
+      <OutrosTiposCotistas>0</OutrosTiposCotistas>
+    </Cotistas>
+    <Resumo>
+      <Ativo>330083551.89</Ativo>
+      <PatrimonioLiquido>320607034.13</PatrimonioLiquido>
+      <NumCotasEmitidas>3973771.0000</NumCotasEmitidas>
+      <ValorPatrCotas>80.680803</ValorPatrCotas>
+      <DespesasTxAdministracao>0.000806</DespesasTxAdministracao>
+      <DespesasAgCustodiante>0.0000</DespesasAgCustodiante>
+      <RentEfetivaMensal total="-0.006225">
+        <RentPatrimonialMes>-0.016998</RentPatrimonialMes>
+        <DividendYieldMes>0.010773</DividendYieldMes>
+      </RentEfetivaMensal>
+      <AmortizAcoesCotas>0.0000</AmortizAcoesCotas>
+    </Resumo>
+    <InformacoesAtivo>
+      <TotalNecessidadesLiq total="6220786.88">
+        <Disponibilidades>0.00</Disponibilidades>
+        <TitulosPublicos>6220786.88</TitulosPublicos>
+        <TitulosPrivados>0.00</TitulosPrivados>
+        <FundosRendaFixa>0.00</FundosRendaFixa>
+      </TotalNecessidadesLiq>
+      <TotalInvestido total="322128579.29">
+        <DireitosBensImoveis total="0.00">
+          <Terrenos>0.00</Terrenos>
+          <ImoveisRendaAcabados>0.00</ImoveisRendaAcabados>
+          <ImoveisRendaConstrucao>0.00</ImoveisRendaConstrucao>
+          <ImoveisVendaAcabados>0.00</ImoveisVendaAcabados>
+          <ImoveisVendaConstrucao>0.00</ImoveisVendaConstrucao>
+          <OutrosDireitosReais>0.00</OutrosDireitosReais>
+        </DireitosBensImoveis>
+        <Acoes>0.00</Acoes>
+        <Debentures>0.00</Debentures>
+        <BonusSubscricao>0.00</BonusSubscricao>
+        <CertificadosDepositoValMob>0.00</CertificadosDepositoValMob>
+        <CedulasDebentures>0.00</CedulasDebentures>
+        <FIA>0.00</FIA>
+        <FIP>0.00</FIP>
+        <FII>317011089.91</FII>
+        <FDIC>0.00</FDIC>
+        <OutrasCotasFI>0.00</OutrasCotasFI>
+        <NotasPromissorias>0.00</NotasPromissorias>
+        <AcoesSociedadesAtivFII>0.00</AcoesSociedadesAtivFII>
+        <CotasSociedadesAtivFII>0.00</CotasSociedadesAtivFII>
+        <CEPAC>0.00</CEPAC>
+        <CRI>5117489.38</CRI>
+        <LetrasHipotecarias>0.00</LetrasHipotecarias>
+        <LCI>0.00</LCI>
+        <LIG>0.00</LIG>
+        <OutrosValoresMobliarios>0.00</OutrosValoresMobliarios>
+      </TotalInvestido>
+      <ValoresReceber total="1734185.72">
+        <Alugueis>0.00</Alugueis>
+        <VendaImoveis>0.00</VendaImoveis>
+        <OutrosValores>1734185.72</OutrosValores>
+      </ValoresReceber>
+    </InformacoesAtivo>
+    <InformacoesPassivo>
+      <RendimentosDistribuir>3540199.65</RendimentosDistribuir>
+      <TxAdministracaoPagar>256281.98</TxAdministracaoPagar>
+      <TxPerformancePagar>2754495.10</TxPerformancePagar>
+      <ObrigacoesAquisicaoImov>0.00</ObrigacoesAquisicaoImov>
+      <AdiantamentoVendaImov>0.00</AdiantamentoVendaImov>
+      <AdiantamentoAlugueis>0.00</AdiantamentoAlugueis>
+      <ObrigacoesSecRecebiveis>0.00</ObrigacoesSecRecebiveis>
+      <InstrumentosFinanceirosDeriv>0.00</InstrumentosFinanceirosDeriv>
+      <ProvisoesContigencias>0.00</ProvisoesContigencias>
+      <OutrosValoresPagar>2925541.03</OutrosValoresPagar>
+      <TotalPassivo>9476517.76</TotalPassivo>
+    </InformacoesPassivo>
+  </InformeMensal>
+</DadosEconomicoFinanceiros>

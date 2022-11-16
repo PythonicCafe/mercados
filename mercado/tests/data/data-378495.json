@@ -1,0 +1,227 @@
+{
+  "InfoTipoAtivo": {
+    "DireitosReaisImoveis": {
+      "Terrenos": null,
+      "Imoveis": {
+        "ImoveisRendaAcabados": {
+          "LstImovRendaAcabados": {
+            "Imovel": {
+              "Nome": "Im\u00f3vel sede",
+              "Endereco": "SAA/Norte, Quadra 03, Lotes n\u00ba 145, 185, 225 e 265, Brasilia - DF",
+              "Area": "8000",
+              "NumUnidades": "1",
+              "OutrasCaractRelevantes": "N/A",
+              "PercentVacancia": "0",
+              "PercentInadimplencia": "0",
+              "PercentReceitasFII": "1",
+              "Inquilinos": {
+                "Inquilino": {
+                  "SetorAtuacao": "Laborat\u00f3rio de An\u00e1lise Clinicas",
+                  "PercentReceitaImovel": "1",
+                  "PercentReceitasFII": "1"
+                }
+              }
+            }
+          },
+          "DistrContratosPrazo": {
+            "AteTresMeses": null,
+            "TresAteSeisMeses": null,
+            "SeisAteNoveMeses": null,
+            "NoveAteDozeMeses": null,
+            "DozeAteQuinzeMeses": null,
+            "QuinzeAteDezoitoMeses": null,
+            "DezoitoAteVinteUmMeses": null,
+            "VinteUmAteVinteQuatroMeses": null,
+            "VinteQuatroAteVinteSeteMeses": null,
+            "VinteSeteAteTrintaMeses": null,
+            "TrintaAteTrintaTresMeses": null,
+            "TrintaTresAteTrintaSeisMeses": null,
+            "AcimaTrintaSeisMeses": {
+              "@percentReceitaImovel": "1",
+              "@percentReceitasFII": "1"
+            },
+            "PrazoIndeterminado": null
+          },
+          "DistrContratosIndexador": {
+            "IGPM": null,
+            "INPC": null,
+            "IPCA": {
+              "@percentReceitaImovel": "1",
+              "@percentReceitasFII": "1"
+            },
+            "INCC": null,
+            "OutrosIndicadores": null
+          },
+          "CaractContratuaisComuns": "Reajuste anual pela varia\u00e7\u00e3o do IPCA. Multa contratual de 100% do valor residual do contrato por se tratar de um contrato de loca\u00e7\u00e3o at\u00edpico. Garantia de aliena\u00e7\u00e3o fiduci\u00e1ria do im\u00f3vel.",
+          "CaractContratuaisIndividual": {
+            "Imovel": {
+              "NomeOuEndereco": "SAA/Norte, Quadra 03, Lotes n\u00ba 145, 185, 225 e 265, Brasilia - DF .",
+              "CaractContratuais": "N/A"
+            }
+          },
+          "PoliticaContratacaoSeguro": "O contrato de loca\u00e7\u00e3o exige a contrata\u00e7\u00e3o de seguro do im\u00f3vel."
+        },
+        "ImoveisRendaConstrucao": {
+          "LstImovRendaConstrucao": null,
+          "JustificativaDesempenho": null,
+          "PoliticaContratacaoSeguro": null
+        },
+        "ImoveisVendaAcabados": {
+          "LstImovVendaAcabados": null,
+          "PoliticaContratacaoSeguro": null
+        },
+        "ImoveisVendaConstrucao": {
+          "LstImovVendaConstrucao": null,
+          "JustificativaDesempenho": null,
+          "PoliticaContratacaoSeguro": null
+        }
+      },
+      "OutrosDireitosReais": null
+    },
+    "AtivosFinanceiros": {
+      "FII": null,
+      "CRI": null,
+      "LCI": null,
+      "LIG": null,
+      "CEPAC": null,
+      "Acoes": null,
+      "AcoesSocFII": null,
+      "CotasSocFII": null,
+      "FIA": null,
+      "FIP": null,
+      "FIDC": null,
+      "OutrasCotasFI": null,
+      "OutrosAtivosFinanceiros": null
+    },
+    "AtivosNecessidadeLiquidez": {
+      "Disponibilidades": "30618.84",
+      "TitulosPublicos": null,
+      "TitulosPrivados": null,
+      "FundosRendaFixa": null
+    }
+  },
+  "AquisicoesAlienacoes": {
+    "Terrenos": {
+      "Aquisicoes": null,
+      "Alienacoes": null
+    },
+    "Imoveis": {
+      "Aquisicoes": null,
+      "Alienacoes": null
+    }
+  },
+  "OutrasInfo": {
+    "RentabilidadeGarantida": {
+      "AtivosGarantiaRent": null,
+      "RentEfetivaVigGarantia": null
+    }
+  },
+  "DemonstracoesContabilFinanc": {
+    "AtivosImobiliarios": {
+      "Estoques": {
+        "ReceitasVenda": null,
+        "CustoImovEstoque": null,
+        "AjusteValor": null,
+        "OutrasRecOuDesp": null,
+        "ResultadoLiquido": {
+          "@contabil": "0",
+          "@financeiro": "0"
+        }
+      },
+      "PropriedadesInvest": {
+        "ReceitasAlugueis": {
+          "@contabil": "4437028.81",
+          "@financeiro": "4305826.26"
+        },
+        "DespManutencaoConservacao": null,
+        "ReceitasVenda": null,
+        "CustoPropriedadesVendidas": null,
+        "AjusteValor": null,
+        "OutrasRecOuDesp": {
+          "@contabil": "-3439653.85"
+        },
+        "ResultadoLiquido": {
+          "@contabil": "997374.96",
+          "@financeiro": "4305826.26"
+        }
+      },
+      "TVM": {
+        "ReceitasJuros": null,
+        "AjusteValor": null,
+        "ResultadoVenda": null,
+        "OutrasRecOuDesp": null,
+        "ResultadoLiquido": {
+          "@contabil": "0",
+          "@financeiro": "0"
+        }
+      },
+      "ResultadoLiquidoTotal": {
+        "@contabil": "997374.96",
+        "@financeiro": "4305826.26"
+      }
+    },
+    "RecursosLiquidez": {
+      "ReceitasJurosAplicacoes": null,
+      "AjusteValorAplicacoes": null,
+      "ResultadoVendaAplicacoes": null,
+      "OutrasRecOuDespAplicacoes": null,
+      "ResultadoLiquido": {
+        "@contabil": "0",
+        "@financeiro": "0"
+      }
+    },
+    "ResultadoLiquidoDerivativos": null,
+    "OutrasReceitasDespesas": {
+      "TaxaAdministracao": {
+        "@contabil": "-274148.16",
+        "@financeiro": "-274148.16"
+      },
+      "TaxaDesempenho": null,
+      "ConsultoriaEspecializada": null,
+      "EmpresaEspecializada": null,
+      "FormadorMercado": null,
+      "CustodiaTitulosValores": null,
+      "AuditoriaIndependente": {
+        "@contabil": "-11715",
+        "@financeiro": "-11715"
+      },
+      "RepresentantesCotistas": null,
+      "TaxasImpostosContribuicoes": {
+        "@contabil": "-3086.6"
+      },
+      "ComissoesEmolumentos": null,
+      "HonorariosDespesasDefesas": {
+        "@contabil": "-16725.93",
+        "@financeiro": "-16725.93"
+      },
+      "GastosContratosSeguros": null,
+      "DespesasAvaliacoes": null,
+      "TaxasIngressoSaidaFundos": null,
+      "DespesasRegistroCartorio": null,
+      "OutrasRecOuDesp": {
+        "@contabil": "-1635.04",
+        "@financeiro": "-4215456.26"
+      },
+      "Total": {
+        "@contabil": "-307310.73",
+        "@financeiro": "-4518045.35"
+      }
+    },
+    "ResultadoTrimestralLiquido": {
+      "@contabil": "690064.23",
+      "@financeiro": "-212219.09"
+    }
+  },
+  "DistrResultadoAcumulado": {
+    "ResultadoFinanLiqAcumulado": "-212219.09",
+    "PercentResultFinanLiqAcumulado": "0",
+    "ParcelaDistribuidaTriSeguinte": null,
+    "ParcelasRendimentosRetidos": null,
+    "LucroContabil": null,
+    "ResultadoFinanceiroExcedeMinimo": null,
+    "RendimentosDeclarados": "0",
+    "RendimentosPagosAntec": "0",
+    "RendimentoPagar": "0",
+    "ResultadoLiquidoDeclarado": "0"
+  }
+}

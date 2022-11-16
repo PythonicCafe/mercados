@@ -1,0 +1,131 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>XP SELECTION FUNDO DE INVESTIMENTO IMOBILI&#193;RIO - FII</NomeFundo>
+		<CNPJFundo>30983020000190</CNPJFundo>
+		<DataFuncionamento>2019-07-10</DataFuncionamento>
+		<PublicoAlvo>Investidores em Geral</PublicoAlvo>
+		<CodigoISIN>BRXPSFCTF009</CodigoISIN>
+		<QtdCotasEmitidas>43302140</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Mandato>T&#237;tulos e Valores Mobili&#225;rios</Mandato>
+			<SegmentoAtuacao>T&#237;tulos e Val. Mob.</SegmentoAtuacao>
+			<TipoGestao>Ativa</TipoGestao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>31/12</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>true</Bolsa>
+			<MBO>false</MBO>
+			<MB>false</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>true</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>XP INVESTIMENTOS CORRETORA DE C&#194;MBIO, T&#205;TULOS E VAL MOB S/A</NomeAdministrador>
+		<CNPJAdministrador>02332886000104</CNPJAdministrador>
+		<Logradouro>AVENIDA ATAULFO DE PAIVA</Logradouro>
+		<Numero>153</Numero>
+		<Complemento>5&#186; e 8&#186; andares</Complemento>
+		<Bairro>LEBLON</Bairro>
+		<Cidade>RIO DE JANEIRO</Cidade>
+		<Estado>RJ</Estado>
+		<CEP>22440-033</CEP>
+		<Telefone1>(11) 3027-2237</Telefone1>
+		<Telefone2 xsi:nil="true"/>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.xpi.com.br</Site>
+		<Email>adm.fundos.estruturados@xpi.com.br</Email>
+		<Competencia>2022-10-01</Competencia>
+	</DadosGerais>
+	<InformeMensal>
+		<Cotistas data_informacao="2022-10-31" total="36155">
+			<PessoaFisica xsi:nil="true"/>
+			<PJNaoFinanceira xsi:nil="true"/>
+			<BancoComercial xsi:nil="true"/>
+			<CorretoraDistribuidora xsi:nil="true"/>
+			<OutrasPJFinanceiras xsi:nil="true"/>
+			<InvestidoresNaoResidentes xsi:nil="true"/>
+			<EntidadeAbertaPrevCompl xsi:nil="true"/>
+			<EntidadeFechadaPrevCompl xsi:nil="true"/>
+			<RegimeProprioPrev xsi:nil="true"/>
+			<SociedadeSeguradora xsi:nil="true"/>
+			<SociedadeCapArrendMercantil xsi:nil="true"/>
+			<FundosInvImobiliario xsi:nil="true"/>
+			<OutrosFundosInv xsi:nil="true"/>
+			<CotistasDistFundo xsi:nil="true"/>
+			<OutrosTiposCotistas xsi:nil="true"/>
+		</Cotistas>
+		<Resumo>
+			<Ativo>388952420.83</Ativo>
+			<PatrimonioLiquido>385237123.41</PatrimonioLiquido>
+			<NumCotasEmitidas>43302140</NumCotasEmitidas>
+			<ValorPatrCotas>8.89649156854604</ValorPatrCotas>
+			<DespesasTxAdministracao>0.0008</DespesasTxAdministracao>
+			<DespesasAgCustodiante>0</DespesasAgCustodiante>
+			<RentEfetivaMensal total="0.001818">
+				<RentPatrimonialMes>-0.006778</RentPatrimonialMes>
+				<DividendYieldMes>0.008596</DividendYieldMes>
+			</RentEfetivaMensal>
+			<AmortizAcoesCotas>0</AmortizAcoesCotas>
+		</Resumo>
+		<InformacoesAtivo>
+			<TotalNecessidadesLiq total="7329664.54">
+				<Disponibilidades>450.32</Disponibilidades>
+				<TitulosPublicos>0</TitulosPublicos>
+				<TitulosPrivados>0</TitulosPrivados>
+				<FundosRendaFixa>7329214.22</FundosRendaFixa>
+			</TotalNecessidadesLiq>
+			<TotalInvestido total="381610247.83">
+				<DireitosBensImoveis total="0">
+					<Terrenos>0</Terrenos>
+					<ImoveisRendaAcabados>0</ImoveisRendaAcabados>
+					<ImoveisRendaConstrucao>0</ImoveisRendaConstrucao>
+					<ImoveisVendaAcabados>0</ImoveisVendaAcabados>
+					<ImoveisVendaConstrucao>0</ImoveisVendaConstrucao>
+					<OutrosDireitosReais>0</OutrosDireitosReais>
+				</DireitosBensImoveis>
+				<Acoes>0</Acoes>
+				<Debentures>0</Debentures>
+				<BonusSubscricao>5384.16</BonusSubscricao>
+				<CertificadosDepositoValMob>0</CertificadosDepositoValMob>
+				<CedulasDebentures>0</CedulasDebentures>
+				<FIA>0</FIA>
+				<FIP>0</FIP>
+				<FII>305955108.23</FII>
+				<FDIC>0</FDIC>
+				<OutrasCotasFI>0</OutrasCotasFI>
+				<NotasPromissorias>0</NotasPromissorias>
+				<AcoesSociedadesAtivFII>0</AcoesSociedadesAtivFII>
+				<CotasSociedadesAtivFII>0</CotasSociedadesAtivFII>
+				<CEPAC>0</CEPAC>
+				<CRI>75649755.44</CRI>
+				<LetrasHipotecarias>0</LetrasHipotecarias>
+				<LCI>0</LCI>
+				<LIG>0</LIG>
+				<OutrosValoresMobliarios>0</OutrosValoresMobliarios>
+			</TotalInvestido>
+			<ValoresReceber total="12508.46">
+				<Alugueis>0</Alugueis>
+				<VendaImoveis>0</VendaImoveis>
+				<OutrosValores>12508.46</OutrosValores>
+			</ValoresReceber>
+		</InformacoesAtivo>
+		<InformacoesPassivo>
+			<RendimentosDistribuir>3334264.78</RendimentosDistribuir>
+			<TxAdministracaoPagar>308167.95</TxAdministracaoPagar>
+			<TxPerformancePagar>40447.09</TxPerformancePagar>
+			<ObrigacoesAquisicaoImov>0</ObrigacoesAquisicaoImov>
+			<AdiantamentoVendaImov>0</AdiantamentoVendaImov>
+			<AdiantamentoAlugueis>0</AdiantamentoAlugueis>
+			<ObrigacoesSecRecebiveis>0</ObrigacoesSecRecebiveis>
+			<InstrumentosFinanceirosDeriv>0</InstrumentosFinanceirosDeriv>
+			<ProvisoesContigencias>0</ProvisoesContigencias>
+			<OutrosValoresPagar>32417.60</OutrosValoresPagar>
+			<TotalPassivo>3715297.42</TotalPassivo>
+		</InformacoesPassivo>
+	</InformeMensal>
+</DadosEconomicoFinanceiros>

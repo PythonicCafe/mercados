@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>KINEA CRÉDITO AGRO FIAGRO-IMOBILIÁRIO</NomeFundo>
+		<CNPJFundo>41745701000137</CNPJFundo>
+		<DataFuncionamento>2021-10-18</DataFuncionamento>
+		<PublicoAlvo>Investidores em Geral</PublicoAlvo>
+		<CodigoISIN>BRKNCACTF014</CodigoISIN>
+		<QtdCotasEmitidas>8099919</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Mandato>Títulos e Valores Mobiliários</Mandato>
+			<SegmentoAtuacao>Títulos e Val. Mob.</SegmentoAtuacao>
+			<TipoGestao>Ativa</TipoGestao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>30/06</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>true</Bolsa>
+			<MBO>false</MBO>
+			<MB>false</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>true</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>INTRAG DISTRIBUIDORA DE TÍTULOS E VALORES MOBILIÁRIOS LTDA</NomeAdministrador>
+		<CNPJAdministrador>62418140000131</CNPJAdministrador>
+		<Logradouro>AV BRIGADEIRO FARIA LIMA</Logradouro>
+		<Numero>3400</Numero>
+		<Complemento>10º Andar</Complemento>
+		<Bairro>ITAIM BIBI</Bairro>
+		<Cidade>SÃO PAULO</Cidade>
+		<Estado>SP</Estado>
+		<CEP>04538132</CEP>
+		<Telefone1>55 (11) 30726012</Telefone1>
+		<Telefone2 xsi:nil="true"/>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.intrag.com.br</Site>
+		<Email>produtosestruturados@itau-unibanco.com.br</Email>
+		<Competencia>2022-08-01</Competencia>
+	</DadosGerais>
+	<InformeMensal>
+		<Cotistas data_informacao="2022-08-31" total="11309">
+			<PessoaFisica xsi:nil="true"/>
+			<PJNaoFinanceira xsi:nil="true"/>
+			<BancoComercial xsi:nil="true"/>
+			<CorretoraDistribuidora xsi:nil="true"/>
+			<OutrasPJFinanceiras xsi:nil="true"/>
+			<InvestidoresNaoResidentes xsi:nil="true"/>
+			<EntidadeAbertaPrevCompl xsi:nil="true"/>
+			<EntidadeFechadaPrevCompl xsi:nil="true"/>
+			<RegimeProprioPrev xsi:nil="true"/>
+			<SociedadeSeguradora xsi:nil="true"/>
+			<SociedadeCapArrendMercantil xsi:nil="true"/>
+			<FundosInvImobiliario xsi:nil="true"/>
+			<OutrosFundosInv xsi:nil="true"/>
+			<CotistasDistFundo xsi:nil="true"/>
+			<OutrosTiposCotistas xsi:nil="true"/>
+		</Cotistas>
+		<Resumo>
+			<Ativo>839930279.31</Ativo>
+			<PatrimonioLiquido>827120197.4</PatrimonioLiquido>
+			<NumCotasEmitidas>8099919</NumCotasEmitidas>
+			<ValorPatrCotas>102.114625763542</ValorPatrCotas>
+			<DespesasTxAdministracao>0.001099</DespesasTxAdministracao>
+			<DespesasAgCustodiante>0.000073</DespesasAgCustodiante>
+			<RentEfetivaMensal total="0.026225">
+				<RentPatrimonialMes>0.011759</RentPatrimonialMes>
+				<DividendYieldMes>0.014466</DividendYieldMes>
+			</RentEfetivaMensal>
+			<AmortizAcoesCotas>0</AmortizAcoesCotas>
+		</Resumo>
+		<InformacoesAtivo>
+			<TotalNecessidadesLiq total="41388421.91">
+				<Disponibilidades>19242.55</Disponibilidades>
+				<TitulosPublicos>41369179.36</TitulosPublicos>
+				<TitulosPrivados xsi:nil="true"/>
+				<FundosRendaFixa xsi:nil="true"/>
+			</TotalNecessidadesLiq>
+			<TotalInvestido total="798526456.27">
+				<DireitosBensImoveis total="0">
+					<Terrenos xsi:nil="true"/>
+					<ImoveisRendaAcabados xsi:nil="true"/>
+					<ImoveisRendaConstrucao xsi:nil="true"/>
+					<ImoveisVendaAcabados xsi:nil="true"/>
+					<ImoveisVendaConstrucao xsi:nil="true"/>
+					<OutrosDireitosReais xsi:nil="true"/>
+				</DireitosBensImoveis>
+				<Acoes xsi:nil="true"/>
+				<Debentures xsi:nil="true"/>
+				<BonusSubscricao xsi:nil="true"/>
+				<CertificadosDepositoValMob xsi:nil="true"/>
+				<CedulasDebentures xsi:nil="true"/>
+				<FIA xsi:nil="true"/>
+				<FIP xsi:nil="true"/>
+				<FII xsi:nil="true"/>
+				<FDIC xsi:nil="true"/>
+				<OutrasCotasFI xsi:nil="true"/>
+				<NotasPromissorias xsi:nil="true"/>
+				<AcoesSociedadesAtivFII xsi:nil="true"/>
+				<CotasSociedadesAtivFII xsi:nil="true"/>
+				<CEPAC xsi:nil="true"/>
+				<CRI>798526456.27</CRI>
+				<LetrasHipotecarias xsi:nil="true"/>
+				<LCI xsi:nil="true"/>
+				<LIG xsi:nil="true"/>
+				<OutrosValoresMobliarios xsi:nil="true"/>
+			</TotalInvestido>
+			<ValoresReceber total="15401.13">
+				<Alugueis xsi:nil="true"/>
+				<VendaImoveis xsi:nil="true"/>
+				<OutrosValores>15401.13</OutrosValores>
+			</ValoresReceber>
+		</InformacoesAtivo>
+		<InformacoesPassivo>
+			<RendimentosDistribuir>11825881.74</RendimentosDistribuir>
+			<TxAdministracaoPagar>908642.28</TxAdministracaoPagar>
+			<TxPerformancePagar xsi:nil="true"/>
+			<ObrigacoesAquisicaoImov xsi:nil="true"/>
+			<AdiantamentoVendaImov xsi:nil="true"/>
+			<AdiantamentoAlugueis xsi:nil="true"/>
+			<ObrigacoesSecRecebiveis xsi:nil="true"/>
+			<InstrumentosFinanceirosDeriv xsi:nil="true"/>
+			<ProvisoesContigencias xsi:nil="true"/>
+			<OutrosValoresPagar>75557.89</OutrosValoresPagar>
+			<TotalPassivo>12810081.91</TotalPassivo>
+		</InformacoesPassivo>
+	</InformeMensal>
+</DadosEconomicoFinanceiros>

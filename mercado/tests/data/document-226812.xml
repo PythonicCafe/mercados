@@ -1,0 +1,1596 @@
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo>FII EDIFICIO ALMIRANTE BARROSO</NomeFundo>
+		<CNPJFundo>05562312000102</CNPJFundo>
+		<DataFuncionamento>2003-03-17</DataFuncionamento>
+		<PublicoAlvo>Investidores em Geral</PublicoAlvo>
+		<CodigoISIN>BRFAMBCTF018</CodigoISIN>
+		<QtdCotasEmitidas>104800</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Mandato>Renda</Mandato>
+			<SegmentoAtuacao>Lajes Corporativas</SegmentoAtuacao>
+			<TipoGestao>Passiva</TipoGestao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>Dezembro</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>true</Bolsa>
+			<MBO>false</MBO>
+			<MB>false</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>true</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>BTG Pactual Servi&#231;os Financeiros S.A. &#8211; DTVM</NomeAdministrador>
+		<CNPJAdministrador>05562312000102</CNPJAdministrador>
+		<Logradouro>Praia de Botafogo</Logradouro>
+		<Numero>501</Numero>
+		<Complemento>6&#186; Andar</Complemento>
+		<Bairro>Botafogo</Bairro>
+		<Cidade>Rio de Janeiro</Cidade>
+		<Estado>RJ</Estado>
+		<CEP>22250-040</CEP>
+		<Telefone1>(11) 3383-3102</Telefone1>
+		<Telefone2 xsi:nil="true"/>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.btgpactual.com</Site>
+		<Email>ri.fundoslistados@btgpactual.com</Email>
+		<Competencia>2020-12-31</Competencia>
+	</DadosGerais>
+	<InformeAnual>
+		<PrestadoresServicos>
+			<Gestor>
+				<Nome>n/a</Nome>
+				<CNPJ>n/a</CNPJ>
+				<Endereco>n/a</Endereco>
+				<telefone>n/a</telefone>
+			</Gestor>
+			<Custodiante>
+				<Nome>BANCO BTG PACTUAL S.A</Nome>
+				<CNPJ>30.306.294/0001-45</CNPJ>
+				<Endereco>Praia de Botafogo, 501 - 5&#170; Andar, Botafogo, Rio de Janeiro, RJ</Endereco>
+				<telefone>(21) 2533 1900</telefone>
+			</Custodiante>
+			<AuditorIndependente>
+				<Nome>KPMG AUDITORES INDEPENDENTES</Nome>
+				<CNPJ>57.755.217/0012-81</CNPJ>
+				<Endereco>Rua do Passeio, 38 Setor 2, Sla 1701-1704, Rio de Janeiro-RJ</Endereco>
+				<telefone>(21) 3218-2051</telefone>
+			</AuditorIndependente>
+			<FormadorMercado>
+				<Nome>n/a</Nome>
+				<CNPJ>n/a</CNPJ>
+				<Endereco>n/a</Endereco>
+				<telefone>n/a</telefone>
+			</FormadorMercado>
+			<DistribuidorCotas>
+				<Nome>BTG PACTUAL SERVI&#199;OS FINANCEIROS S.A. DTVM</Nome>
+				<CNPJ>59.281.253/0001-23</CNPJ>
+				<Endereco>Praia de Botafogo, 501 - 5&#170; Andar, Botafogo, Rio de Janeiro, RJ</Endereco>
+				<telefone>(21) 2533 1900</telefone>
+			</DistribuidorCotas>
+			<ConsultorEspecializado>
+				<Nome>n/a</Nome>
+				<CNPJ>n/a</CNPJ>
+				<Endereco>n/a</Endereco>
+				<telefone>n/a</telefone>
+			</ConsultorEspecializado>
+			<EmpEspecializadaAdmLocacoes>
+				<Nome>n/a</Nome>
+				<CNPJ>n/a</CNPJ>
+				<Endereco>n/a</Endereco>
+				<telefone>n/a</telefone>
+			</EmpEspecializadaAdmLocacoes>
+			<OutrosPrestadores>
+				<Prestador>
+					<Nome>GERPRO ENGENHARIA LTDA</Nome>
+					<CNPJ>10518679000169</CNPJ>
+					<Endereco>Avenida Rio Branco, 181 - sala 2104 e 2105 - Centro, Rio de Janeiro/RJ - CEP: 20040-918</Endereco>
+					<telefone>(21) 2215-1132</telefone>
+				</Prestador>
+			</OutrosPrestadores>
+		</PrestadoresServicos>
+		<InvestimentosFII>
+			<NegociosRealizadosPeriodo>
+				<RelacaoAtivosAdquiridos>
+				</RelacaoAtivosAdquiridos>
+			</NegociosRealizadosPeriodo>
+		</InvestimentosFII>
+		<ProgramaInvestimentos>O Fundo n&#227;o possui investimentos programados para o exerc&#237;cio seguinte.</ProgramaInvestimentos>
+		<AnaliseAdministrador>
+			<ResultadoFundo>O valor patrimonial da cota encerrou o exerc&#237;cio em R$ 3.425,57.</ResultadoFundo>
+			<ConjunturaEconomica>O per&#237;odo foi marcado pelas menores taxas b&#225;sica de juros praticadas no Brasil. Devido a isso houve uma migra&#231;&#227;o de diversos investidores para ativos com melhores rendimentos, como por exemplo o mercado imobili&#225;rio. Soma-se a isso uma boa perspectiva do mercado de Real Estate, com a redu&#231;&#227;o da vac&#226;ncia e demandas aquecidas.</ConjunturaEconomica>
+			<PerspectivaPeriodoSeguinte>Apesar da taxa de juros baixa, seguimos sem press&#245;es inflacion&#225;rias esperadas no curto prazo. Com isso, o investimento em ativos imobili&#225;rios se mostra s&#243;lido. A recupera&#231;&#227;o da economia segue em ritmo lento, devido a cen&#225;rios globais, contudo a chegada da Vacina contra o COVID-19 e reformas econ&#244;micas pelo governo podem gerar novo fluxo de investimentos. </PerspectivaPeriodoSeguinte>
+		</AnaliseAdministrador>
+		<ValorContabilAtivos>
+			<Ativo>
+				<Nome>Edif&#237;cio Almirante Barroso</Nome>
+				<ValorJusto>SIM</ValorJusto>
+				<Valor>328819662</Valor>
+				<PercentValorizacaoDesvalorizacao>-0.062713212062172</PercentValorizacaoDesvalorizacao>
+			</Ativo>
+		</ValorContabilAtivos>
+		<CriteriosAvaliacao>M&#233;todo utilizado para im&#243;veis: Capitaliza&#231;&#227;o da renda atrav&#233;s do fluxo de caixa descontado;
+Empresa: Cushman &amp; Wakefield.</CriteriosAvaliacao>
+		<ProcessosJudiciais>
+			<Processo>
+				<Numero>0023109-25.2010.4.02.5101</Numero>
+				<Juizo>Rio de Janeiro, Justi&#231;a Federal, 7&#170; Vara C&#237;vel, RJ</Juizo>
+				<Instancia>1&#170; Inst&#226;ncia</Instancia>
+				<DataInstauracao>2010-12-16</DataInstauracao>
+				<ValorCausa>21789307.56</ValorCausa>
+				<PartesProcesso>Fundo de Investimento Imobili&#225;rio Almirante BarrosoXCEF - Caixa Econ&#244;mica Federal / RJ</PartesProcesso>
+				<PrincipaisFatos>Revisional,  com pedido liminar para majorar o aluguel mensal para R$ 3.630.000,00.
+29.11.2012: Decis&#227;o: os valores dos alugu&#233;is provis&#243;rios dever&#227;o ser depositados mensalmente na conta corrente do FUNDO, no valor atualizado de R$ 3.052.038,37.Deferido o levantamento no valor de R$20.596.761,31, a t&#237;tulo de diferen&#231;a de alugu&#233;is.
+26.08.2016: Senten&#231;a procedente  para (i) fixar o novo aluguel no valor de R$ 4.281.578,29, data base 17.12.2010, e (ii) homologar os c&#225;lculos do contador para o imediato pagamento do valor hist&#243;rico de R$ 7.856.412,87 (referente &#224; parcela dos alugueis provis&#243;rios pagos a menor pela CEF).
+16.11.2016: a CEF interp&#244;s apela&#231;&#227;o, devidamente respondida pelo Fundo.
+31.05.2017: julgamento dando provimento aos Agravos Retidos e Apela&#231;&#227;o da CEF, para determinar a realiza&#231;&#227;o de uma nova per&#237;cia no processo.
+27.07.2017: tr&#226;nsito em julgado do ac&#243;rd&#227;o e baixa do processo para o 1&#186; grau.
+01.02.2018: realizada audi&#234;ncia, em que o juiz: (a) nomeou o perito; (b) abriu prazo para apresenta&#231;&#227;o de quesitos; e (c) consignou que a per&#237;cia dever seguir o m&#233;todo comparativo para encontrar o valor de mercado na data do ajuizamento da a&#231;&#227;o (dezembro de 2010).
+07.01.2019: homologados os c&#225;lculos do contador a t&#237;tulo de diferencia de provis&#243;rios.
+28.01.2019: apresentamos embargos de declara&#231;&#227;o para que fique esclarecida a quest&#227;o dos juros sobre os c&#225;lculos, que entendemos devidos.CEF tamb&#233;m embargou de declara&#231;&#227;o.
+05.06.2019: decis&#227;o determinando novo prazo &#224; CEF para entrega dos c&#225;lculos a t&#237;tulo de aluguel provis&#243;rio retroativo. Agravo de instrumento interposto pelo Fundo para incluir juros de mora nos c&#225;lculos da diferen&#231;a de aluguel provis&#243;rio retroativo. Agravo interposto pela CEF para modificar os crit&#233;rios de c&#225;lculo da diferen&#231;a de aluguel provis&#243;rio retroativo, j&#225; protocolizada as contrarraz&#245;es.
+06.08.2019 - realizado o julgamento dos agravos interpostos contra a decis&#227;o que homologou os c&#225;lculos da diferen&#231;a de aluguel provis&#243;rio retroativo. O Agravo da CEF foi desprovido e o Agravo do Fundo foi provido para incluir juros de mora.
+09.08.2019 - Prazo para as partes se manifestarem sobre o laudo pericial, que encontrou o valor justo do aluguel para dez/2010 no valor de R$ 3.180.000,00. Nos agravos, ambas as partes opuseram embargos de declara&#231;&#227;o.
+11.10.2019 - apresentamos impugna&#231;&#227;o ao laudo pericial.
+05.11.2019, intimado o perito para apresenta&#231;&#227;o de laudo complementar em 1&#170; inst&#226;ncia.  No Tribunal Regional Federal, aguarda-se a publica&#231;&#227;o do ac&#243;rd&#227;o do julgamento dos embargos de declara&#231;&#227;o opostos pelas partes, com provimento parcial dos recursos e a realiza&#231;&#227;o da audi&#234;ncia de concilia&#231;&#227;o para o dia 19.11.2019.
+06.12.2019, apresentado laudo complementar majorando o valor do aluguel definitivo para R$ 3.458.121,00. Aguardando prazo para manifesta&#231;&#227;o sobre o laudo. Nos autos dos agravos, a CEF interp&#244;s recurso especial contra o ac&#243;rd&#227;o que reconheceu a incid&#234;ncia de juros sobre os c&#225;lculos da diferen&#231;a dos alugu&#233;is retroativos.</PrincipaisFatos>
+				<ChancePerda>remota</ChancePerda>
+				<AnaliseImpactoPerda>Demanda Revisional, pode alterar o valor do aluguel pago pelo locat&#225;rio, em geral a partir da data-base de ajuizamento/cita&#231;&#227;o. Custas e honor&#225;rios advocat&#237;cios podem ser considerados devidos.</AnaliseImpactoPerda>
+			</Processo>
+			<Processo>
+				<Numero>0102209-81.2017.5.01.0201</Numero>
+				<Juizo>Duque de Caxias, Foro Trabalhista, 1&#170; Vara do Trabalho, RJ</Juizo>
+				<Instancia>2&#170; Inst&#226;ncia</Instancia>
+				<DataInstauracao>2017-07-11</DataInstauracao>
+				<ValorCausa>212999.14</ValorCausa>
+				<PartesProcesso>Jaime Alves LiraXCaixa Econ&#244;mica Federal
+CBR Engenharia S/S Ltda.
+Banco BTG Pactual S.A.</PartesProcesso>
+				<PrincipaisFatos>04.11.2017 - Distribui&#231;&#227;o de demanda trabalhista de arquiteto contratado/ligado &#224; CEF que respondia pela obra do Almirante Barroso.
+
+13.03.2018 - Audi&#234;ncia de Concilia&#231;&#227;o Realizada. Sem acordo. Defesas apresentadas. Prazo de 15 (quinze) dias para r&#233;plica. Audi&#234;ncia de instru&#231;&#227;o designada para 12/07/2018, &#224;s 12:00 horas.
+
+10.07.2018 -A audi&#234;ncia de instru&#231;&#227;o marcada para o dia 12.7.2018, foi redesignada para 17.9.2018, &#224;s 12:00h.
+
+26.07.2018 - o Reclamante apresentou r&#233;plica. Aguarda-se a audi&#234;ncia  redesignada para 17.9.2018, &#224;s 12:00h.
+
+17.09.2018 - foi realizada audi&#234;ncia, oportunidade na qual foram colhidos os depoimentos pessoais do reclamante e das remaclamadas.
+
+29.09.2018 - foi proferida senten&#231;a que julgou improcedente o v&#237;nculo empregat&#237;cio pleiteado com a CEF e, por consequ&#234;ncia, julgou improcedente os demais pedidos, inclusive em rela&#231;&#227;o ao Banco BTG. Em 5.10.2018 o Reclamante apresentou Embargos de Declara&#231;&#227;o.
+
+11.02.2019 - foi publicada a senten&#231;a que rejeitou os embargos de declar&#231;a&#227;o do Reclamante.
+
+20.02.2019 -.  o Reclamante apresentou Recurso Ordin&#225;rio.
+
+ 12.04.2019 - o Banco BTG apresentou contrarraz&#245;es ao recurso ordin&#225;rio. O processo foi encaminhado &#224; 2&#170; Inst&#226;ncia em 6.5.2019.
+
+ Em 12.8.2019, os autos foram recebidos para incluir na pauta de julgamento.
+
+ O julgamento est&#225; marcado para o dia 2.10.2019.
+
+ Em 11.10.2019, foi publicado o acord&#227;o que rejeitou as preliminares, conheceu do recurso e deu-lhe parcial provimento para deferir apenas o benef&#237;cio da gratuidade de justi&#231;a ao reclamante, isentando-o do pagamento das custas, e mantendo a senten&#231;a de improced&#234;ncia.
+
+ Em 16.10.2019, o Reclamante op&#244;s embargos de declar&#231;a&#227;o.
+</PrincipaisFatos>
+				<ChancePerda>remota</ChancePerda>
+				<AnaliseImpactoPerda>Em caso de condena&#231;&#227;o, ser&#225; reconhecida a responsabilidade solid&#225;ria do BTG Pactual ao pagamento de indeniza&#231;&#227;o por danos morais, cujo valor ser&#225; arbitrado pelo juiz. Custas e honor&#225;rios podem ser devidos.
+</AnaliseImpactoPerda>
+			</Processo>
+			<Processo>
+				<Numero>0004881-07.2017.8.26.0428 (
+0010792-73.2012.8.26.0428  )
+</Numero>
+				<Juizo>Paul&#237;nia, Foro de Paul&#237;nia, 2&#170; Vara C&#237;vel, SP</Juizo>
+				<Instancia>1&#170; Inst&#226;ncia</Instancia>
+				<DataInstauracao>2017-07-11</DataInstauracao>
+				<ValorCausa>1195383.55
+</ValorCausa>
+				<PartesProcesso>Fundo de Investimento Imobili&#225;rio Almirante BarrosoXMassa Falida de SBR Ind&#250;stria Com&#233;rcio e Servi&#231;os Ltda</PartesProcesso>
+				<PrincipaisFatos>Protocolo da peti&#231;&#227;o inicial em 25.08.2017.
+20.09.2017 - Pedido de Restitui&#231;&#227;o foi juntado na Fal&#234;ncia. Ju&#237;za determinou que AJ se manifestasse sobre nosso pedido.
+25.09.2017 - AJ requisitou desentranhamento da peti&#231;&#227;o para que o tramite ocorra em apenso, com numera&#231;&#227;o pr&#243;pria.
+17.10.2017 - Ju&#237;za determinou desentranhamento e autua&#231;&#227;o em processo apenso.
+07.11.2017 - Incidente instaurado em autos apensos.
+17.11.2017 - devolu&#231;&#227;o dos autos pelo Minist&#233;rio P&#250;blico
+21.03.2018 - recebidos os autos do perito
+23.05.2018 - Protocolo de peti&#231;&#227;o requerendo a intima&#231;&#227;o da Massa Falida para se manifestar sobre o pedido de restitui&#231;&#227;o .
+02.07.18 - Despacho intimando o administrador judicial da Massa Falida  para manifestar-se a respeito do pedido de restitui&#231;&#227;o.
+15.05.2019 - Autos conclusos.
+17.05.19 - Decis&#227;o requerendo emenda &#224; inicial quanto ao valor da causa.
+26.07.2019 - Protocolizada emenda &#224; inicial.</PrincipaisFatos>
+				<ChancePerda>remota</ChancePerda>
+				<AnaliseImpactoPerda>Risco &#233; n&#227;o conseguir restituir os bens e n&#227;o receber o valor deles na fal&#234;ncia.</AnaliseImpactoPerda>
+			</Processo>
+			<Processo>
+				<Numero>0223077-65.2011.8.26.0100</Numero>
+				<Juizo>S&#227;o Paulo, Foro Central, 33&#170; Vara C&#237;vel, SP</Juizo>
+				<Instancia>1&#170; Inst&#226;ncia</Instancia>
+				<DataInstauracao>2011-12-09</DataInstauracao>
+				<ValorCausa>100000</ValorCausa>
+				<PartesProcesso>Celso Luiz Martins Vieira e Paulo Jos&#233; Martins Vieira     X Brazilian Mortgages ; FII Almirante Barroso; BTG Pactual Servi&#231;os Financeiros S.A. DTVM</PartesProcesso>
+				<PrincipaisFatos>Trata-se de a&#231;&#227;o em que os Autores, na condi&#231;&#227;o de cotistas do FII ALMIRANTE BARROSO questionam regra do regulamento do Fundo segundo a qual, nenhum cotista poder&#225; deter mais do que 1%  do total de cotas emitidas pelo FUNDO, sendo inv&#225;lida qualquer aquisi&#231;&#227;o que d&#234; causa &#224; viola&#231;&#227;o deste dispositivo, ficando excetuada a aquisi&#231;&#227;o pela CAIXA ECON&#212;MICA FEDERAL de cotas representativas de at&#233; 25% do patrim&#244;nio do FUNDO, com suspens&#227;o de direito de voto do cotista que, adquirindo cotas no mercado secund&#225;rio, desrespeitar tal regra.
+09.12.2011: Distribui&#231;&#227;o da a&#231;&#227;o com pedido de antecipa&#231;&#227;o de tutela.
+13.12.2011:Indeferida a antecipa&#231;&#227;o de tutela edeterminada a inclus&#227;o do fundo no p&#243;lo passivo.
+07.03.2012: Aditamento &#224; inicial.
+16.05.2012: Protocolo da contesta&#231;&#227;o da R&#233; Brazilian Mortgages.
+06.08.2012: Prazo para r&#233;plica e especifica&#231;&#227;o de provas.
+24.09.2012: Protocolo de peti&#231;&#227;o da R&#233; Brazilian Mortgages requerendo a sua exclus&#227;o do p&#243;lo passivo da demanda por n&#227;o ser mais administradora do Fundo de Investimento em quest&#227;o.
+14.11.2012: Despacho proferido: &#8220;Vistos. Intime-se a Comiss&#227;o de Valores Mobili&#225;rios, como Amicus Curiae, a apresentar parecer ou ofertar esclarecimentos, no prazo de quinze dias, nos termos do disposto no artigo 31 da Lei 6.385/76. Int.&#8221;
+28.11.2012: Expedido of&#237;cio a ser enviado &#224; CVM.
+21.10.2013: Em resposta ao of&#237;cio enviado, a CVM esclarece que n&#227;o pode se manifestar especificamente sobre o objeto do processo porque encontra-se em andamento processo administrativo que trata da mesma mat&#233;ria.
+30.10.2013: Apresentamos manifesta&#231;&#227;o argumentando que o processo deve ficar com o andamento suspenso aguardando o deslinde do processo administrativo.
+19.04.2016 Decis&#227;o com o seguinte teor: (a) rejei&#231;&#227;o de preliminar de car&#234;ncia da a&#231;&#227;o; (b) determina&#231;&#227;o &#224; parte r&#233; para comprovar a mudan&#231;a de administrador fiduci&#225;rio (Brazilian para BTG);(c) manuten&#231;&#227;o de Brazilian Mortgages no p&#243;lo passivo, sob o fundamento de ser tal entidade quem elaborou o regulamento; (d) negativa de antecipa&#231;&#227;o de tutela.
+30.03.2017 - Decis&#227;o determinando o envio de novo of&#237;cio &#224; CVM para prestar informa&#231;&#245;es e de of&#237;cio ao BTG Pactual parra comprovar que &#233; o administrador do fundo.
+09.05.2018- Foi proferida decis&#227;o determinando a inclus&#227;o na BTG no polo passivo da demanda.
+15.05.2018 - A BTG P&#225;ctual Servi&#231;os Financeiros S.A. DTVM foi inclu&#237;da no polo passivo da demanda, conforme decis&#227;o proferida no dia 09.05.
+30.07.2018 - Determinada, novamente, a expedi&#231;&#227;o de of&#237;cio &#224; CVM  para informa&#231;&#245;es, devidamente entregue.
+14.01.2019 - Despacho dando ci&#234;ncia &#224;s partes da resposta da CVM, em que informa que n&#227;o foi dado provimento &#224; reclama&#231;&#227;o dos autores, mas em que foi determinada a adequa&#231;&#227;o do regulamento do fundo &#224; instru&#231;&#227;o CVM 571.02.07.2019 - Autos conclusos, ap&#243;s certid&#227;o de decurso de prazo que havia sido dado a autores para dar andamento &#224;</PrincipaisFatos>
+				<ChancePerda>remota</ChancePerda>
+				<AnaliseImpactoPerda>Caso haja uma eventual senten&#231;a de proced&#234;ncia, ser&#225; alterada a regra do processo decis&#243;rio questionado.Custas e honor&#225;rios podem ser considerados devidos.</AnaliseImpactoPerda>
+			</Processo>
+			<Processo>
+				<Numero>5086173-69.2020.4.02.5101</Numero>
+				<Juizo>Rio de Janeiro, Justi&#231;a Federal, 29&#170; Vara Federal</Juizo>
+				<Instancia>1&#170; Inst&#226;ncia</Instancia>
+				<DataInstauracao>2020-12-08</DataInstauracao>
+				<ValorCausa>10000</ValorCausa>
+				<PartesProcesso>Fundo de Investimento Imobili&#225;rio Almirante BarrosoXCEF - Caixa Econ&#244;mica Federal / RJ</PartesProcesso>
+				<PrincipaisFatos>Em 08.12.2020, distribu&#237;do o processo.
+Em 09.12.2020, proferida decis&#227;o determinando a cita&#231;&#227;o e intima&#231;&#227;o do FUNDO para apresentar contesta&#231;&#227;o e indicar provas, para que a tutela de urg&#234;ncia seja apreciada ap&#243;s justifica&#231;&#227;o pr&#233;via.
+Em 11.12.2020, apresentada peti&#231;&#227;o pela CEF pedindo a reconsidera&#231;&#227;o da decis&#227;o proferida em 09.12.2020, para que a tutela de urg&#234;ncia fosse apreciada de imediato.
+Em 11.12.2020, proferida decis&#227;o determinando a intima&#231;&#227;o do FUNDO para se manifestar sobre o pedido pela tutela antecipada urgente no prazo de 72 horas.
+Em 18.12.2020, apresentada manifesta&#231;&#227;o pelo FUNDO sobre o pedido pela tutela antecipada urgente formulado pela CEF, demonstrando a recusa leg&#237;tima no recebimento das chaves e requerendo a intima&#231;&#227;o da CEF para comprovar que adotou medidas imediatas e urgentes para eliminar os evidentes riscos de inc&#234;ndio do im&#243;vel e garantir a incolumidade das pessoas que est&#227;o trabalhando na fachada do Edif&#237;cio e restituiu aos pavimentos danificados condi&#231;&#245;es de habita&#231;&#227;o, conforme previs&#227;o contratual. Em 21.01.2021, proferida decis&#227;o em sede de tutela antecipada autorizando o dep&#243;sito judicial das chaves do im&#243;vel pela CEF, com a cessa&#231;&#227;o das cobran&#231;as de alugu&#233;is e acess&#243;rios a partir da data da decis&#227;o.                                                                                                                                                                                                                                                                                     </PrincipaisFatos>
+				<ChancePerda>poss&#237;vel</ChancePerda>
+				<AnaliseImpactoPerda>Em caso de proced&#234;ncia da demanda de consigna&#231;&#227;o de chaves, o im&#243;vel ficar&#225; 100% vago. Custas e honor&#225;rios podem ser devidos.</AnaliseImpactoPerda>
+			</Processo>
+		</ProcessosJudiciais>
+		<ProcessosJudiciaisSemelhantes>
+			<Processo>
+				<Numero>0100485-40.2016.5.01.0019</Numero>
+				<Valores>74842.78</Valores>
+				<CausaContingencia>Trata-se de a&#231;&#227;o em que o FII Almirante Barroso tem apenas o dever de depositar em ju&#237;zo eventuais valores devidos &#224; empresa r&#233;, para fins de satisfa&#231;&#227;o de cr&#233;dito trabalhista. Em princ&#237;pio, sem impacto financeiro adicional ao fundo, exceto eventuais depesas e honor&#225;rios relacionados &#224; representa&#231;a&#245; do FII em ju&#237;zo.</CausaContingencia>
+			</Processo>
+		</ProcessosJudiciaisSemelhantes>
+		<AnaliseImpactos xsi:nil="true"/>
+		<AssembleiaGeral>
+			<EnderecoFisicoDocsAssembleias>Avenida Brigadeiro Faria Lima, 3477 - 14&#186; andar - Itaim Bibi - S&#227;o Paulo/SP</EnderecoFisicoDocsAssembleias>
+			<EnderecoEletronicoDocsAssembleias>Os documentos relativos &#224; Assembleia Geral estar&#227;o dispon&#237;veis na sede do Administrador bem como no site da B3 e do Banco BTG Pactual.</EnderecoEletronicoDocsAssembleias>
+			<MeiosComunicacao>A Administradora disponibiliza aos cotistas o endere&#231;o de e-mail abaixo para solicita&#231;&#245;es referentes as assembleias bem como d&#250;vidas em geral: ri.fundoslistados@btgpactual.com</MeiosComunicacao>
+			<RegrasProcParticipacaoCotistas>i &#8211; Quanto &#224;s formalidades exigidas para a comprova&#231;&#227;o da qualidade de cotista e representa&#231;&#227;o de cotistas em Assembleia: Nos termos do Art. 22 da instru&#231;&#227;o CVM 472, somente poder&#227;o votas os Cotistas inscritos no livro de registro de cotistas ou na conta de dep&#243;sito das cotas na data de convoca&#231;&#227;o da Assembleia, seus representantes legais ou procuradores legalmente constru&#237;dos h&#225; menos de 1 (um) ano. Ainda importante que todos os documentos de identifica&#231;&#227;o/representa&#231;&#227;o sejam devidamente apresentados. Quais sejam: (a) Para Cotistas Pessoas F&#237;sicas: c&#243;pia de um documento de identifica&#231;&#227;o, tal qual, RG, RNE ou CNH; (b) Para Cotistas Pessoas Jur&#237;dicas: C&#243;pia do &#250;ltimo estatuto ou contrato social consolidado e da documenta&#231;&#227;o societ&#225;ria outorgando poderes de representa&#231;&#227;o ao(s) signat&#225;rio(s) da declara&#231;&#227;o referida no item &#8220;a&#8221; acima (e.g. ata de elei&#231;&#227;o dos diretores e/ou procura&#231;&#227;o com firma reconhecida); (c) Para Cotistas Fundos de Investimento: C&#243;pia autenticada do &#250;ltimo regulamento consolidado do fundo e estatuto social do seu administrador, al&#233;m da documenta&#231;&#227;o societ&#225;ria outorgando poderes de representa&#231;&#227;o (ata de elei&#231;&#227;o dos diretores e/ou procura&#231;&#227;o com firma reconhecida). (d) Caso o cotista seja representado, o procurador dever&#225; encaminhar, tamb&#233;m, a respectiva procura&#231;&#227;o com firma reconhecida, lavrada h&#225; menos de 1 (um) ano, outorgando poderes espec&#237;ficos para a pr&#225;tica do ato.
+ii - Quando previsto em regulamento, &#233; poss&#237;vel a realiza&#231;&#227;o de consultas formais. Tais Consultas s&#227;o realizadas por meio do envio de uma Carta Consulta para a base de cotistas, atrav&#233;s dos endere&#231;os de e-mail dos Cotistas disponibilizados pela B3 S.A. &#8211; Brasil, Bolsa e Balc&#227;o (&#8220;B3&#8221; ou &#8220;Bolsa&#8221;) ou anteriormente informados ao servi&#231;o de escritura&#231;&#227;o de cotas do Fundo, para os Cotistas que n&#227;o tenham suas cotas depositadas em bolsa. na qual consta a exposi&#231;&#227;o do Administrador sobre os itens a serem deliberados, data limite para manifesta&#231;&#227;o do voto, prazo para apura&#231;&#227;o dos votos e orienta&#231;&#227;o sobre o envio da manifesta&#231;&#227;o bem como documentos que devem ser anexados. Al&#233;m disso, segue anexa &#224; Consulta Formal uma carta resposta modelo com os itens em delibera&#231;&#227;o, campo para voto e itens para preenchimento de dados do cotistas e assinatura.
+iii &#8211; Quanto as regras e procedimentos para a participa&#231;&#227;o &#224; dist&#226;ncia e envio de comunica&#231;&#227;o escrita ou eletr&#244;nica de voto, solicitamos cotistas mandem na forma da carta resposta anexa a carta consulta at&#233; o prazo limite de manifesta&#231;&#227;o de voto, por meio de envelope digital enviado, ou, em caso de recebimento de correspond&#234;ncia via e-mail ou em via f&#237;sica, por meio do e-mail ri.fundoslistados@btgpacual.com, nos termos do Art. 40 do Regulamento. Para manifesta&#231;&#227;o por meio eletr&#244;nico &#233; dado ao Cotista a possibilidade de manifestar sua inten&#231;&#227;o de voto pela plataforma de assinatura eletr&#244;nica reconhecida pelos padr&#245;es de abono do Banco BTG Pactual (&#8220;Cuore&#8221; ou &#8220;plataforma de assinatura eletr&#244;nica&#8221;).</RegrasProcParticipacaoCotistas>
+			<PraticasAssembleiaMeioEletronico>A Assembleia em meio eletr&#244;nico (&#8220;Assembleia Virtual&#8221;) &#233; realizada &#224; dist&#226;ncia com o objetivo de auxiliar os investidores do Fundo em um momento de necessidade de distanciamento social, a Administradora segue as disposi&#231;&#245;es do Of&#237;cio n&#176; 36/2020 emitido pela Comiss&#227;o de Valores Mobili&#225;rios (&#8220;CVM&#8221;), e informa atrav&#233;s do Edital de Convoca&#231;&#227;o (&#8220;Convoca&#231;&#227;o&#8221;) e a Proposta da Administradora da referida Assembleia que s&#227;o disponibilizadas no Site da Administradora na rede mundial de computadores e no Sistema Integrado CVM e B3 (&#8220;Fundos Net&#8221;). Diante disso, os documentos de Assembleia n&#227;o s&#227;o enviados no formato f&#237;sico para o endere&#231;o dos investidores, salvos os casos em que a Gest&#227;o do Fundo optar por enviar a via f&#237;sica. Adicionalmente, com o intuito de conferir maior publicidade e transpar&#234;ncia &#224; realiza&#231;&#227;o da Assembleia, a Administradora envia a Convoca&#231;&#227;o tamb&#233;m para os endere&#231;os de e-mail dos Cotistas disponibilizados pela B3 S.A. &#8211; Brasil, Bolsa e Balc&#227;o (&#8220;B3&#8221;) ou anteriormente informados ao servi&#231;o de escritura&#231;&#227;o de cotas do Fundo, para os Cotistas que n&#227;o tenham suas cotas depositadas em bolsa. Nos termos do Art. 22 da instru&#231;&#227;o CVM 472, somente poder&#227;o votar os Cotistas inscritos no livro de registro de cotistas ou na conta de dep&#243;sito das cotas na data de convoca&#231;&#227;o da Assembleia, seus representantes legais ou procuradores legalmente constru&#237;dos h&#225; menos de 1 (um) ano. No que diz respeito ao acesso as Assembleia Virtual, os cotistas se cadastram atrav&#233;s do link presente no edital de convoca&#231;&#227;o para acesso a Assembleia Virtual o ocorre por meio da plataforma Webex, para o cadastro &#233; exigido, documentos de identifica&#231;&#227;o/representa&#231;&#227;o sejam devidamente apresentados para valida&#231;&#227;o do acesso ao cotista. Conclu&#237;do o pr&#233;-cadastro os dados dos cotistas ser&#227;o validados: (a) os documentos informados pelos cotista; (b) se o cotista est&#225; presente na base de cotistas da data base da convoca&#231;&#227;o. Se os dados apresentados estiverem de acordo com os crit&#233;rios supracitados, &#233; enviado ao endere&#231;o de e-mail informado o link final para acesso &#224; Plataforma da Assembleia. Durante a realiza&#231;&#227;o da Assembleia &#233; eleito um Presidente e um Secret&#225;rio, para que posteriormente e apresentado aos cotistas a proposta a ser deliberada. Por fim, &#233; dado aos cotistas a oportunidade sanar poss&#237;veis d&#250;vidas sobre os conte&#250;dos que permeiam a Assembleia, atrav&#233;s de um Chat All Participants (&#8220;Chat&#8220; ou &#8220;Plataforma de Bate-Papo&#8221;). Ap&#243;s o encontro inicial a Assembleia e suspensa e reinstalada alguns dias ap&#243;s seu in&#237;cio com a presen&#231;a de qualquer n&#250;mero de cotistas, nos termos do Art. 19 da Instru&#231;&#227;o CVM 472, combinado com o Art. 70 da Instru&#231;&#227;o CVM 555. Os Cotistas que conectarem &#224; Plataforma nos termos acima ser&#227;o considerados presentes e assinantes da ata e do livro de presen&#231;a, ainda que se abstenham de votar. Ap&#243;s aprovado pelo Presidente e o Secret&#225;rio, &#233; publicado o Termo de Apura&#231;&#227;o e do Sum&#225;rio de Decis&#245;es Site da Administradora na rede mundial de computadores e no Fundos Net.</PraticasAssembleiaMeioEletronico>
+		</AssembleiaGeral>
+		<RemuneracaoAdministrador>
+			<PoliticaRemuneracao>A ADMINISTRADORA receber&#225; por seus servi&#231;os uma taxa de administra&#231;&#227;o
+equivalente a 2,5% (dois inteiros e cinquenta cent&#233;simos por cento), calculada sobre a receita
+operacional l&#237;quida do FUNDO. Entende-se por &#8220;receita operacional l&#237;quida&#8221; a somat&#243;ria de
+todas as receitas auferidas pelo Fundo. A taxa de administra&#231;&#227;o ser&#225; calculada e paga &#224;
+ADMINISTRADORA mensalmente, por per&#237;odo vencido, at&#233; o quinto dia &#250;til do m&#234;s
+subsequente ao dos servi&#231;os prestados.</PoliticaRemuneracao>
+			<ValorPagoAno>1453750.87</ValorPagoAno>
+			<PercentPatrimonioContabil>0.00396268230602952</PercentPatrimonioContabil>
+			<PercentPatrimonioValorMercado>0.00394268230602952</PercentPatrimonioValorMercado>
+		</RemuneracaoAdministrador>
+		<Governanca>
+			<RepresentantesCotistas>
+				<Representante1>
+					<Nome>Gabriel Jos&#233; Lindenbaum</Nome>
+					<Idade>48</Idade>
+					<CPF>1111095744</CPF>
+					<Email>lisboalindenbaum@gmail.com</Email>
+					<Profissao>Advogado</Profissao>
+					<FormacaoAcademica>Formado na faculdade de direito no ano de 1995</FormacaoAcademica>
+					<FormaRemuneracao>R$3.000,00 mensais</FormaRemuneracao>
+					<ValorPagoAno>36000</ValorPagoAno>
+					<PercentPatrimonioContabil>0</PercentPatrimonioContabil>
+					<PercentPatrimonioValorMercado>0</PercentPatrimonioValorMercado>
+					<QtdCotasDetidasFII>97</QtdCotasDetidasFII>
+					<QtdCotasFIICompradas>0</QtdCotasFIICompradas>
+					<QtdCotasFIIVendidas>0</QtdCotasFIIVendidas>
+					<DataEleicaoAssembleia>2019-04-22</DataEleicaoAssembleia>
+					<TerminoMandato>2022-04-22</TerminoMandato>
+					<ExperienciasProfUltimosCincoAnos>
+						<Experiencia>
+							<NomeEmpresa>Lisboa Lindenbaum Imoveis LTDA</NomeEmpresa>
+							<Periodo>30 anos</Periodo>
+							<CargoFuncoes>S&#243;cio Gerente</CargoFuncoes>
+							<AtividadePrincipalEmpresa>Administra&#231;&#227;o de im&#243;veis</AtividadePrincipalEmpresa>
+						</Experiencia>
+					</ExperienciasProfUltimosCincoAnos>
+					<FundosExercaFuncaoRepresentante>
+						<Fundo>
+							<Nome>BB FUNDO DE INVESTIMENTO IMOBILI&#193;RIO PROGRESSIVO</Nome>
+							<DataEleicaoAssembGeral>2020-04-30</DataEleicaoAssembGeral>
+							<TerminoMandato>2022-04-22</TerminoMandato>
+						</Fundo>
+					</FundosExercaFuncaoRepresentante>
+					<Eventos>
+						<CondenacaoCriminal>N&#227;o h&#225;</CondenacaoCriminal>
+						<CondenacaoProcAdminCVM>N&#227;o h&#225;</CondenacaoProcAdminCVM>
+					</Eventos>
+				</Representante1>
+				<Representante2>
+					<Nome>Luiz Gustavo Aurnheimer Vieira</Nome>
+					<Idade>41</Idade>
+					<CPF>8436389743</CPF>
+					<Email>lgvieira2013@gmail.com</Email>
+					<Profissao/>
+					<FormacaoAcademica>Administrador</FormacaoAcademica>
+					<FormaRemuneracao>R$ 3.000,00 mensais</FormaRemuneracao>
+					<ValorPagoAno>36000</ValorPagoAno>
+					<PercentPatrimonioContabil>0</PercentPatrimonioContabil>
+					<PercentPatrimonioValorMercado>0</PercentPatrimonioValorMercado>
+					<QtdCotasDetidasFII>1010</QtdCotasDetidasFII>
+					<QtdCotasFIICompradas>0</QtdCotasFIICompradas>
+					<QtdCotasFIIVendidas>38</QtdCotasFIIVendidas>
+					<DataEleicaoAssembleia xsi:nil="true"/>
+					<TerminoMandato xsi:nil="true"/>
+					<ExperienciasProfUltimosCincoAnos>
+						<Experiencia>
+							<NomeEmpresa>Consenso Loca&#231;&#227;o e constru&#231;&#227;o de Im&#243;veis Ltda</NomeEmpresa>
+							<Periodo>17 anos</Periodo>
+							<CargoFuncoes>S&#243;cio</CargoFuncoes>
+							<AtividadePrincipalEmpresa>Loca&#231;&#227;o e constru&#231;&#227;o de im&#243;veis</AtividadePrincipalEmpresa>
+						</Experiencia>
+					</ExperienciasProfUltimosCincoAnos>
+					<FundosExercaFuncaoRepresentante>
+						<Fundo>
+							<Nome>FII &#8211; BB Fundo Progressivo</Nome>
+							<DataEleicaoAssembGeral>2020-04-30</DataEleicaoAssembGeral>
+							<TerminoMandato>2022-04-29</TerminoMandato>
+						</Fundo>
+					</FundosExercaFuncaoRepresentante>
+					<Eventos>
+						<CondenacaoCriminal>N&#227;o h&#225;</CondenacaoCriminal>
+						<CondenacaoProcAdminCVM>N&#227;o h&#225;</CondenacaoProcAdminCVM>
+					</Eventos>
+				</Representante2>
+				<Representante3>
+					<Nome/>
+					<Idade/>
+					<CPF/>
+					<Email/>
+					<Profissao/>
+					<FormacaoAcademica/>
+					<FormaRemuneracao/>
+					<ValorPagoAno xsi:nil="true"/>
+					<PercentPatrimonioContabil xsi:nil="true"/>
+					<PercentPatrimonioValorMercado xsi:nil="true"/>
+					<QtdCotasDetidasFII xsi:nil="true"/>
+					<QtdCotasFIICompradas xsi:nil="true"/>
+					<QtdCotasFIIVendidas xsi:nil="true"/>
+					<DataEleicaoAssembleia xsi:nil="true"/>
+					<TerminoMandato xsi:nil="true"/>
+					<ExperienciasProfUltimosCincoAnos>
+					</ExperienciasProfUltimosCincoAnos>
+					<FundosExercaFuncaoRepresentante>
+					</FundosExercaFuncaoRepresentante>
+					<Eventos>
+						<CondenacaoCriminal/>
+						<CondenacaoProcAdminCVM/>
+					</Eventos>
+				</Representante3>
+				<Representante4>
+					<Nome/>
+					<Idade/>
+					<CPF/>
+					<Email/>
+					<Profissao/>
+					<FormacaoAcademica/>
+					<FormaRemuneracao/>
+					<ValorPagoAno xsi:nil="true"/>
+					<PercentPatrimonioContabil xsi:nil="true"/>
+					<PercentPatrimonioValorMercado xsi:nil="true"/>
+					<QtdCotasDetidasFII xsi:nil="true"/>
+					<QtdCotasFIICompradas xsi:nil="true"/>
+					<QtdCotasFIIVendidas xsi:nil="true"/>
+					<DataEleicaoAssembleia xsi:nil="true"/>
+					<TerminoMandato xsi:nil="true"/>
+					<ExperienciasProfUltimosCincoAnos>
+					</ExperienciasProfUltimosCincoAnos>
+					<FundosExercaFuncaoRepresentante>
+					</FundosExercaFuncaoRepresentante>
+					<Eventos>
+						<CondenacaoCriminal/>
+						<CondenacaoProcAdminCVM/>
+					</Eventos>
+				</Representante4>
+				<Representante5>
+					<Nome/>
+					<Idade/>
+					<CPF/>
+					<Email/>
+					<Profissao/>
+					<FormacaoAcademica/>
+					<FormaRemuneracao/>
+					<ValorPagoAno xsi:nil="true"/>
+					<PercentPatrimonioContabil xsi:nil="true"/>
+					<PercentPatrimonioValorMercado xsi:nil="true"/>
+					<QtdCotasDetidasFII xsi:nil="true"/>
+					<QtdCotasFIICompradas xsi:nil="true"/>
+					<QtdCotasFIIVendidas xsi:nil="true"/>
+					<DataEleicaoAssembleia xsi:nil="true"/>
+					<TerminoMandato xsi:nil="true"/>
+					<ExperienciasProfUltimosCincoAnos>
+					</ExperienciasProfUltimosCincoAnos>
+					<FundosExercaFuncaoRepresentante>
+					</FundosExercaFuncaoRepresentante>
+					<Eventos>
+						<CondenacaoCriminal/>
+						<CondenacaoProcAdminCVM/>
+					</Eventos>
+				</Representante5>
+			</RepresentantesCotistas>
+			<DiretorResponsavel>
+				<Nome>Allan Hadid</Nome>
+				<Idade>44 anos</Idade>
+				<CPF>071.913.047-66</CPF>
+				<Email>ol-reguladores@btgpactual.com</Email>
+				<Profissao>Economista</Profissao>
+				<FormacaoAcademica>Graduado em Ci&#234;ncias Econ&#244;micas pela Pontif&#237;cia Universidade Cat&#243;lica do Rio de Janeiro em dezembro de 1997. </FormacaoAcademica>
+				<DataInicioFuncao>2016-09-29</DataInicioFuncao>
+				<QtdCotasDetidasFII>0</QtdCotasDetidasFII>
+				<QtdCotasFIICompradas>0</QtdCotasFIICompradas>
+				<QtdCotasFIIVendidas>0</QtdCotasFIIVendidas>
+				<ExperienciasProfUltimosCincoAnos>
+					<Experiencia>
+						<NomeEmpresa>Banco BTG Pactual S.A</NomeEmpresa>
+						<Periodo>De julho de 2014 at&#233; hoje</Periodo>
+						<CargoFuncoes>Ingressou como partner no Banco BTG Pactual S.A. na posi&#231;&#227;o de COO (Chief Operations Officer) da &#225;rea de Merchant Banking e, atualmente, ocupa o cargo de COO (Chief Operations Officer) da &#225;rea de Global Asset Management</CargoFuncoes>
+						<AtividadePrincipalEmpresa>Atualmente, ocupa o cargo de COO (Chief Operations Officer) da &#225;rea de Global Asset Management.</AtividadePrincipalEmpresa>
+					</Experiencia>
+					<Experiencia>
+						<NomeEmpresa>BRZ Investimentos</NomeEmpresa>
+						<Periodo>De junho de 2011 at&#233; junho de 2014</Periodo>
+						<CargoFuncoes>CEO (Chief Executive Officer)</CargoFuncoes>
+						<AtividadePrincipalEmpresa>Atuou na &#225;rea de gest&#227;o de recursos</AtividadePrincipalEmpresa>
+					</Experiencia>
+				</ExperienciasProfUltimosCincoAnos>
+				<Eventos>
+					<CondenacaoCriminal>N&#227;o h&#225;</CondenacaoCriminal>
+					<CondenacaoProcAdminCVM>N&#227;o h&#225;</CondenacaoProcAdminCVM>
+				</Eventos>
+			</DiretorResponsavel>
+		</Governanca>
+		<DistribuicaoCotistas>
+			<AteCincoPorcento numCotistas="3979" numCotasDetidas="74319" percDetidoRelTotal="0.709150763358779" percDetidoPF="0.685209923664122" percDetidoPJ="0.0239408396946565"/>
+			<AcimaCincoAteDezPorcento numCotistas="3" numCotasDetidas="30481" percDetidoRelTotal="0.290849236641221" percDetidoPF="0.290849236641221" percDetidoPJ="0"/>
+			<AcimaDezAteQuinzePorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+			<AcimaQuinzeAteVintePorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+			<AcimaVinteAteTrintaPorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+			<AcimaTrintaAteQuarentaPorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+			<AcimaQuarentaAteCinquentaPorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+			<AcimaCiquentaPorcento numCotistas="0" numCotasDetidas="0" percDetidoRelTotal="0" percDetidoPF="0" percDetidoPJ="0"/>
+		</DistribuicaoCotistas>
+		<TransacoesInstrucaoCVM>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-08</DataTransacao>
+				<ValorEnvolvido>9115.65</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-10</DataTransacao>
+				<ValorEnvolvido>114622.71</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-10</DataTransacao>
+				<ValorEnvolvido>12029.55</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-13</DataTransacao>
+				<ValorEnvolvido>3098783.84</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-15</DataTransacao>
+				<ValorEnvolvido>4525491.96</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-21</DataTransacao>
+				<ValorEnvolvido>127218.62</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-23</DataTransacao>
+				<ValorEnvolvido>383040.62</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-28</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-30</DataTransacao>
+				<ValorEnvolvido>22500</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-30</DataTransacao>
+				<ValorEnvolvido>19535.41</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-30</DataTransacao>
+				<ValorEnvolvido>101813.28</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-01-30</DataTransacao>
+				<ValorEnvolvido>175</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-03</DataTransacao>
+				<ValorEnvolvido>100</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-07</DataTransacao>
+				<ValorEnvolvido>12007.55</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-10</DataTransacao>
+				<ValorEnvolvido>75581.66</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-11</DataTransacao>
+				<ValorEnvolvido>4382993.88</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-12</DataTransacao>
+				<ValorEnvolvido>3032300.86</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-14</DataTransacao>
+				<ValorEnvolvido>10143.1</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-18</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-19</DataTransacao>
+				<ValorEnvolvido>184.82</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-20</DataTransacao>
+				<ValorEnvolvido>9761.94</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-21</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-26</DataTransacao>
+				<ValorEnvolvido>175</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-02-27</DataTransacao>
+				<ValorEnvolvido>63709.78</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-05</DataTransacao>
+				<ValorEnvolvido>25000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-06</DataTransacao>
+				<ValorEnvolvido>47419.37</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-10</DataTransacao>
+				<ValorEnvolvido>107033.92</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-11</DataTransacao>
+				<ValorEnvolvido>1587723.72</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-13</DataTransacao>
+				<ValorEnvolvido>25742.89</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-18</DataTransacao>
+				<ValorEnvolvido>1587.81</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-19</DataTransacao>
+				<ValorEnvolvido>373452.78</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-25</DataTransacao>
+				<ValorEnvolvido>37790.83</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-25</DataTransacao>
+				<ValorEnvolvido>469.02</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-26</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-27</DataTransacao>
+				<ValorEnvolvido>14309.9</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-03-30</DataTransacao>
+				<ValorEnvolvido>179056.15</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-03</DataTransacao>
+				<ValorEnvolvido>8108.35</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-06</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-07</DataTransacao>
+				<ValorEnvolvido>9012.25</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-07</DataTransacao>
+				<ValorEnvolvido>4886740</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-09</DataTransacao>
+				<ValorEnvolvido>125187.65</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-13</DataTransacao>
+				<ValorEnvolvido>3106405.97</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-15</DataTransacao>
+				<ValorEnvolvido>1078.76</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-15</DataTransacao>
+				<ValorEnvolvido>1001</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-24</DataTransacao>
+				<ValorEnvolvido>965</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-28</DataTransacao>
+				<ValorEnvolvido>48210</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-04-29</DataTransacao>
+				<ValorEnvolvido>10390.77</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-05</DataTransacao>
+				<ValorEnvolvido>69445.18</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-06</DataTransacao>
+				<ValorEnvolvido>41967.56</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-07</DataTransacao>
+				<ValorEnvolvido>5591.67</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-08</DataTransacao>
+				<ValorEnvolvido>12162.65</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-08</DataTransacao>
+				<ValorEnvolvido>4886702.92</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-12</DataTransacao>
+				<ValorEnvolvido>113007.69</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-13</DataTransacao>
+				<ValorEnvolvido>3142668.27</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-18</DataTransacao>
+				<ValorEnvolvido>4195.95</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-18</DataTransacao>
+				<ValorEnvolvido>4195.95</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-18</DataTransacao>
+				<ValorEnvolvido>4195.95</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-25</DataTransacao>
+				<ValorEnvolvido>1009.02</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-25</DataTransacao>
+				<ValorEnvolvido>1000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-27</DataTransacao>
+				<ValorEnvolvido>276351.2</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-05-28</DataTransacao>
+				<ValorEnvolvido>1209297.81</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-05</DataTransacao>
+				<ValorEnvolvido>12219.05</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-05</DataTransacao>
+				<ValorEnvolvido>4886739.31</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-09</DataTransacao>
+				<ValorEnvolvido>114930.93</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-10</DataTransacao>
+				<ValorEnvolvido>3361690.95</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-23</DataTransacao>
+				<ValorEnvolvido>1210</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-23</DataTransacao>
+				<ValorEnvolvido>1000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-24</DataTransacao>
+				<ValorEnvolvido>102544.69</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-26</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTG PACTUAL CAPITAL MARKETS FI RF CP</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-29</DataTransacao>
+				<ValorEnvolvido>340012.71</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-06-29</DataTransacao>
+				<ValorEnvolvido>15946.11</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-01</DataTransacao>
+				<ValorEnvolvido>3007.7</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-03</DataTransacao>
+				<ValorEnvolvido>1766.66</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-07</DataTransacao>
+				<ValorEnvolvido>9270.75</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-07</DataTransacao>
+				<ValorEnvolvido>4886700</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-08</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-09</DataTransacao>
+				<ValorEnvolvido>114150.94</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-10</DataTransacao>
+				<ValorEnvolvido>3373860.57</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-23</DataTransacao>
+				<ValorEnvolvido>559.78</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-24</DataTransacao>
+				<ValorEnvolvido>23944.2</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-27</DataTransacao>
+				<ValorEnvolvido>175</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-28</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-30</DataTransacao>
+				<ValorEnvolvido>370854.07</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-07-30</DataTransacao>
+				<ValorEnvolvido>34371.41</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-06</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-07</DataTransacao>
+				<ValorEnvolvido>9425.85</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-11</DataTransacao>
+				<ValorEnvolvido>113679.05</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-12</DataTransacao>
+				<ValorEnvolvido>2708144.05</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-12</DataTransacao>
+				<ValorEnvolvido>4886764</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-17</DataTransacao>
+				<ValorEnvolvido>153.73</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-17</DataTransacao>
+				<ValorEnvolvido>100</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-19</DataTransacao>
+				<ValorEnvolvido>171.85</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-19</DataTransacao>
+				<ValorEnvolvido>100</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-24</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-27</DataTransacao>
+				<ValorEnvolvido>23944.2</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-28</DataTransacao>
+				<ValorEnvolvido>10580.52</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-28</DataTransacao>
+				<ValorEnvolvido>293026.21</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-08-28</DataTransacao>
+				<ValorEnvolvido>15000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-02</DataTransacao>
+				<ValorEnvolvido>15965</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-03</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-08</DataTransacao>
+				<ValorEnvolvido>4877163.7</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-09</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-10</DataTransacao>
+				<ValorEnvolvido>113485.44</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-11</DataTransacao>
+				<ValorEnvolvido>2729875.14</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-25</DataTransacao>
+				<ValorEnvolvido>10640</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-28</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-09-29</DataTransacao>
+				<ValorEnvolvido>613697.4</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-01</DataTransacao>
+				<ValorEnvolvido>23965.84</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-07</DataTransacao>
+				<ValorEnvolvido>4886700</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-09</DataTransacao>
+				<ValorEnvolvido>134199.48</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-09</DataTransacao>
+				<ValorEnvolvido>4350</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-13</DataTransacao>
+				<ValorEnvolvido>2641542.53</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-28</DataTransacao>
+				<ValorEnvolvido>48000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-10-29</DataTransacao>
+				<ValorEnvolvido>555899.89</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-06</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-09</DataTransacao>
+				<ValorEnvolvido>4862267.94</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-11</DataTransacao>
+				<ValorEnvolvido>122170.49</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-12</DataTransacao>
+				<ValorEnvolvido>937488.72</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-13</DataTransacao>
+				<ValorEnvolvido>1000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-13</DataTransacao>
+				<ValorEnvolvido>1066.92</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-17</DataTransacao>
+				<ValorEnvolvido>27000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-20</DataTransacao>
+				<ValorEnvolvido>1000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-20</DataTransacao>
+				<ValorEnvolvido>1235.23</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-24</DataTransacao>
+				<ValorEnvolvido>3600</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-27</DataTransacao>
+				<ValorEnvolvido>48210</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-11-30</DataTransacao>
+				<ValorEnvolvido>8292.67</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-01</DataTransacao>
+				<ValorEnvolvido>406187.63</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-02</DataTransacao>
+				<ValorEnvolvido>9000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-04</DataTransacao>
+				<ValorEnvolvido>144000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-07</DataTransacao>
+				<ValorEnvolvido>4886829</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-08</DataTransacao>
+				<ValorEnvolvido>36251.74</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-09</DataTransacao>
+				<ValorEnvolvido>122879.26</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-11</DataTransacao>
+				<ValorEnvolvido>965</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-14</DataTransacao>
+				<ValorEnvolvido>6200</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aquisi&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-15</DataTransacao>
+				<ValorEnvolvido>1000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-15</DataTransacao>
+				<ValorEnvolvido>1017.98</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-23</DataTransacao>
+				<ValorEnvolvido>3000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-28</DataTransacao>
+				<ValorEnvolvido>9000</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+			<Ativo>
+				<AtivoNegociado>BTGP TESOURO SELIC FI RF REFERENCIADO DI</AtivoNegociado>
+				<NaturezaTransacao>aliena&#231;&#227;o</NaturezaTransacao>
+				<DataTransacao>2020-12-29</DataTransacao>
+				<ValorEnvolvido>721915.15</ValorEnvolvido>
+				<DataAssembleia>2019-04-22</DataAssembleia>
+				<Contraparte>BTG PACTUAL SERVI&#199;OS FINANCEIROS S/A DTVM</Contraparte>
+			</Ativo>
+		</TransacoesInstrucaoCVM>
+		<PoliticaDivulgacao>
+			<PoliticaDivulgacaoAtoFatoRelevante>De acordo com o previsto na IN CVM 472 nossa pol&#237;tica de divulga&#231;&#227;o define prioritariamente como fato relevante eventos significativos de vac&#226;ncia que possam representar 5% ou mais da Receita do Fundo na data da divulga&#231;&#227;o. Para outras situa&#231;&#245;es, todas s&#227;o devidamente analisadas para que se confirme se devem ou n&#227;o ser classificadas como um fato relevante e consequentemente serem divulgadas de acordo com nossa pol&#237;tica. A divulga&#231;&#227;o &#233; feita antes da abertura ou depois do fechamento do mercado atrav&#233;s dos seguintes canais:
+http://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimentos/fii/fiis-listados/
+http://conteudo.cvm.gov.br/menu/regulados/fundos/consultas/fundos.html
+https://www.btgpactual.com/asset-management/administracao-fiduciaria</PoliticaDivulgacaoAtoFatoRelevante>
+			<PoliticaNegociacaoCotas>https://www.btgpactual.com/asset-management/administracao-fiduciaria</PoliticaNegociacaoCotas>
+			<PoliticaExercicioDireitoVoto>https://www.btgpactual.com/asset-management/administracao-fiduciaria</PoliticaExercicioDireitoVoto>
+			<FuncResponsaveisPoliticaDivulgacao>Bruno Duque Horta Nogueira</FuncResponsaveisPoliticaDivulgacao>
+		</PoliticaDivulgacao>
+		<RegrasPrazosChamadaCapital>Ser&#225; de acordo com estabelecido em Assembleia Geral Extraordin&#225;ria respeitando as regras do regulamento.</RegrasPrazosChamadaCapital>
+	</InformeAnual>
+</DadosEconomicoFinanceiros>

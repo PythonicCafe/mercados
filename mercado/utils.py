@@ -224,10 +224,21 @@ def fix_periodo_referencia(value, original_year):
 def parse_int(value):
     return int(value) if value is not None else None
 
+
 def clean_xml_dict(d):
+    """
+    >>> clean_xml_dict({"a": {"@xsi:nil": "true"}})
+    {'a': None}
+
+    >>> clean_xml_dict({"a": {"@xsi:nil": "true"}, "b": {"c": {"d": 1, "e": {"@xsi:nil": "true"}}}})
+    {'a': None, 'b': {'c': {'d': 1, 'e': None}}}
+    """
     result = {}
     for key, value in d.items():
-        if isinstance(value, dict) and value.get("@xsi:nil") == "true":
-            continue
+        if isinstance(value, dict):
+            if value.get("@xsi:nil") == "true":
+                value = None
+            else:
+                value = clean_xml_dict(value)
         result[key] = value
     return result
