@@ -386,6 +386,50 @@ RENDIMENTO_TIPO = (
     (2, "Amortização"),
 )
 
+INFORME_FII_TIPO = (
+    (1, "Informe Mensal"),
+    (2, "Informe Trimestral"),
+    (3, "Informe Anual"),
+)
+INFORME_FII_PRAZO_DURACAO = (
+    (1, "Indeterminado"),
+    (2, "Determinado"),
+)
+INFORME_FII_PUBLICO_ALVO = (
+    (1, "Investidores em Geral"),
+    (2, "Investidor Qualificado"),
+    (3, "Investidor Profissional"),
+    (4, "Investidor Qualificado e Profissional"),
+)
+INFORME_FII_SEGMENTO = (
+    (1, "Híbrido"),
+    (2, "Hospital"),
+    (3, "Hotel"),
+    (4, "Lajes corporativas"),
+    (5, "Logística"),
+    (6, "Outros"),
+    (7, "Residencial"),
+    (8, "Shoppings"),
+    (9, "Títulos e Valores mobiliários"),
+)
+INFORME_FII_GESTAO_TIPO = (
+    (1, "Ativa"),
+    (2, "Passiva"),
+)
+INFORME_FII_MANDATO = (
+    (1, "Renda"),
+    (2, "Híbrido"),
+    (3, "Títulos e Valores mobiliários"),
+    (4, "Desenvolvimento para Renda"),
+    (5, "Desenvolvimento para Venda"),
+)
+
+INFORME_FII_MANDATO_DICT = reverse_choices(INFORME_FII_MANDATO)
+INFORME_FII_GESTAO_TIPO_DICT = reverse_choices(INFORME_FII_GESTAO_TIPO)
+INFORME_FII_SEGMENTO_DICT = reverse_choices(INFORME_FII_SEGMENTO)
+INFORME_FII_PUBLICO_ALVO_DICT = reverse_choices(INFORME_FII_PUBLICO_ALVO)
+INFORME_FII_PRAZO_DURACAO_DICT = reverse_choices(INFORME_FII_PRAZO_DURACAO)
+INFORME_FII_TIPO_DICT = reverse_choices(INFORME_FII_TIPO)
 AMORTIZACAO_TIPO_DICT = reverse_choices(AMORTIZACAO_TIPO)
 ATIVO_TIPO_BDI_DICT = reverse_choices(ATIVO_TIPO_BDI)
 ATIVO_TIPO_DICT = reverse_choices(ATIVO_TIPO)

@@ -10,11 +10,21 @@ from rows.fields import slug
 from mercado.utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
 
 
+# TODO: clean codigo_isin ('-', '0', '000') -> len(codigo_isin) == 12
+
 def clean_cnpj(value):
-    return value.replace(".", "").replace("-", "").replace("/", "")
+    if value is None:
+        return None
+    for char in ".-/ ":
+        value = value.replace(char, "")
+    value = value.strip()
+    assert len(value) == 14
+    return value
 
 
 def clean_dict(obj):
+    if obj is None:
+        return None
     return {key: value for key, value in obj.items() if value}
 
 
@@ -44,6 +54,35 @@ def fix_ato(value):
     if slug(value) in ("nao_e_o_caso", ""):
         value = ""
     return value
+
+
+def fix_segmento(value):
+    if not value:
+        return value
+    return {
+        "hibrido": "Híbrido",
+        "hospital": "Hospital",
+        "hotel": "Hotel",
+        "lajes_corporativas": "Lajes corporativas",
+        "logistica": "Logística",
+        "outros": "Outros",
+        "residencial": "Residencial",
+        "shoppings": "Shoppings",
+        "titulos_e_valores_mobiliarios": "Títulos e Valores mobiliários",
+        "titulos_e_val_mob": "Títulos e Valores mobiliários",
+    }[slug(value)]
+
+
+def fix_mandato(value):
+    if not value:
+        return value
+    return {
+        "renda": "Renda",
+        "hibrido": "Híbrido",
+        "titulos_e_valores_mobiliarios": "Títulos e Valores mobiliários",
+        "desenvolvimento_para_renda": "Desenvolvimento para Renda",
+        "desenvolvimento_para_venda": "Desenvolvimento para Venda"
+    }[slug(value)]
 
 
 def make_data_object(Class, row):
@@ -537,17 +576,17 @@ class InformeFII:
         mercado_negociacao = gerais.pop("MercadoNegociacao")
         row = {
             "fundo": gerais.pop("NomeFundo"),
-            "fundo_cnpj": gerais.pop("CNPJFundo"),
+            "fundo_cnpj": clean_cnpj(gerais.pop("CNPJFundo")),
             "administrador": gerais.pop("NomeAdministrador"),
-            "administrador_cnpj": gerais.pop("CNPJAdministrador"),
+            "administrador_cnpj": clean_cnpj(gerais.pop("CNPJAdministrador")),
             "data_funcionamento": parse_date("iso-date", fix_date(gerais.pop("DataFuncionamento"))),
             "publico_alvo": gerais.pop("PublicoAlvo"),
             "codigo_isin": gerais.pop("CodigoISIN", None),
             "cotas_emitidas": parse_br_decimal(gerais.pop("QtdCotasEmitidas")),
             "exclusivo": parse_bool(gerais.pop("FundoExclusivo")),
             "vinculo_familiar_cotistas": parse_bool(gerais.pop("VinculoFamiliarCotistas")),
-            "mandato": autorregulacao.pop("Mandato", None),
-            "segmento": autorregulacao.pop("SegmentoAtuacao", None),
+            "mandato": fix_mandato(autorregulacao.pop("Mandato", None)),
+            "segmento": fix_segmento(autorregulacao.pop("SegmentoAtuacao", None)),
             "gestao_tipo": autorregulacao.pop("TipoGestao", None),
             "prazo_duracao": gerais.pop("PrazoDuracao"),
             "data_prazo": parse_date("iso-date", gerais.pop("DataPrazoDuracao", None)),
