@@ -103,6 +103,8 @@ class InformeRendimentos:
 
     @classmethod
     def check_xml(cls, xml):
+        if xml is None:
+            return False
         data = xmltodict.parse(xml)
         return (
             "DadosEconomicoFinanceiros" in data
@@ -275,6 +277,8 @@ class OfertaPublica:
 
     @classmethod
     def check_xml(cls, xml):
+        if xml is None:
+            return False
         data = xmltodict.parse(xml)
         return (
             "DadosGerais" in data
@@ -455,15 +459,14 @@ class DocumentMeta:
 
 
 @dataclass
-class InformeMensalFII:
+class InformeFII:
     fundo: str
     fundo_cnpj: str
     administrador: str
     administrador_cnpj: str
     data_funcionamento: datetime.date
-    publico_alvo: str
-    codigo_isin: str
     cotas_emitidas: decimal.Decimal
+    publico_alvo: str
     exclusivo: bool
     vinculo_familiar_cotistas: bool
     prazo_duracao: str
@@ -482,19 +485,19 @@ class InformeMensalFII:
     telefone_1: str
     site: str
     email: str
-    competencia: datetime.date
-    patrimonio_liquido: decimal.Decimal
-    ativo: decimal.Decimal
-    patrimonio_por_cota: decimal.Decimal
+    competencia: str
+    tipo: str
+    dados: dict
+    codigo_isin: str = None
     gestao_tipo: str = None
     segmento: str = None
     mandato: str = None
-    cotistas: int = None
-    cotistas_pessoa_fisica: int = None
     complemento: str = None
     telefone_2: str = None
     data_prazo: datetime.date = None
     telefone_3: str = None
+    enquadra_nota_seis: bool = None
+    data_encerramento_trimestre: datetime.date = None
 
     @classmethod
     def from_xml(cls, xml):
@@ -502,11 +505,17 @@ class InformeMensalFII:
 
     @classmethod
     def check_xml(cls, xml):
+        if xml is None:
+            return False
         data = xmltodict.parse(xml)
         return (
             "DadosEconomicoFinanceiros" in data
             and "DadosGerais" in data["DadosEconomicoFinanceiros"]
-            and "InformeMensal" in data["DadosEconomicoFinanceiros"]
+            and (
+                "InformeMensal" in data["DadosEconomicoFinanceiros"]
+                or "InformeTrimestral" in data["DadosEconomicoFinanceiros"]
+                or "InformeAnual" in data["DadosEconomicoFinanceiros"]
+            )
         )
 
     @classmethod
@@ -517,14 +526,23 @@ class InformeMensalFII:
             if not key.startswith("@")
         }
         gerais = clean_xml_dict(data.pop("DadosGerais"))
-        informe_mensal = clean_xml_dict(data.pop("InformeMensal"))
+        informe_mensal = clean_xml_dict(data.pop("InformeMensal", {}) or {})
+        informe_trimestral = clean_xml_dict(data.pop("InformeTrimestral", {}) or {})
+        informe_anual = clean_xml_dict(data.pop("InformeAnual", {}) or {})
         assert not data, f"data: {data}"
+
+        if informe_mensal:
+            tipo = "Informe Mensal"
+        elif informe_trimestral:
+            tipo = "Informe Trimestral"
+        elif informe_anual:
+            tipo = "Informe Anual"
+        else:
+            raise ValueError(f"Tipo de informe desconhecido")
 
         autorregulacao = clean_xml_dict(gerais.pop("Autorregulacao"))
         entidade_administradora = clean_xml_dict(gerais.pop("EntidadeAdministradora"))
         mercado_negociacao = clean_xml_dict(gerais.pop("MercadoNegociacao"))
-        cotistas = clean_xml_dict(informe_mensal.pop("Cotistas"))
-        resumo = clean_xml_dict(informe_mensal.pop("Resumo"))
         row = {
             "fundo": gerais.pop("NomeFundo"),
             "fundo_cnpj": gerais.pop("CNPJFundo"),
@@ -532,7 +550,7 @@ class InformeMensalFII:
             "administrador_cnpj": gerais.pop("CNPJAdministrador"),
             "data_funcionamento": parse_date("iso-date", fix_date(gerais.pop("DataFuncionamento"))),
             "publico_alvo": gerais.pop("PublicoAlvo"),
-            "codigo_isin": gerais.pop("CodigoISIN"),
+            "codigo_isin": gerais.pop("CodigoISIN", None),
             "cotas_emitidas": decimal.Decimal(gerais.pop("QtdCotasEmitidas")),
             "exclusivo": parse_bool(gerais.pop("FundoExclusivo")),
             "vinculo_familiar_cotistas": parse_bool(gerais.pop("VinculoFamiliarCotistas")),
@@ -559,15 +577,12 @@ class InformeMensalFII:
             "telefone_3": gerais.pop("Telefone3", ""),
             "site": gerais.pop("Site"),
             "email": gerais.pop("Email"),
-            "competencia": parse_date("iso-date", gerais.pop("Competencia")),
-            "cotistas": parse_int(cotistas.pop("@total", None)),
-            "cotistas_pessoa_fisica": parse_int(cotistas.pop("PessoaFisica", None)),
-            "patrimonio_liquido": decimal.Decimal(resumo.pop("PatrimonioLiquido")),
-            "ativo": decimal.Decimal(resumo.pop("Ativo")),
-            "cotas_emitidas": decimal.Decimal(resumo.pop("NumCotasEmitidas")),
-            "patrimonio_por_cota": decimal.Decimal(resumo.pop("ValorPatrCotas")),
+            "competencia": gerais.pop("Competencia"),
+            "tipo": tipo,
+            "enquadra_nota_seis": parse_bool(gerais.pop("EnquadraNotaSeis", None)),
+            "data_encerramento_trimestre": parse_date("iso-date", gerais.pop("DataEncerTrimestre", None)),
+            "dados": informe_mensal or informe_trimestral or informe_anual,
         }
-        # TODO: there are way more data in `informe_mensal` we're ignoring here
 
         assert not gerais, f"gerais: {gerais}"
         assert not autorregulacao, f"autorregulacao: {autorregulacao}"
@@ -575,3 +590,29 @@ class InformeMensalFII:
         assert not entidade_administradora, f"entidade_administradora: {entidade_administradora}"
 
         return [cls(**row)]
+
+    @property
+    def informe_mensal(self):
+        informe_mensal = copy.deepcopy(self.dados)
+        cotistas = clean_xml_dict(informe_mensal.pop("Cotistas"))
+        resumo = clean_xml_dict(informe_mensal.pop("Resumo"))
+        # TODO: there are way more data in `informe_mensal` we're ignoring
+        # here, so needs parsing
+        return InformeMensalFII(
+            cotistas=parse_int(cotistas.pop("@total", None)),
+            cotistas_pessoa_fisica=parse_int(cotistas.pop("PessoaFisica", None)),
+            patrimonio_liquido=decimal.Decimal(resumo.pop("PatrimonioLiquido")),
+            ativo=decimal.Decimal(resumo.pop("Ativo")),
+            cotas_emitidas=decimal.Decimal(resumo.pop("NumCotasEmitidas")),
+            patrimonio_por_cota=decimal.Decimal(resumo.pop("ValorPatrCotas")),
+        )
+
+
+@dataclass
+class InformeMensalFII:
+    ativo: decimal.Decimal
+    cotas_emitidas: decimal.Decimal
+    patrimonio_liquido: decimal.Decimal
+    patrimonio_por_cota: decimal.Decimal
+    cotistas: int = None
+    cotistas_pessoa_fisica: int = None

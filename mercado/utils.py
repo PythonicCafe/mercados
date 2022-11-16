@@ -34,7 +34,7 @@ def parse_bool(value):
         "nao": False,
         "não": False,
         "": None,
-    }[value.lower()]
+    }[str(value or "").lower().strip()]
 
 
 def parse_br_decimal(value):
