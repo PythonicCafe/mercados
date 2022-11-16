@@ -7,7 +7,7 @@ from dataclasses import fields as class_fields
 import xmltodict
 from rows.fields import slug
 
-from mercado.utils import camel_to_snake, clean_xml_dict, parse_bool, parse_date, parse_int
+from mercado.utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
 
 
 def clean_cnpj(value):
@@ -543,7 +543,7 @@ class InformeFII:
             "data_funcionamento": parse_date("iso-date", fix_date(gerais.pop("DataFuncionamento"))),
             "publico_alvo": gerais.pop("PublicoAlvo"),
             "codigo_isin": gerais.pop("CodigoISIN", None),
-            "cotas_emitidas": decimal.Decimal(gerais.pop("QtdCotasEmitidas")),
+            "cotas_emitidas": parse_br_decimal(gerais.pop("QtdCotasEmitidas")),
             "exclusivo": parse_bool(gerais.pop("FundoExclusivo")),
             "vinculo_familiar_cotistas": parse_bool(gerais.pop("VinculoFamiliarCotistas")),
             "mandato": autorregulacao.pop("Mandato", None),
@@ -593,10 +593,10 @@ class InformeFII:
         return InformeMensalFII(
             cotistas=parse_int(cotistas.pop("@total", None)),
             cotistas_pessoa_fisica=parse_int(cotistas.pop("PessoaFisica", None)),
-            patrimonio_liquido=decimal.Decimal(resumo.pop("PatrimonioLiquido")),
-            ativo=decimal.Decimal(resumo.pop("Ativo")),
-            cotas_emitidas=decimal.Decimal(resumo.pop("NumCotasEmitidas")),
-            patrimonio_por_cota=decimal.Decimal(resumo.pop("ValorPatrCotas")),
+            patrimonio_liquido=parse_br_decimal(resumo.pop("PatrimonioLiquido")),
+            ativo=parse_br_decimal(resumo.pop("Ativo")),
+            cotas_emitidas=parse_br_decimal(resumo.pop("NumCotasEmitidas")),
+            patrimonio_por_cota=parse_br_decimal(resumo.pop("ValorPatrCotas")),
         )
 
 
