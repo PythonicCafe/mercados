@@ -9,8 +9,8 @@ from rows.fields import slug
 
 from mercado.utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
 
-
 # TODO: clean codigo_isin ('-', '0', '000') -> len(codigo_isin) == 12
+
 
 def clean_cnpj(value):
     if value is None:
@@ -81,7 +81,7 @@ def fix_mandato(value):
         "hibrido": "Híbrido",
         "titulos_e_valores_mobiliarios": "Títulos e Valores mobiliários",
         "desenvolvimento_para_renda": "Desenvolvimento para Renda",
-        "desenvolvimento_para_venda": "Desenvolvimento para Venda"
+        "desenvolvimento_para_venda": "Desenvolvimento para Venda",
     }[slug(value)]
 
 
@@ -450,7 +450,7 @@ class DocumentMeta:
             informacoes_adicionais = informacoes_adicionais[:-1].strip()
         if informacoes_adicionais == fundo_pregao or not informacoes_adicionais:
             informacoes_adicionais = None
-
+        # TODO: pop every item and check if dict is empty in the end
         return cls(
             id=row["id"],
             alta_prioridade=row["altaPrioridade"],

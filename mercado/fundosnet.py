@@ -205,6 +205,7 @@ class FundosNet:
             params["_"] = int(time.time() * 1000)
             finished = params["s"] >= total_rows
 
+    # TODO: unify search methods
     def search(
         self,
         category="Todos",
@@ -218,8 +219,8 @@ class FundosNet:
     ):
         assert order in ("asc", "desc")
         assert ordering_field in (
-            "b3CategoriaDescricao",
             "denominacaoSocial",
+            "CategoriaDescricao",
             "tipoDescricao",
             "especieDocumento",
             "dataReferencia",

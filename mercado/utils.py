@@ -48,6 +48,10 @@ def parse_date(fmt, value, full=False):
     value = str(value or "").strip()
     if not value:
         return None
+    if fmt == "1":
+        value = f"01/01/{value}"
+        fmt = "%d/%m/%Y"
+        obj_type = "date"
     elif fmt == "2":
         value = f"01/{value}"
         fmt = "%d/%m/%Y"
