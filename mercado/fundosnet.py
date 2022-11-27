@@ -246,17 +246,57 @@ class FundosNet:
         # (there are others)
         # TODO: get all possible especie
         # TODO: get all administradores https://fnet.bmfbovespa.com.br/fnet/publico/buscarAdministrador?term=&page=2&paginaCertificados=false&_=1655592601540
+        params = {
+            f"o[0][{ordering_field}]": order,
+            "idCategoriaDocumento": category_id,
+            "idTipoDocumento": type_id,
+            "tipoFundo": fund_type_id,
+            "idEspecieDocumento": "0",
+            "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
+            "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
+        }
         result = self.paginate(
             path="pesquisarGerenciadorDocumentosDados",
-            params={
-                f"o[0][{ordering_field}]": order,
-                "idCategoriaDocumento": category_id,
-                "idTipoDocumento": type_id,
-                "tipoFundo": fund_type_id,
-                "idEspecieDocumento": "0",
-                "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
-                "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
-            },
+            params=params,
+            xhr=True,
+            items_per_page=items_per_page,
+        )
+        for row in result:
+            yield DocumentMeta.from_json(row)
+
+    def search_certificate(
+        self,
+        start_date=None,
+        end_date=None,
+        ordering_field="dataEntrega",
+        order="desc",
+        items_per_page=200,
+    ):
+        assert order in ("asc", "desc")
+        assert ordering_field in (
+            "denominacaoSocial",
+            "CategoriaDescricao",
+            "tipoDescricao",
+            "especieDocumento",
+            "dataReferencia",
+            "dataEntrega",
+            "situacaoDocumento",
+            "versao",
+            "modalidade",
+        )
+        # TODO: filter other fields
+        params = {
+            f"o[0][{ordering_field}]": order,
+            "idCategoriaDocumento": "0",
+            "idTipoDocumento": "0",
+            "idEspecieDocumento": "0",
+            "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
+            "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
+            "paginaCertificados": "true",
+        }
+        result = self.paginate(
+            path="pesquisarGerenciadorDocumentosDados",
+            params=params,
             xhr=True,
             items_per_page=items_per_page,
         )
