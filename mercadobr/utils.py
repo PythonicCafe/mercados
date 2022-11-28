@@ -4,6 +4,7 @@ import re
 from functools import lru_cache
 
 from rows.fields import camel_to_snake as rows_camel_to_snake
+from rows.utils.download import Downloader, Download
 
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
@@ -246,3 +247,10 @@ def clean_xml_dict(d):
                 value = clean_xml_dict(value)
         result[key] = value
     return result
+
+
+def download_files(urls, filenames, quiet=False):
+    downloader = Downloader.subclasses()["aria2c"](quiet=quiet)
+    for url, filename in zip(urls, filenames):
+        downloader.add(Download(url=url, filename=filename))
+    downloader.run()
