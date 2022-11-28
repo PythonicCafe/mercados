@@ -3,7 +3,7 @@ import decimal
 import json
 from pathlib import Path
 
-from mercado.document import InformeFII
+from mercadobr.document import InformeFII
 
 
 def assert_informe_fii(document_id, expected):

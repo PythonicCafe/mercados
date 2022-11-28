@@ -2,7 +2,7 @@ import datetime
 import decimal
 from pathlib import Path
 
-from mercado.document import InformeRendimentos
+from mercadobr.document import InformeRendimentos
 
 
 def assert_informe_rendimentos(document_id, expected):

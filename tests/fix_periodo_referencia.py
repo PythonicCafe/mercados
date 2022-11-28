@@ -3,7 +3,7 @@ import csv
 from rows.utils import open_compressed
 from tqdm import tqdm
 
-from mercado.utils import fix_periodo_referencia, parse_date
+from mercadobr.utils import fix_periodo_referencia, parse_date
 
 
 def not_yet_a_test():
