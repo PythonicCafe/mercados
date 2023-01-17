@@ -1,24 +1,33 @@
 import copy
 import datetime
 import decimal
-from dataclasses import dataclass
-from dataclasses import fields as class_fields
+import re
+from dataclasses import dataclass, fields as class_fields
 
 import xmltodict
 from rows.fields import slug
 
 from .utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
 
-# TODO: clean codigo_isin ('-', '0', '000') -> len(codigo_isin) == 12
 
+REGEXP_NUMBERS = re.compile("[^0-9]+")
 
 def clean_cnpj(value):
-    if value is None:
+    """
+    >>> clean_cnpj('12.345.678/0001-91')
+    '12345678000191'
+    >>> clean_cnpj('2.345.678/0001-91')
+    '02345678000191'
+    >>> print(clean_cnpj('Invalid value'))
+    None
+    """
+    value = REGEXP_NUMBERS.sub("", str(value or ""))
+    if not value:
         return None
-    for char in ".-/ ":
-        value = value.replace(char, "")
-    value = value.strip()
-    assert len(value) == 14
+    if len(value) < 14:
+        value = "0" * (14 - len(value)) + value
+    elif len(value) > 14:  # XXX: may warn if len(value) != 14 (or invalid value)
+        value = None
     return value
 
 
