@@ -219,6 +219,7 @@ DOCUMENTO_CATEGORIA = (
     (24, "Listagem e  Admissão à  Negociação  de Cotas"),
     (12, "Oferta Pública de Aquisição de Cotas"),
     (8, "Oferta Pública de Distribuição de Cotas"),
+    (43, "Outras Demonstrações Financeiras"),
     (10, "Outras Informações"),
     (40, "Outros Títulos de Securitização"),
     (33, "Política de Negociação de Valores Mobiliários"),
@@ -233,6 +234,7 @@ DOCUMENTO_CATEGORIA = (
     (0, "Todos"),
     (38, "Valores mobiliários detidos"),
 )
+
 DOCUMENTO_ESPECIE = (
     (1, "Ata da Assembleia"),
     (2, "Boletim de voto a distância"),
