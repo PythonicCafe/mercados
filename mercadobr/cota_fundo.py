@@ -1,6 +1,6 @@
 import datetime
 import io
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from decimal import Decimal
 from pathlib import Path
 
@@ -148,9 +148,8 @@ class CVMFundo:
 if __name__ == "__main__":
     import argparse
 
-    from tqdm import tqdm
     from rows.utils import CsvLazyDictWriter
-
+    from tqdm import tqdm
 
     parser = argparse.ArgumentParser()
     parser.add_argument("cnpj")
