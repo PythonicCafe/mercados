@@ -26,6 +26,7 @@ class NegociacaoBalcao:
     codigo_isin: str = None
     data_liquidacao: datetime.date = None
     emissor: str = None
+    situacao: str = None
     taxa: decimal.Decimal = None
 
     @classmethod
@@ -53,6 +54,7 @@ class NegociacaoBalcao:
             preco=preco,
             volume=volume,
             origem=row.pop("Origem Negocio"),
+            situacao=row.pop("Situacao Negocio", None),
         )
         assert not row
         return obj

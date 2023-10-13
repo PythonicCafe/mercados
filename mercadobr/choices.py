@@ -388,6 +388,10 @@ RENDA_FIXA_TIPO = (
     (5, "CFF"),
     (6, "CRI"),
     (7, "DEB"),
+    (8, "LIG"),
+    (9, "LFSN"),
+    (10, "LFSC"),
+    (11, "CBIO"),
 )
 
 RENDIMENTO_TIPO = (
