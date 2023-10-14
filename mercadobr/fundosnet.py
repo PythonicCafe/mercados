@@ -196,6 +196,8 @@ class FundosNet:
         total_rows, finished = None, False
         while not finished:
             response = self.request("GET", path, params=params, xhr=xhr)
+            if response.status_code == 404:  # Finished (wrong page?)
+                return
             response_data = response.json()
             if total_rows is None:
                 total_rows = response_data["recordsTotal"]

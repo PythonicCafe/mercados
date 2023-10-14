@@ -204,6 +204,8 @@ class B3:
             "https://bvmf.bmfbovespa.com.br/NegociosRealizados/Registro/DownloadArquivoDiretorio",
             params={"data": date.strftime("%d-%m-%Y")},
         )
+        if response.status_code == 404:  # No data for this date
+            return
         decoded_data = base64.b64decode(response.text).decode("ISO-8859-1")
         csv_data = decoded_data[decoded_data.find("\n") + 1 :]
         reader = csv.DictReader(io.StringIO(csv_data), delimiter=";")
