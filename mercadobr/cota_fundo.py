@@ -4,9 +4,10 @@ from dataclasses import asdict, dataclass
 from decimal import Decimal
 from pathlib import Path
 
-import requests
 import rows
 from lxml.html import document_fromstring, tostring
+
+from .utils import create_session
 
 
 def clean_cnpj(value):
@@ -59,7 +60,7 @@ class CVMFundo:
     base_url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultBuscaPartic.aspx"
 
     def __init__(self):
-        self._session = requests.Session()
+        self._session = create_session()
 
     def _parse_dados_fundo(self, tree):
         dados_fundo = [

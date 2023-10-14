@@ -7,10 +7,9 @@ import json
 from dataclasses import asdict, dataclass
 from urllib.parse import urljoin
 
-import requests
 from rows.utils.date import date_range
 
-from .utils import parse_br_decimal, parse_date
+from .utils import create_session, parse_br_decimal, parse_date
 
 
 @dataclass
@@ -85,7 +84,7 @@ class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
 
     def __init__(self):
-        self._session = requests.Session()
+        self._session = create_session()
 
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")

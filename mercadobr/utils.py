@@ -1,11 +1,16 @@
 import datetime
 import decimal
 import re
+import socket
 from functools import lru_cache
 
+import requests
+import requests.packages.urllib3.util.connection as urllib3_connection
+from requests.adapters import HTTPAdapter, Retry
 from rows.fields import camel_to_snake as rows_camel_to_snake
 from rows.utils.download import Downloader, Download
 
+urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")
@@ -15,6 +20,14 @@ REGEXP_YEAR_PART = re.compile(
     "^(1º|2º|3º|4º|1°|2°|3°|4°|1|2|3|4|primeiro|segundo|terceiro) (trimestre|semestre)( [0-9]{4})?$"
 )
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
+
+def create_session():
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=Retry(total=7, backoff_factor=0.1))
+    session.headers["User-Agent"] = "mercadobr/python"
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
 
 
 @lru_cache(maxsize=1024)

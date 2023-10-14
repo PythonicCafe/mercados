@@ -6,13 +6,13 @@ from collections import OrderedDict
 from functools import cached_property
 from urllib.parse import urljoin
 
-import requests
 import rows
 from lxml.html import document_fromstring
 from rows.utils.download import Download, Downloader
 
 from . import choices
 from .document import DocumentMeta
+from .utils import create_session
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 
@@ -112,9 +112,8 @@ class FundosNet:
 
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
-    def __init__(self, user_agent="mercado/python"):
-        self.session = requests.Session()
-        self.session.headers["User-Agent"] = user_agent
+    def __init__(self):
+        self.session = create_session()
         self.session.headers["CSRFToken"] = self.csrf_token
         self.draw = 0
 
