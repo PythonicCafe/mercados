@@ -15,6 +15,13 @@ from .document import DocumentMeta
 from .utils import create_session
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
+REGEXP_CERTIFICADO_DESCRICAO = re.compile(r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$")
+
+def parse_certificado_descricao(value):
+    result = REGEXP_CERTIFICADO_DESCRICAO.findall(value)
+    if not result:
+        raise ValueError(f"Valor informado não segue padrão de descrição de certificado: {repr(value)}")
+    return {key: value for key, value in zip("nome tipo emissao serie data codigo".split(), result[0])}
 
 
 def format_document_path(pattern, doc):
@@ -205,6 +212,32 @@ class FundosNet:
             params["s"] += len(data)
             params["_"] = int(time.time() * 1000)
             finished = params["s"] >= total_rows
+
+    def fundos(self):
+        yield from self._listar_fundos(certs=False)
+
+    def certificados(self):
+        for certificado in self._listar_fundos(certs=True):
+            certificado.update(**parse_certificado_descricao(certificado["text"]))
+            yield certificado
+
+    def _listar_fundos(self, certs: bool):
+        params = {
+            "term": "",
+            "page": 1,
+            "idTipoFundo": "0",
+            "idAdm": "0",
+            "paraCerts": str(certs).lower(),
+            "_": int(time.time() * 1000),
+        }
+        while True:
+            response = self.request("GET", "listarFundos", xhr=True, params=params)
+            data = response.json()
+            yield from data["results"]
+            if data["more"]:
+                params["page"] += 1
+            else:
+                break
 
     # TODO: unify search methods
     def search(
