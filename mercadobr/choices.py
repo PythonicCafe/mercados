@@ -191,7 +191,9 @@ BALCAO_ORIGEM = (
 DOCUMENTO_CATEGORIA = (
     (25, "Acordo de Acionista"),
     (19, "Aditamento de Termo de Securitização"),
+    (45, "Aditamentos"),
     (2, "Assembleia"),
+    (46, "Assembleia especial de investidores"),
     (37, "Ata da Reunião do Conselho de Administração"),
     (11, "Atos de Deliberação do Administrador"),
     (18, "Averbação ou Registro do Termo de Securitização"),
@@ -202,6 +204,7 @@ DOCUMENTO_CATEGORIA = (
     (26, "Comunicação de alteração do auditor independente"),
     (27, "Dados Econômico Financeiros"),
     (16, "Documentos de Oferta de Distribuição Pública"),
+    (44, "Escritura/Instrumento de Emissão"),
     (28, "Estatuto Social"),
     (29, "Falência"),
     (1, "Fato Relevante"),
@@ -351,6 +354,7 @@ DOCUMENTO_TIPO = (
     (92, "Protocolo Inicial"),
     (93, "Protocolo para Cumprimento de Exigências"),
     (94, "Protocolo para Pedido de Prorrogação/Interrupção"),
+    (155, "Proventos em dinheiro"),
     (131, "Registro CVM"),
     (52, "Relatório Anual"),
     (11, "Relatório Anual"),
@@ -378,6 +382,7 @@ FUNDO_TIPO = (
     (3, "ETF"),
     (4, "ETF RF"),
     (7, "Fundo Setorial"),
+    (10, "FIP"),
 )
 
 RENDA_FIXA_TIPO = (

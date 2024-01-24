@@ -184,16 +184,19 @@ class FundosNet:
     def types(self):
         result = {}
         for category_id in self.categories.values():
-            response = self.request(
-                "GET",
-                "listarTodosTiposPorCategoria",
-                params={"idCategoria": category_id},
-                xhr=True,
-            )
             result[category_id] = []
-            for row in response.json():
-                row["descricao"] = row["descricao"].strip()
-                result[category_id].append(row)
+            for tipo in choices.FUNDO_TIPO:
+                if tipo[0] == 0:
+                    continue
+                response = self.request(
+                    "GET",
+                    "listarTodosTiposPorCategoriaETipoFundo",
+                    params={"idTipoFundo": tipo[0], "idCategoria": category_id},
+                    xhr=True,
+                )
+                for row in response.json():
+                    row["descricao"] = row["descricao"].strip()
+                    result[category_id].append(row)
         return result
 
     def paginate(self, path, params=None, xhr=True, items_per_page=200):

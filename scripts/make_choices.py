@@ -12,7 +12,9 @@ pprint(DOCUMENTO_CATEGORIA)
 tipos = [(0, "Todos")]
 for value in fnet.types.values():
     for item in value:
-        tipos.append((item["id"], item["descricao"]))
+        key = (item["id"], item["descricao"])
+        if key not in tipos:
+            tipos.append(key)
 DOCUMENTO_TIPO = tuple(sorted(tipos, key=lambda item: item[1]))
 print("DOCUMENTO_TIPO = ", end="")
 pprint(DOCUMENTO_TIPO)
