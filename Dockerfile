@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bookworm
 
 ENV PYTHONUNBUFFERED 1
 ARG DEV_BUILD
@@ -10,10 +10,14 @@ RUN apt update \
   && apt purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && apt clean \
   && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir -U pip
+
+RUN addgroup --gid ${GID:-1000} python \
+  && adduser --disabled-password --gecos "" --home /app --uid ${UID:-1000} --gid ${GID:-1000} python \
+  && chown -R python:python /app
 
 COPY requirements.txt /app/
 COPY requirements-development.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements-development.txt
+RUN pip install --no-cache-dir -U pip \
+    && pip install --no-cache-dir -r /app/requirements-development.txt
 
 COPY . /app/
