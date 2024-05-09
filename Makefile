@@ -1,8 +1,3 @@
-lint:
-	autoflake --in-place --recursive --remove-unused-variables --remove-all-unused-imports mercadobr
-	isort mercadobr
-	black -l 120 mercadobr
-
 bash: 					# Run bash inside `main` container
 	docker compose run --rm -it main bash
 
@@ -21,6 +16,9 @@ help:					# List all make commands
 kill:					# Force stop (kill) and remove containers
 	docker compose kill
 	docker compose rm --force
+
+lint:					# Run linter script inside `main` container
+	docker compose run --rm -it main /app/scripts/lint.sh
 
 test:					# Execute `pytest` inside `main` container
 	docker compose run --rm -it main pytest
