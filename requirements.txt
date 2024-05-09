@@ -1,5 +1,5 @@
 https://github.com/turicas/rows/archive/develop.zip
-lxml==4.9.1
-requests==2.28.1
-tqdm==4.64.1
-xmltodict==0.13.0
+lxml >= 5.2.1, < 6.0.0
+requests >= 2.31.0, < 3.0.0
+tqdm >= 4.66.4, < 5.0.0
+xmltodict == 0.13.0
