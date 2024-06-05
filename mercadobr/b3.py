@@ -23,6 +23,7 @@ def parse_br_date(value):
 
 @dataclass
 class FundoB3:
+    tipo: str
     acronimo: str
     nome_negociacao: str
     cnpj: str
@@ -46,24 +47,34 @@ class FundoB3:
     administrador_ddd: str
     administrador_telefone: str
     administrador_fax: str
-    codigo_negociacao: str = None
+    codigos_negociacao: str = None
     outros_codigos_negociacao: str = None
     website: str = None
     tipo_fnet: str = None
-    codigos_negociacao_2: str = None
-    outros_codigos_negociacao_2: str = None
+    lista_codigos_negociacao: str = None
+    lista_outros_codigos_negociacao: str = None
     segmento: str = None
     administrador_email: str = None
 
+    def serialize(self):
+        row = asdict(self)
+        for field_name in ("lista_codigos_negociacao", "lista_outros_codigos_negociacao"):
+            if row[field_name]:
+                row[field_name] = ",".join(row[field_name])
+        return row
+
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, type_name, obj):
         detail = obj["detailFund"]
         shareholder = obj["shareHolder"]
         return cls(
+            tipo=type_name,
             acronimo=clean_string(detail["acronym"]),
             nome_negociacao=clean_string(detail["tradingName"]),
-            codigo_negociacao=clean_string(detail["tradingCode"]),
+            codigos_negociacao=clean_string(detail["tradingCode"]),
             outros_codigos_negociacao=clean_string(detail["tradingCodeOthers"]),
+            lista_codigos_negociacao=[clean_string(item) for item in detail["codes"]] if detail["codes"] else None,
+            lista_outros_codigos_negociacao=[clean_string(item) for item in detail["codesOther"]] if detail["codesOther"] else None,
             cnpj=clean_string(detail["cnpj"]),
             classificacao=clean_string(detail["classification"]),
             website=clean_string(detail["webSite"]),
@@ -82,8 +93,6 @@ class FundoB3:
             cotas=clean_string(detail["quotaCount"]),
             data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
             tipo_fnet=clean_string(detail["typeFNET"]),
-            codigos_negociacao_2=[clean_string(item) for item in detail["codes"]] if detail["codes"] else None,
-            outros_codigos_negociacao_2=clean_string(detail["codesOther"]),
             segmento=clean_string(detail["segment"]),
             administrador=clean_string(shareholder["shareHolderName"]),
             administrador_endereco=clean_string(shareholder["shareHolderAddress"]),
@@ -167,6 +176,8 @@ class B3:
 
     def __init__(self):
         self._session = create_session()
+        # Requisição para guardar cookies:
+        self._session.get("https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm")
 
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
@@ -198,71 +209,154 @@ class B3:
                 else:
                     yield response
 
-    def fiis(self):
-        yield from self.paginate(
+    def _funds_by_type(self, type_name, type_id):
+        objs = self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
-            url_params={"typeFund": 7},
+            url_params={"typeFund": type_id},
         )
+        for obj in objs:
+            yield self._fund_detail(type_name, type_id, obj["acronym"])
+
+    def _fund_detail(self, type_name, type_id, identifier):
+        return FundoB3.from_dict(
+            type_name,
+            self.request(
+                method="GET",
+                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
+                url_params={"typeFund": type_id, "identifierFund": identifier},
+            )
+        )
+
+    def _fund_dividends(self, type_id, cnpj, identifier):
+        # TODO: parse/convert to dataclass:
+        # assetIssued	paymentDate	rate	relatedTo	approvedOn	isinCode	label	lastDatePrior	remarks
+        # BRAFHICTF005	22/05/2024	0,95000000000	Abril-2024/2024	15/05/2024	BRAFHICTF005	RENDIMENTO	15/05/2024
+        # BRAFHICTF005	19/04/2024	0,95000000000	Março-2024/2024	12/04/2024	BRAFHICTF005	RENDIMENTO	12/04/2024
+        # BRAFHICTF005	21/03/2024	0,95000000000	Fevereiro-2024/2024	14/03/2024	BRAFHICTF005	RENDIMENTO	14/03/2024
+        # BRAFHIR10M17	21/03/2024	0,59545374200	Fevereiro-2024/2024	14/03/2024	BRAFHIR10M17	RENDIMENTO	14/03/2024
+        # BRAFHIR11M16	21/03/2024	0,24961523600	Fevereiro-2024/2024	14/03/2024	BRAFHIR11M16	RENDIMENTO	14/03/2024
+        # BRAFHICTF005	23/02/2024	0,95000000000	Janeiro-2024/2024	16/02/2024	BRAFHICTF005	RENDIMENTO	16/02/2024
+        # BRBZELCTF002	26/05/2023	0,07992501600	Janeiro a Maio/2023	25/05/2023	BRBZELCTF002	AMORTIZACAO RF	25/05/2023
+        return self.request(
+            url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
+            url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
+        )["cashDividends"]
+
+    # TODO: implement stockDividends
+
+    def _fund_subscriptions(self, type_id, cnpj, identifier):
+        # TODO: parse/convert to dataclass:
+        # assetIssued	percentage	priceUnit	tradingPeriod	subscriptionDate	approvedOn	isinCode	label	lastDatePrior	remarks
+        # BRAFHICTF005	31,33913825813	95,80000000000	31/12/9999 a 06/06/2024	11/06/2024	20/05/2024	BRAFHICTF005	SUBSCRICAO	23/05/2024
+        # BRAFHICTF005	31,01981846164	96,43000000000	31/12/9999 a 24/01/2024	29/01/2024	08/01/2024	BRAFHICTF005	SUBSCRICAO	11/01/2024
+        # BRAFHICTF005	20,66255046858	96,17000000000	31/12/9999 a 02/08/2023	07/08/2023	18/07/2023	BRAFHICTF005	SUBSCRICAO	21/07/2023
+        # BRALZCCTF016	128,40431952130	100,51000000000	31/12/9999 a 27/05/2024	31/05/2024	10/05/2024	BRALZCCTF016	SUBSCRICAO	15/05/2024
+
+        return self.request(
+            url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
+            url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
+        )["subscriptions"]
+
+    def _fund_documents(self, type_id, cnpj, identifier, start_date: datetime.date, end_date: datetime.date):
+        # TODO: parse/convert to dataclass:
+        iterator = self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedDocuments/"),
+            url_params={
+                "identifierFund": identifier,
+                "typeFund": type_id,
+                "cnpj": cnpj,
+                "dateInitial": start_date.strftime("%Y-%m-%d"),
+                "dateFinal": end_date.strftime("%Y-%m-%d"),
+            },
+        )
+        for row in iterator:
+            yield row
+
+    # TODO: GetListedHeadLines/ b'{"agency":"18","identifierFund":"CPTR","dateInitial":"2023-06-10","dateFinal":"2024-06-05"}'
+    # TODO: GetListedByType/ b'{"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31"}'
+    # TODO: GetListedCategory/ b'{"cnpj":"42537579000176"}'
+    # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
+
+    def fiis(self):
+        yield from self._funds_by_type("FII", 7)
 
     def fii_detail(self, identificador):
-        return FundoB3.from_dict(
-            self.request(
-                method="GET",
-                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
-                url_params={"typeFund": 7, "identifierFund": identificador},
-            )
-        )
+        return self._fund_detail("FII", 7, identificador)
+
+    def fii_dividends(self, cnpj, identificador):
+        return self._fund_dividends(7, cnpj, identificador)
+
+    def fii_subscriptions(self, cnpj, identificador):
+        return self._fund_subscriptions(7, cnpj, identificador)
+
+    def fii_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+        today = datetime.datetime.now()
+        if data_inicial is None:
+            data_inicial = (today - datetime.timedelta(days=365)).date()
+        if data_final is None:
+            data_final = today.date()
+        yield from self._fund_documents(7, cnpj, identificador, data_inicial, data_final)
 
     def fiinfras(self):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
-            url_params={"typeFund": 27},
-        )
+        yield from self._funds_by_type("FI-Infra", 27)
 
     def fiinfra_detail(self, identificador):
-        return FundoB3.from_dict(
-            self.request(
-                method="GET",
-                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
-                url_params={"typeFund": 27, "identifierFund": identificador},
-            )
-        )
+        return self._fund_detail("FI-Infra", 27, identificador)
 
     def fiinfra_dividends(self, cnpj, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
-            url_params={"cnpj": cnpj, "identifierFund": identificador, "typeFund": 27},
-        )
+        return self._fund_dividends(27, cnpj, identificador)
 
-    def fiinfra_documents(self, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
-            url_params={"identifierFund": identificador, "type": 1},
-        )
+    def fiinfra_subscriptions(self, cnpj, identificador):
+        return self._fund_subscriptions(27, cnpj, identificador)
+
+    def fiinfra_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+        today = datetime.datetime.now()
+        if data_inicial is None:
+            data_inicial = (today - datetime.timedelta(days=365)).date()
+        if data_final is None:
+            data_final = today.date()
+        yield from self._fund_documents(27, cnpj, identificador, data_inicial, data_final)
 
     def fips(self):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
-            url_params={"typeFund": 21},
-        )
+        yield from self._funds_by_type("FIP", 21)
 
     def fip_detail(self, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
-            url_params={"typeFund": 21, "identifierFund": identificador},
-        )
+        return self._fund_detail("FIP", 21, identificador)
 
     def fip_dividends(self, cnpj, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
-            url_params={"cnpj": cnpj, "identifierFund": identificador, "typeFund": 21},
-        )
+        return self._fund_dividends(21, cnpj, identificador)
 
-    def fip_documents(self, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
-            url_params={"identifierFund": identificador, "type": 1},
-        )
+    def fip_subscriptions(self, cnpj, identificador):
+        return self._fund_subscriptions(21, cnpj, identificador)
+
+    def fip_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+        today = datetime.datetime.now()
+        if data_inicial is None:
+            data_inicial = (today - datetime.timedelta(days=365)).date()
+        if data_final is None:
+            data_final = today.date()
+        yield from self._fund_documents(21, cnpj, identificador, data_inicial, data_final)
+
+    def fiagros(self):
+        yield from self._funds_by_type("FI-Agro", 34)
+
+    def fiagro_detail(self, identificador):
+        return self._fund_detail("FI-Agro", 34, identificador)
+
+    def fiagro_dividends(self, cnpj, identificador):
+        return self._fund_dividends(34, cnpj, identificador)
+
+    def fiagro_subscriptions(self, cnpj, identificador):
+        return self._fund_subscriptions(34, cnpj, identificador)
+
+    def fiagro_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+        today = datetime.datetime.now()
+        if data_inicial is None:
+            data_inicial = (today - datetime.timedelta(days=365)).date()
+        if data_final is None:
+            data_final = today.date()
+        yield from self._fund_documents(34, cnpj, identificador, data_inicial, data_final)
+
 
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
@@ -279,7 +373,7 @@ class B3:
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRA"},
         )
 
-    def certificate_documents(self, identificador, start_date, end_date):  # CRI or CRA
+    def certificate_documents(self, identificador, start_date: datetime.date, end_date: datetime.date):  # CRI or CRA
         yield from self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedDocumentsTypeHistory/"),
             url_params={
@@ -329,6 +423,12 @@ if __name__ == "__main__":
             "cra-documents",
             "cri-documents",
             "debentures",
+            "fiagro-dividends",
+            "fiagro-documents",
+            "fiagro-subscriptions",
+            "fii-dividends",
+            "fii-documents",
+            "fii-subscriptions",
             "fiinfra-dividends",
             "fiinfra-documents",
             "fiinfra-subscriptions",
@@ -362,7 +462,7 @@ if __name__ == "__main__":
         progress.close()
         writer.close()
 
-    if args.command == "cra-documents":
+    elif args.command == "cra-documents":
         writer = CsvLazyDictWriter("cra-documents.csv.gz")
         current_year = datetime.datetime.now().year
         b3 = B3()
@@ -384,104 +484,137 @@ if __name__ == "__main__":
         progress.close()
         writer.close()
 
+    elif args.command == "fundo-listado":
+        b3 = B3()
+        data_sources = (
+            (b3.fiis(), "FII"),
+            (b3.fiinfras(), "FI-Infra"),
+            (b3.fips(), "FIP"),
+            (b3.fiagros(), "FI-Agro"),
+        )
+        writer = CsvLazyDictWriter("fundo-listado.csv.gz")
+        for iterator, type_name in data_sources:
+            for obj in tqdm(iterator, desc=f"Coletando dados de {type_name}s"):
+                writer.writerow(obj.serialize())
+        writer.close()
+
+    elif args.command == "fii-dividends":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fii-dividends.csv.gz")
+        for obj in tqdm(b3.fiis()):
+            base_fund_data = obj.serialize()
+            for dividend in b3.fii_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                writer.writerow({**base_fund_data, **dividend})
+                # TODO: include stock_dividends?
+        writer.close()
+
+    elif args.command == "fii-subscriptions":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fii-subscriptions.csv.gz")
+        for obj in tqdm(b3.fiis()):
+            base_fund_data = obj.serialize()
+            data = b3.fii_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+            for subscription in data:
+                writer.writerow({**base_fund_data, **subscription})
+        writer.close()
+
+    elif args.command == "fii-documents":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fii-documents.csv.gz")
+        for obj in tqdm(b3.fiis()):
+            base_fund_data = obj.serialize()
+            data = b3.fii_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+            for doc in data:
+                writer.writerow({**base_fund_data, **doc})
+        writer.close()
+
     elif args.command == "fiinfra-dividends":
         b3 = B3()
         writer = CsvLazyDictWriter("fiinfra-dividends.csv.gz")
-        for fiinfra in tqdm(b3.fiinfras()):
-            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder")
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            data = next(b3.fiinfra_dividends(cnpj=detail_fund["cnpj"], identificador=fiinfra["acronym"]))
-            dividends = data.pop("cashDividends")
-            subscriptions = data.pop("subscriptions")
-            stockDividends = data.pop("stockDividends")
-            for dividend in dividends:
-                writer.writerow({**base_fund_data, **data, **dividend})
-        writer.close()
-
-    elif args.command == "fiinfra-documents":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiinfra-documents.csv.gz")
-        for fiinfra in tqdm(b3.fiinfras()):
-            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder")
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            for doc in b3.fiinfra_documents(identificador=fiinfra["acronym"]):
-                doc[
-                    "url"
-                ] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fiinfra['acronym']}&strData={doc['date']}"
-                writer.writerow({**base_fund_data, **doc})
+        for obj in tqdm(b3.fiinfras()):
+            base_fund_data = obj.serialize()
+            for dividend in b3.fiinfra_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                writer.writerow({**base_fund_data, **dividend})
+                # TODO: include stock_dividends?
         writer.close()
 
     elif args.command == "fiinfra-subscriptions":
         b3 = B3()
         writer = CsvLazyDictWriter("fiinfra-subscriptions.csv.gz")
-        for fiinfra in tqdm(b3.fiinfras()):
-            detalhes = next(b3.fiinfra_detail(fiinfra["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder")
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            data = next(b3.fiinfra_dividends(cnpj=detail_fund["cnpj"], identificador=fiinfra["acronym"]))
-            dividends = data.pop("cashDividends")
-            subscriptions = data.pop("subscriptions")
-            stockDividends = data.pop("stockDividends")
-            for subscription in subscriptions:
-                writer.writerow({**base_fund_data, **data, **subscription})
+        for obj in tqdm(b3.fiinfras()):
+            base_fund_data = obj.serialize()
+            data = b3.fiinfra_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+            for subscription in data:
+                writer.writerow({**base_fund_data, **subscription})
+        writer.close()
+
+    elif args.command == "fiinfra-documents":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiinfra-documents.csv.gz")
+        for obj in tqdm(b3.fiinfras()):
+            base_fund_data = obj.serialize()
+            data = b3.fiinfra_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+            for doc in data:
+                writer.writerow({**base_fund_data, **doc})
+        writer.close()
+
+    elif args.command == "fiagro-dividends":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiagro-dividends.csv.gz")
+        for obj in tqdm(b3.fiagros()):
+            base_fund_data = obj.serialize()
+            for dividend in b3.fiagro_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                writer.writerow({**base_fund_data, **dividend})
+                # TODO: include stock_dividends?
+        writer.close()
+
+    elif args.command == "fiagro-subscriptions":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiagro-subscriptions.csv.gz")
+        for obj in tqdm(b3.fiagros()):
+            base_fund_data = obj.serialize()
+            data = b3.fiagro_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+            for subscription in data:
+                writer.writerow({**base_fund_data, **subscription})
+        writer.close()
+
+    elif args.command == "fiagro-documents":
+        b3 = B3()
+        writer = CsvLazyDictWriter("fiagro-documents.csv.gz")
+        for obj in tqdm(b3.fiagros()):
+            base_fund_data = obj.serialize()
+            data = b3.fiagro_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+            for doc in data:
+                writer.writerow({**base_fund_data, **doc})
         writer.close()
 
     elif args.command == "fip-dividends":
         b3 = B3()
         writer = CsvLazyDictWriter("fip-dividends.csv.gz")
-        for fip in tqdm(b3.fips()):
-            detalhes = next(b3.fip_detail(fip["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder") or {}
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            data = next(b3.fip_dividends(cnpj=detail_fund["cnpj"], identificador=fip["acronym"]))
-            dividends = data.pop("cashDividends")
-            subscriptions = data.pop("subscriptions")
-            stockDividends = data.pop("stockDividends")
-            for dividend in dividends:
-                writer.writerow({**base_fund_data, **data, **dividend})
+        for obj in tqdm(b3.fips()):
+            base_fund_data = obj.serialize()
+            for dividend in b3.fip_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                writer.writerow({**base_fund_data, **dividend})
+                # TODO: include stock_dividends?
+        writer.close()
         writer.close()
 
     elif args.command == "fip-documents":
         b3 = B3()
         writer = CsvLazyDictWriter("fip-documents.csv.gz")
-        for fip in tqdm(b3.fips()):
-            detalhes = next(b3.fip_detail(fip["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder") or {}
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            for doc in b3.fip_documents(identificador=fip["acronym"]):
-                doc[
-                    "url"
-                ] = f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={fip['acronym']}&strData={doc['date']}"
+        for obj in tqdm(b3.fips()):
+            base_fund_data = obj.serialize()
+            for doc in b3.fip_documents(identificador=obj.acronimo, cnpj=obj.cnpj):
                 writer.writerow({**base_fund_data, **doc})
         writer.close()
 
     elif args.command == "fip-subscriptions":
         b3 = B3()
         writer = CsvLazyDictWriter("fip-subscriptions.csv.gz")
-        for fip in tqdm(b3.fips()):
-            detalhes = next(b3.fip_detail(fip["acronym"]))
-            detail_fund = detalhes.pop("detailFund")
-            share_holder = detalhes.pop("shareHolder") or {}
-            detail_fund["codes"] = ", ".join(detail_fund["codes"])
-            base_fund_data = {**detail_fund, **share_holder}
-            data = next(b3.fip_dividends(cnpj=detail_fund["cnpj"], identificador=fip["acronym"]))
-            dividends = data.pop("cashDividends")
-            subscriptions = data.pop("subscriptions")
-            stockDividends = data.pop("stockDividends")
-            for subscription in subscriptions:
-                writer.writerow({**base_fund_data, **data, **subscription})
+        for obj in tqdm(b3.fips()):
+            base_fund_data = obj.serialize()
+            for subscription in b3.fip_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo):
+                writer.writerow({**base_fund_data, **subscription})
         writer.close()
 
     elif args.command == "debentures":
