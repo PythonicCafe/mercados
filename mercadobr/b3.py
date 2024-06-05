@@ -11,6 +11,88 @@ from rows.utils.date import date_range
 
 from .utils import create_session, parse_br_decimal, parse_date
 
+def clean_string(value):
+    if value is None:
+        return value
+    return value.strip()
+
+def parse_br_date(value):
+    if value is None:
+        return value
+    return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+
+@dataclass
+class FundoB3:
+    acronimo: str
+    nome_negociacao: str
+    cnpj: str
+    classificacao: str
+    endereco: str
+    ddd: str
+    telefone: str
+    fax: str
+    gestor_cargo: str
+    gestor: str
+    empresa_endereco: str
+    empresa_ddd: str
+    empresa_telefone: str
+    empresa_fax: str
+    empresa_email: str
+    empresa_razao_social: str
+    cotas: int
+    data_aprovacao_cotas: datetime.date
+    administrador: str
+    administrador_endereco: str
+    administrador_ddd: str
+    administrador_telefone: str
+    administrador_fax: str
+    codigo_negociacao: str = None
+    outros_codigos_negociacao: str = None
+    website: str = None
+    tipo_fnet: str = None
+    codigos_negociacao_2: str = None
+    outros_codigos_negociacao_2: str = None
+    segmento: str = None
+    administrador_email: str = None
+
+    @classmethod
+    def from_dict(cls, obj):
+        detail = obj["detailFund"]
+        shareholder = obj["shareHolder"]
+        return cls(
+            acronimo=clean_string(detail["acronym"]),
+            nome_negociacao=clean_string(detail["tradingName"]),
+            codigo_negociacao=clean_string(detail["tradingCode"]),
+            outros_codigos_negociacao=clean_string(detail["tradingCodeOthers"]),
+            cnpj=clean_string(detail["cnpj"]),
+            classificacao=clean_string(detail["classification"]),
+            website=clean_string(detail["webSite"]),
+            endereco=clean_string(detail["fundAddress"]),
+            ddd=clean_string(detail["fundPhoneNumberDDD"]),
+            telefone=clean_string(detail["fundPhoneNumber"]),
+            fax=clean_string(detail["fundPhoneNumberFax"]),
+            gestor_cargo=clean_string(detail["positionManager"]),
+            gestor=clean_string(detail["managerName"]),
+            empresa_endereco=clean_string(detail["companyAddress"]),
+            empresa_ddd=clean_string(detail["companyPhoneNumberDDD"]),
+            empresa_telefone=clean_string(detail["companyPhoneNumber"]),
+            empresa_fax=clean_string(detail["companyPhoneNumberFax"]),
+            empresa_email=clean_string(detail["companyEmail"]),
+            empresa_razao_social=clean_string(detail["companyName"]),
+            cotas=clean_string(detail["quotaCount"]),
+            data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
+            tipo_fnet=clean_string(detail["typeFNET"]),
+            codigos_negociacao_2=[clean_string(item) for item in detail["codes"]] if detail["codes"] else None,
+            outros_codigos_negociacao_2=clean_string(detail["codesOther"]),
+            segmento=clean_string(detail["segment"]),
+            administrador=clean_string(shareholder["shareHolderName"]),
+            administrador_endereco=clean_string(shareholder["shareHolderAddress"]),
+            administrador_ddd=clean_string(shareholder["shareHolderPhoneNumberDDD"]),
+            administrador_telefone=clean_string(shareholder["shareHolderPhoneNumber"]),
+            administrador_fax=clean_string(shareholder["shareHolderFaxNumber"]),
+            administrador_email=clean_string(shareholder["shareHolderEmail"]),
+        )
+
 
 @dataclass
 class NegociacaoBalcao:
@@ -101,7 +183,7 @@ class B3:
         if "pageNumber" not in url_params:
             url_params["pageNumber"] = 1
         if "pageSize" not in url_params:
-            url_params["pageSize"] = 500
+            url_params["pageSize"] = 100
         finished = False
         while not finished:
             response = self.request(base_url, url_params, params=params, method=method)
@@ -116,6 +198,21 @@ class B3:
                 else:
                     yield response
 
+    def fiis(self):
+        yield from self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
+            url_params={"typeFund": 7},
+        )
+
+    def fii_detail(self, identificador):
+        return FundoB3.from_dict(
+            self.request(
+                method="GET",
+                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
+                url_params={"typeFund": 7, "identifierFund": identificador},
+            )
+        )
+
     def fiinfras(self):
         yield from self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
@@ -123,9 +220,12 @@ class B3:
         )
 
     def fiinfra_detail(self, identificador):
-        yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
-            url_params={"typeFund": 27, "identifierFund": identificador},
+        return FundoB3.from_dict(
+            self.request(
+                method="GET",
+                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
+                url_params={"typeFund": 27, "identifierFund": identificador},
+            )
         )
 
     def fiinfra_dividends(self, cnpj, identificador):
