@@ -119,8 +119,9 @@ class FundosNet:
 
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
-    def __init__(self, timeout=5):
+    def __init__(self, timeout=5, verify_ssl=False):
         self.timeout = timeout
+        self.verify_ssl = verify_ssl
         self.session = create_session()
         self.session.headers["CSRFToken"] = self.csrf_token
         self.draw = 0
@@ -140,6 +141,7 @@ class FundosNet:
             data=data,
             json=json,
             timeout=self.timeout,
+            verify=self.verify_ssl,
         )
 
     @cached_property
