@@ -32,74 +32,89 @@ class FundoB3:
     ddd: str
     telefone: str
     fax: str
-    gestor_cargo: str
-    gestor: str
     empresa_endereco: str
     empresa_ddd: str
     empresa_telefone: str
     empresa_fax: str
     empresa_email: str
     empresa_razao_social: str
-    cotas: int
+    cotas: float
     data_aprovacao_cotas: datetime.date
     administrador: str
     administrador_endereco: str
     administrador_ddd: str
     administrador_telefone: str
     administrador_fax: str
-    codigos_negociacao: str = None
-    outros_codigos_negociacao: str = None
+    administrador_responsavel: str
+    administrador_responsavel_cargo: str
+    administrador_email: str = None
     website: str = None
     tipo_fnet: str = None
-    lista_codigos_negociacao: str = None
-    lista_outros_codigos_negociacao: str = None
+    codigos_negociacao: list[str] = None
     segmento: str = None
-    administrador_email: str = None
+
+    def to_dict(self):
+        return asdict(self)
 
     def serialize(self):
-        row = asdict(self)
-        for field_name in ("lista_codigos_negociacao", "lista_outros_codigos_negociacao"):
-            if row[field_name]:
-                row[field_name] = ",".join(row[field_name])
-        return row
+        obj = self.to_dict()
+        if obj["data_aprovacao_cotas"]:
+            obj["data_aprovacao_cotas"] = obj["data_aprovacao_cotas"].isoformat()
+        if obj["codigos_negociacao"]:
+            obj["codigos_negociacao"] = json.dumps(obj["codigos_negociacao"])
+        return obj
 
     @classmethod
     def from_dict(cls, type_name, obj):
         detail = obj["detailFund"]
         shareholder = obj["shareHolder"]
+        codigos_negociacao = []
+        if detail["codes"]:
+            codigos_negociacao = [clean_string(item) for item in detail["codes"]]
+        if detail["codesOther"]:
+            for item in detail["codesOther"]:
+                item = clean_string(item)
+                if item not in codigos_negociacao:
+                    codigos_negociacao.append(item)
+        fax = clean_string(detail["fundPhoneNumberFax"])
+        fax = fax if fax != "0" else None
+        empresa_fax = clean_string(detail["companyPhoneNumberFax"])
+        empresa_fax = empresa_fax if empresa_fax != "0" else None
+        administrador_fax = clean_string(shareholder["shareHolderFaxNumber"])
+        administrador_fax = administrador_fax if administrador_fax != "0" else None
+        website = clean_string(detail["webSite"])
+        if website and not website.lower().startswith("https:") and not website.lower().startswith("http:"):
+            website = f"https://{website}"
         return cls(
             tipo=type_name,
             acronimo=clean_string(detail["acronym"]),
             nome_negociacao=clean_string(detail["tradingName"]),
-            codigos_negociacao=clean_string(detail["tradingCode"]),
-            outros_codigos_negociacao=clean_string(detail["tradingCodeOthers"]),
-            lista_codigos_negociacao=[clean_string(item) for item in detail["codes"]] if detail["codes"] else None,
-            lista_outros_codigos_negociacao=[clean_string(item) for item in detail["codesOther"]] if detail["codesOther"] else None,
             cnpj=clean_string(detail["cnpj"]),
             classificacao=clean_string(detail["classification"]),
-            website=clean_string(detail["webSite"]),
-            endereco=clean_string(detail["fundAddress"]),
-            ddd=clean_string(detail["fundPhoneNumberDDD"]),
-            telefone=clean_string(detail["fundPhoneNumber"]),
-            fax=clean_string(detail["fundPhoneNumberFax"]),
-            gestor_cargo=clean_string(detail["positionManager"]),
-            gestor=clean_string(detail["managerName"]),
-            empresa_endereco=clean_string(detail["companyAddress"]),
-            empresa_ddd=clean_string(detail["companyPhoneNumberDDD"]),
-            empresa_telefone=clean_string(detail["companyPhoneNumber"]),
-            empresa_fax=clean_string(detail["companyPhoneNumberFax"]),
-            empresa_email=clean_string(detail["companyEmail"]),
-            empresa_razao_social=clean_string(detail["companyName"]),
-            cotas=clean_string(detail["quotaCount"]),
+            cotas=float(clean_string(detail["quotaCount"])),
             data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
             tipo_fnet=clean_string(detail["typeFNET"]),
             segmento=clean_string(detail["segment"]),
+            codigos_negociacao=codigos_negociacao,
+            website=website,
+            endereco=clean_string(detail["fundAddress"]),
+            ddd=clean_string(detail["fundPhoneNumberDDD"]),
+            telefone=clean_string(detail["fundPhoneNumber"]),
+            fax=fax,
+            empresa_endereco=clean_string(detail["companyAddress"]),
+            empresa_ddd=clean_string(detail["companyPhoneNumberDDD"]),
+            empresa_telefone=clean_string(detail["companyPhoneNumber"]),
+            empresa_fax=empresa_fax,
+            empresa_email=clean_string(detail["companyEmail"]),
+            empresa_razao_social=clean_string(detail["companyName"]),
             administrador=clean_string(shareholder["shareHolderName"]),
             administrador_endereco=clean_string(shareholder["shareHolderAddress"]),
             administrador_ddd=clean_string(shareholder["shareHolderPhoneNumberDDD"]),
             administrador_telefone=clean_string(shareholder["shareHolderPhoneNumber"]),
-            administrador_fax=clean_string(shareholder["shareHolderFaxNumber"]),
+            administrador_fax=administrador_fax,
             administrador_email=clean_string(shareholder["shareHolderEmail"]),
+            administrador_responsavel=clean_string(detail["managerName"]),
+            administrador_responsavel_cargo=clean_string(detail["positionManager"]),
         )
 
 
@@ -435,6 +450,7 @@ if __name__ == "__main__":
             "fip-dividends",
             "fip-documents",
             "fip-subscriptions",
+            "fundo-listado",
             "negociacao-balcao",
         ],
     )
