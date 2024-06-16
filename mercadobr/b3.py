@@ -53,8 +53,12 @@ class FundoB3:
     codigos_negociacao: list[str] = None
     segmento: str = None
 
+    @property
+    def codigo_negociacao(self):
+        return self.codigos_negociacao[0] if self.codigos_negociacao else f"{self.acronimo}11"
+
     def to_dict(self):
-        return asdict(self)
+        return {"codigo_negociacao": self.codigo_negociacao, **asdict(self)}
 
     def serialize(self):
         obj = self.to_dict()
