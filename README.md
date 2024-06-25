@@ -34,6 +34,8 @@ docker compose exec main bash
 - [Ofertas públicas em andamento](https://www.b3.com.br/pt_br/produtos-e-servicos/solucoes-para-emissores/ofertas-publicas/ofertas-em-andamento/empresas/publicacao-de-ofertas-publicas/)
 - [Ofertas públicas encerradas](https://www.b3.com.br/pt_br/produtos-e-servicos/solucoes-para-emissores/ofertas-publicas/ofertas-encerradas/)
 - [Plantão de notícias](https://sistemasweb.b3.com.br/PlantaoNoticias/Noticias/Index?agencia=18&SociedadeEmissora=LAVF)
+- [Debêntures](https://www.debenture.com.br/exploreosnd/consultaadados/emissoesdedebentures/puhistorico_r.asp)
+- [Instrumentos litados](https://arquivos.b3.com.br/tabelas/InstrumentsConsolidated/2024-06-24?lang=pt)
 
 ### CETIP
 
