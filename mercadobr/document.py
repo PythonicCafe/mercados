@@ -21,7 +21,7 @@ def clean_cnpj(value):
     >>> print(clean_cnpj('Invalid value'))
     None
     """
-    value = REGEXP_NUMBERS.sub("", str(value or ""))
+    value = REGEXP_NUMBERS.sub("", str(value or ""))  # TODO: CNPJ will change in 2026 (add alpha)
     if not value:
         return None
     if len(value) < 14:
