@@ -5,6 +5,7 @@ import decimal
 import io
 import json
 from dataclasses import asdict, dataclass
+from decimal import Decimal
 from urllib.parse import urljoin
 
 from rows.utils.date import date_range
@@ -20,6 +21,36 @@ def parse_br_date(value):
     if value is None:
         return value
     return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+
+@dataclass
+class Dividendo:
+    tipo: str
+    codigo_isin: str
+    data_aprovacao: datetime.date
+    data_base: datetime.date
+    data_pagamento: datetime.date
+    valor_por_cota: Decimal
+    periodo_referencia: str
+
+    @classmethod
+    def from_dict(cls, row):
+        tipo_mapping = {
+            "AMORTIZACAO RF": "Amortização RF",
+            "DIVIDENDO": "Dividendo",
+            "RENDIMENTO": "Rendimento",
+        }
+        return cls(
+            codigo_isin=row["isinCode"],
+            data_aprovacao=parse_br_date(row["approvedOn"]),
+            data_base=parse_br_date(row["lastDatePrior"]),
+            data_pagamento=parse_br_date(row["paymentDate"]),
+            valor_por_cota=Decimal(row["rate"].replace(".", "").replace(",", ".")),
+            periodo_referencia=row["relatedTo"],
+            tipo=tipo_mapping.get(row["label"], row["label"]),
+        )
+
+    def serialize(self):
+        return asdict(self)
 
 @dataclass
 class FundoB3:
@@ -247,19 +278,11 @@ class B3:
         )
 
     def _fund_dividends(self, type_id, cnpj, identifier):
-        # TODO: parse/convert to dataclass:
-        # assetIssued	paymentDate	rate	relatedTo	approvedOn	isinCode	label	lastDatePrior	remarks
-        # BRAFHICTF005	22/05/2024	0,95000000000	Abril-2024/2024	15/05/2024	BRAFHICTF005	RENDIMENTO	15/05/2024
-        # BRAFHICTF005	19/04/2024	0,95000000000	Março-2024/2024	12/04/2024	BRAFHICTF005	RENDIMENTO	12/04/2024
-        # BRAFHICTF005	21/03/2024	0,95000000000	Fevereiro-2024/2024	14/03/2024	BRAFHICTF005	RENDIMENTO	14/03/2024
-        # BRAFHIR10M17	21/03/2024	0,59545374200	Fevereiro-2024/2024	14/03/2024	BRAFHIR10M17	RENDIMENTO	14/03/2024
-        # BRAFHIR11M16	21/03/2024	0,24961523600	Fevereiro-2024/2024	14/03/2024	BRAFHIR11M16	RENDIMENTO	14/03/2024
-        # BRAFHICTF005	23/02/2024	0,95000000000	Janeiro-2024/2024	16/02/2024	BRAFHICTF005	RENDIMENTO	16/02/2024
-        # BRBZELCTF002	26/05/2023	0,07992501600	Janeiro a Maio/2023	25/05/2023	BRBZELCTF002	AMORTIZACAO RF	25/05/2023
-        return self.request(
+        data = self.request(
             url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
             url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
         )["cashDividends"]
+        return [Dividendo.from_dict(row) for row in data]
 
     # TODO: implement stockDividends
 
@@ -524,7 +547,7 @@ if __name__ == "__main__":
         for obj in tqdm(b3.fiis()):
             base_fund_data = obj.serialize()
             for dividend in b3.fii_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend})
+                writer.writerow({**base_fund_data, **dividend.serialize()})
                 # TODO: include stock_dividends?
         writer.close()
 
@@ -554,7 +577,7 @@ if __name__ == "__main__":
         for obj in tqdm(b3.fiinfras()):
             base_fund_data = obj.serialize()
             for dividend in b3.fiinfra_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend})
+                writer.writerow({**base_fund_data, **dividend.serialize()})
                 # TODO: include stock_dividends?
         writer.close()
 
@@ -584,7 +607,7 @@ if __name__ == "__main__":
         for obj in tqdm(b3.fiagros()):
             base_fund_data = obj.serialize()
             for dividend in b3.fiagro_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend})
+                writer.writerow({**base_fund_data, **dividend.serialize()})
                 # TODO: include stock_dividends?
         writer.close()
 
@@ -614,7 +637,7 @@ if __name__ == "__main__":
         for obj in tqdm(b3.fips()):
             base_fund_data = obj.serialize()
             for dividend in b3.fip_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend})
+                writer.writerow({**base_fund_data, **dividend.serialize()})
                 # TODO: include stock_dividends?
         writer.close()
         writer.close()
