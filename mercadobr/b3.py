@@ -411,7 +411,7 @@ class B3:
     def fiinfra_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(27, cnpj, identificador)
 
-    def fiinfra_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fiinfra_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -431,7 +431,7 @@ class B3:
     def fip_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(21, cnpj, identificador)
 
-    def fip_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fip_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -451,7 +451,7 @@ class B3:
     def fiagro_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(34, cnpj, identificador)
 
-    def fiagro_documents(self, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fiagro_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
