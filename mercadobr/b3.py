@@ -12,14 +12,18 @@ from rows.utils.date import date_range
 
 from .utils import create_session, parse_br_decimal, parse_date
 
+
+def parse_datetime_force_timezone(value):
+    return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
+
 def clean_string(value):
     if value is None:
         return value
     return value.strip()
 
 def parse_br_date(value):
-    if value is None:
-        return value
+    if not value or value == "0001-01-01":
+        return None
     return datetime.datetime.strptime(value, "%d/%m/%Y").date()
 
 @dataclass
@@ -47,6 +51,35 @@ class Dividendo:
             valor_por_cota=Decimal(row["rate"].replace(".", "").replace(",", ".")),
             periodo_referencia=row["relatedTo"],
             tipo=tipo_mapping.get(row["label"], row["label"]),
+        )
+
+    def serialize(self):
+        return asdict(self)
+
+@dataclass
+class FundoDocumento:
+    acronimo: str
+    fundo: str
+    tipo: str
+    datahora_entrega: datetime.datetime
+    url: str
+    data_referencia: datetime.date = None
+    data_ordem: datetime.date = None
+
+    @classmethod
+    def from_dict(cls, acronimo, row):
+        """
+        >>> FundoDocumento.from_dict('XPID', {'name': 'Regulamento', 'date': '2021-05-05T11:29:59.46', 'referenceDate': '', 'companyName': 'XP FDO INV. COTAS FDO INC. INV. EM INFR. R. FIXA  ', 'dateOrder': '0001-01-01T00:00:00'})
+        FundoDocumento(acronimo='XPID', fundo='XP FDO INV. COTAS FDO INC. INV. EM INFR. R. FIXA', tipo='Regulamento', datahora_entrega=datetime.datetime(2021, 5, 5, 11, 29, 59, 46), url='https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla=XPID&strData=2021-05-05T11:29:59.46', data_referencia=None, data_ordem=None)
+        """
+        return cls(
+            acronimo=acronimo,
+            fundo=clean_string(row["companyName"]),
+            tipo=row["name"],
+            datahora_entrega=parse_datetime_force_timezone(row["date"]),
+            data_referencia=parse_br_date(row["referenceDate"]),
+            data_ordem=parse_date("iso-date", row["dateOrder"].replace("T00:00:00", "")),
+            url=f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={acronimo}&strData={row['date']}",
         )
 
     def serialize(self):
@@ -298,6 +331,33 @@ class B3:
             url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
             url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
         )["subscriptions"]
+
+    def _fundo_comunicados(self, identificador):
+        "Comunicados"
+        result = self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            url_params={"identifierFund": identificador, "type": 1},
+        )
+        for row in result:
+            yield FundoDocumento.from_dict(identificador, row)
+
+    def _fundo_demonstrativos(self, identificador):
+        "Demonstrativos financeiros e relatórios"
+        result = self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            url_params={"identifierFund": identificador, "type": 2},
+        )
+        for row in result:
+            yield FundoDocumento.from_dict(identificador, row)
+
+    def _fundo_outros_documentos(self, identificador):
+        "Demonstrativos financeiros e relatórios"
+        result = self.paginate(
+            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            url_params={"identifierFund": identificador, "type": 3},
+        )
+        for row in result:
+            yield FundoDocumento.from_dict(identificador, row)
 
     def _fund_documents(self, type_id, cnpj, identifier, start_date: datetime.date, end_date: datetime.date):
         # TODO: parse/convert to dataclass:
