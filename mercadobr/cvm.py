@@ -1,11 +1,47 @@
 import csv
+import datetime
+import io
 import tempfile
+import zipfile
+from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 
 import requests
 from lxml.html import document_fromstring
 
-from .utils import download_files
+from .utils import REGEXP_CNPJ_SEPARATORS, download_files, parse_date
+
+
+def parse_iso_date(value):
+    return parse_date("iso-date", value)
+
+
+@dataclass
+class InformeDiarioFundo:
+    fundo_cnpj: str
+    data_competencia: datetime.date
+    valor_captado: Decimal
+    valor_resgatado: Decimal
+    patrimonio_liquido: Decimal
+    valor_cota: Decimal
+    valor_carteira: Decimal = None
+    fundo_tipo: str = None
+    cotistas: int = None
+
+    @classmethod
+    def from_dict(cls, row):
+        return cls(
+            data_competencia=parse_iso_date(row["dt_comptc"]),
+            cotistas=int(row["nr_cotst"]),
+            fundo_tipo=row["tp_fundo"],
+            fundo_cnpj=REGEXP_CNPJ_SEPARATORS.sub("", row["cnpj_fundo"]).strip(),
+            valor_captado=Decimal(row["captc_dia"]) if row["captc_dia"] else None,
+            valor_resgatado=Decimal(row["resg_dia"]) if row["resg_dia"] else None,
+            patrimonio_liquido=Decimal(row["vl_patrim_liq"]) if row["vl_patrim_liq"] else None,
+            valor_cota=Decimal(row["vl_quota"]) if row["vl_quota"] else None,
+            valor_carteira=Decimal(row["vl_total"]) if row["vl_total"] else None,
+        )
 
 
 class CVM:
@@ -83,3 +119,17 @@ class CVM:
                         # "trib_lprazo"::varchar(3) AS "trib_lprazo",
                         # "vl_patrim_liq"::varchar(15) AS "vl_patrim_liq"
                     }
+
+def informe_diario_fundo_url(data: datetime.date):
+    if (data.year, data.month) >= (2021, 1):
+        return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
+    else:
+        return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
+
+def extrai_informes_diarios(zip_filename):
+    zf = zipfile.ZipFile(zip_filename)
+    for file_info in zf.filelist:
+        inner_filename = file_info.filename
+        with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
+            for row in csv.DictReader(fobj, delimiter=";"):
+                yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
