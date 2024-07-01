@@ -33,8 +33,8 @@ class InformeDiarioFundo:
     def from_dict(cls, row):
         return cls(
             data_competencia=parse_iso_date(row["dt_comptc"]),
-            cotistas=int(row["nr_cotst"]),
-            fundo_tipo=row["tp_fundo"],
+            cotistas=int(row["nr_cotst"]) if row["nr_cotst"] else None,  # Não existe em alguns registros de 2004
+            fundo_tipo=row.get("tp_fundo"),  # Não existe para 201901
             fundo_cnpj=REGEXP_CNPJ_SEPARATORS.sub("", row["cnpj_fundo"]).strip(),
             valor_captado=Decimal(row["captc_dia"]) if row["captc_dia"] else None,
             valor_resgatado=Decimal(row["resg_dia"]) if row["resg_dia"] else None,
