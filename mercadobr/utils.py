@@ -13,6 +13,8 @@ from rows.utils.download import Downloader, Download
 urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
+REGEXP_CNPJ_SEPARATORS = re.compile("[./ -]+")
+REGEXP_NUMERIC = re.compile("^[+-]? ?[0-9]+(\.[0-9]+)?$")
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")
 REGEXP_DATE_RANGE = re.compile("^(?:de )?([0-9]{2}/[0-9]{2}/[0-9]{4}) ?[aà–-] ?([0-9]{2}/[0-9]{2}/[0-9]{4})$")
 REGEXP_ALPHA_MONTH_YEAR = re.compile("^([^0-9]+)[ /-]([0-9]{4})$")
