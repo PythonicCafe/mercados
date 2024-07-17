@@ -269,7 +269,7 @@ class B3:
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
-        response = self._session.request(method, url, params=params, timeout=timeout)
+        response = self._session.request(method, url, params=params, timeout=timeout, verify=False)
         return response.json()
 
     def paginate(self, base_url, url_params=None, params=None, method="GET"):
