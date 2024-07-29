@@ -2,6 +2,7 @@ import datetime
 import decimal
 import re
 import socket
+import subprocess
 from functools import lru_cache
 from unicodedata import normalize
 
@@ -24,7 +25,16 @@ REGEXP_YEAR_PART = re.compile(
 )
 REGEXP_SEPARATOR = re.compile("(_+)")
 REGEXP_WORD_BOUNDARY = re.compile("(\\w\\b)")
+REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?$""")
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
+
+
+def get_pdf_text(file_contents):
+    command = ["pdftotext", "-layout", "-nopgbrk", "-enc", "UTF-8", "-", "-"]
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    stdout_data, stderr_data = process.communicate(input=file_contents)
+    text = stdout_data.decode("utf-8").strip()
+    return text
 
 
 def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"):
