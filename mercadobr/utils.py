@@ -33,7 +33,7 @@ def get_pdf_text(file_contents):
     command = ["pdftotext", "-layout", "-nopgbrk", "-enc", "UTF-8", "-", "-"]
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     stdout_data, stderr_data = process.communicate(input=file_contents)
-    text = stdout_data.decode("utf-8").strip()
+    text = stdout_data.decode("utf-8").replace("\x00", "").strip()
     return text
 
 
