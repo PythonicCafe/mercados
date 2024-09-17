@@ -260,17 +260,22 @@ class B3:
     def __init__(self):
         self._session = create_session()
         # Requisição para guardar cookies:
-        self._session.get("https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm")
+        self.request(
+            "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm",
+            decode_json=False,
+        )
 
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
 
-    def request(self, url, url_params=None, params=None, method="GET", timeout=10):
+    def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
         response = self._session.request(method, url, params=params, timeout=timeout, verify=False)
-        return response.json()
+        if decode_json:
+            return response.json()
+        return response
 
     def paginate(self, base_url, url_params=None, params=None, method="GET"):
         url_params = url_params or {}
@@ -486,18 +491,19 @@ class B3:
         )
 
     def debentures(self):
-        response = self._session.get(
+        response = self.request(
             "https://sistemaswebb3-balcao.b3.com.br/featuresDebenturesProxy/DebenturesCall/GetDownload",
-            verify=False,
+            decode_json=False,
         )
         decoded_data = base64.b64decode(response.text).decode("ISO-8859-1")
         reader = csv.DictReader(io.StringIO(decoded_data), delimiter=";")
         yield from reader
 
     def negociacao_balcao(self, date):
-        response = self._session.get(
+        response = self.request(
             "https://bvmf.bmfbovespa.com.br/NegociosRealizados/Registro/DownloadArquivoDiretorio",
             params={"data": date.strftime("%d-%m-%Y")},
+            decode_json=False,
         )
         if response.status_code == 404:  # No data for this date
             return
