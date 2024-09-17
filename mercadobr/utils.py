@@ -77,6 +77,7 @@ def create_session():
     session = requests.Session()
     adapter = HTTPAdapter(max_retries=Retry(total=7, backoff_factor=0.1))
     session.headers["User-Agent"] = "Mozilla/5.0 mercadobr/python"
+    session.headers["Accept"] = "application/json,text/html,application/xhtml+xml,application/xml,application/pdf"
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
