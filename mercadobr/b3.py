@@ -274,7 +274,10 @@ class B3:
             url = urljoin(url, url_params)
         response = self._session.request(method, url, params=params, timeout=timeout, verify=False)
         if decode_json:
-            return response.json()
+            text = response.text
+            if text and text[0] == text[-1] == '"':  # WTF, B3?
+                text = json.loads(text)
+            return json.loads(text) if text else {}
         return response
 
     def paginate(self, base_url, url_params=None, params=None, method="GET"):
@@ -319,8 +322,9 @@ class B3:
         data = self.request(
             url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
             url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
-        )["cashDividends"]
-        return [Dividendo.from_dict(row) for row in data]
+        )
+        dividends = data.get("cashDividends") if data else []
+        return [Dividendo.from_dict(row) for row in dividends]
 
     # TODO: implement stockDividends
 
