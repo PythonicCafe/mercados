@@ -397,6 +397,7 @@ RENDA_FIXA_TIPO = (
     (9, "LFSN"),
     (10, "LFSC"),
     (11, "CBIO"),
+    (12, "CDCA"),
 )
 
 RENDIMENTO_TIPO = (
