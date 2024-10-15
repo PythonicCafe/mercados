@@ -328,6 +328,7 @@ DOCUMENTO_TIPO = (
     (126, "Instrumento de Emissão e aditamentos"),
     (23, "Investimento"),
     (35, "Laudo de Avaliação"),
+    (156, "Lâmina de Informações Básicas"),
     (139, "Lâmina de Oferta de FIDC"),
     (140, "Lâmina de Oferta de Fundos Fechados"),
     (141, "Lâmina de Oferta de Securitização"),
