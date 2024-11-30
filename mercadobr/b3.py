@@ -256,6 +256,7 @@ class NegociacaoBalcao:
 
 class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
+    indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
 
     def __init__(self):
         self._session = create_session()
@@ -519,6 +520,33 @@ class B3:
                 if field not in row:
                     row[field] = None
             yield NegociacaoBalcao.from_dict(row)
+
+    # TODO: criar método para listar todos os índices
+
+    def carteira_indice(self, indice):
+        # TODO: seletor de tipo:
+        # - GetTheoricalPortfolio/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
+        #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
+        # - GetPortfolioDay/eyJsYW5ndWFnZSI6InB0LWJyIiwicGFnZU51bWJlciI6MSwicGFnZVNpemUiOjIwLCJpbmRleCI6IklCT1YiLCJzZWdtZW50IjoiMSJ9
+        #   b'{"language":"pt-br","pageNumber":1,"pageSize":20,"index":"IBOV","segment":"1"}'
+        # - GetQuartelyPreview/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
+        #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
+        # - GetDownloadPortfolioDay/eyJpbmRleCI6IklCT1ZFU1BBIiwibGFuZ3VhZ2UiOiJwdC1iciIsInllYXIiOiIyMDIyIn0=
+        #   b'{"index":"IBOVESPA","language":"pt-br","year":"2022"}'
+        #
+        # TODO: create dataclass:
+        # {'segment': None,
+        #  'cod': 'VINO11',
+        #  'asset': 'FII VINCI OF',
+        #  'type': 'CI  ER',
+        #  'part': '0,814',
+        #  'partAcum': None,
+        #  'theoricalQty': '16.565.259'}
+        # TODO: assert indice in XXX
+        yield from self.paginate(
+            base_url=urljoin(self.indexes_call_url, "GetPortfolioDay/"),
+            url_params={"language": "pt-br", "index": indice, "segment": "1"},
+        )
 
 
 if __name__ == "__main__":
