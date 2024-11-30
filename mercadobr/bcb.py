@@ -20,8 +20,22 @@ class BancoCentral:
     MESES = "jan feb mar apr may jun jul aug sep oct nov dec".split()
     url = "https://www3.bcb.gov.br/novoselic/rest/fatoresAcumulados/pub/exportarCsv"
 
+    # TODO: pegar Selic de https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json
+    # TODO: pegar Selic meta de https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados?formato=json
+    # TODO: pegar CDI de https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json
+    # TODO: pegar URV (parou) de https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json
+    # TODO: pegar UFIR (parou) de https://www3.bcb.gov.br/sgspub/consultarmetadados/consultarMetadadosSeries.do?method=consultarMetadadosSeriesInternet&hdOidSerieSelecionada=22
+    # TODO: pegar IPCA mensal (433) - a fonte oficial é o IBGE, não seria melhor pegar diretamente de lá?
+    # TODO: pegar outros IPCAs
+    # TODO: IMA-B (12466) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+    # TODO: IMA-B 5 (12467) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+    # TODO: IMA-B 5+ (12468) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+    # TODO: IMA-S (12462) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+    # TODO: IGP-M (189) - a fonte oficial é a FGV, não seria melhor pegar diretamente de lá?
+    # TODO: IGP-DI (190) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+
     def _deserialize(self, value):
-        # TODO: quantize?
+        # TODO: usar quantize ou normalize para evitar muitos zeros à direita?
         return decimal.Decimal(value.replace(",", "."))
 
     def _csv_request(self, filtro, ordenacao):
