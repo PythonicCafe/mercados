@@ -135,7 +135,7 @@ class FundoB3:
     @classmethod
     def from_dict(cls, type_name, obj):
         detail = obj["detailFund"]
-        shareholder = obj["shareHolder"]
+        shareholder = obj["shareHolder"] or {}
         codigos_negociacao = []
         if detail["codes"]:
             codigos_negociacao = [clean_string(item) for item in detail["codes"]]
@@ -148,7 +148,7 @@ class FundoB3:
         fax = fax if fax != "0" else None
         empresa_fax = clean_string(detail["companyPhoneNumberFax"])
         empresa_fax = empresa_fax if empresa_fax != "0" else None
-        administrador_fax = clean_string(shareholder["shareHolderFaxNumber"])
+        administrador_fax = clean_string(shareholder.get("shareHolderFaxNumber"))
         administrador_fax = administrador_fax if administrador_fax != "0" else None
         website = clean_string(detail["webSite"])
         if website and not website.lower().startswith("https:") and not website.lower().startswith("http:"):
@@ -175,12 +175,12 @@ class FundoB3:
             empresa_fax=empresa_fax,
             empresa_email=clean_string(detail["companyEmail"]),
             empresa_razao_social=clean_string(detail["companyName"]),
-            administrador=clean_string(shareholder["shareHolderName"]),
-            administrador_endereco=clean_string(shareholder["shareHolderAddress"]),
-            administrador_ddd=clean_string(shareholder["shareHolderPhoneNumberDDD"]),
-            administrador_telefone=clean_string(shareholder["shareHolderPhoneNumber"]),
+            administrador=clean_string(shareholder.get("shareHolderName")),
+            administrador_endereco=clean_string(shareholder.get("shareHolderAddress")),
+            administrador_ddd=clean_string(shareholder.get("shareHolderPhoneNumberDDD")),
+            administrador_telefone=clean_string(shareholder.get("shareHolderPhoneNumber")),
             administrador_fax=administrador_fax,
-            administrador_email=clean_string(shareholder["shareHolderEmail"]),
+            administrador_email=clean_string(shareholder.get("shareHolderEmail")),
             administrador_responsavel=clean_string(detail["managerName"]),
             administrador_responsavel_cargo=clean_string(detail["positionManager"]),
         )
