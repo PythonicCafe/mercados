@@ -16,7 +16,7 @@ urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
 REGEXP_CNPJ_SEPARATORS = re.compile("[./ -]+")
-REGEXP_NUMERIC = re.compile("^[+-]? ?[0-9]+(\.[0-9]+)?$")
+REGEXP_NUMERIC = re.compile(r"^[+-]? ?[0-9]+(\.[0-9]+)?$")
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")
 REGEXP_DATE_RANGE = re.compile("^(?:de )?([0-9]{2}/[0-9]{2}/[0-9]{4}) ?[aà–-] ?([0-9]{2}/[0-9]{2}/[0-9]{4})$")
 REGEXP_ALPHA_MONTH_YEAR = re.compile("^([^0-9]+)[ /-]([0-9]{4})$")
@@ -143,6 +143,22 @@ def parse_date(fmt, value, full=False):
         return obj
     elif obj_type == "date":
         return obj.date()
+
+
+def parse_datetime_force_timezone(value):
+    return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
+
+
+def clean_string(value):
+    if value is None:
+        return value
+    return value.strip()
+
+
+def parse_br_date(value):
+    if not value or value == "0001-01-01":
+        return None
+    return parse_date("br-date", value)
 
 
 @lru_cache(maxsize=120)

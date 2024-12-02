@@ -10,21 +10,15 @@ from urllib.parse import urljoin
 
 from rows.utils.date import date_range
 
-from .utils import create_session, parse_br_decimal, parse_date
+from .utils import (
+    clean_string,
+    create_session,
+    parse_br_date,
+    parse_br_decimal,
+    parse_date,
+    parse_datetime_force_timezone,
+)
 
-
-def parse_datetime_force_timezone(value):
-    return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
-
-def clean_string(value):
-    if value is None:
-        return value
-    return value.strip()
-
-def parse_br_date(value):
-    if not value or value == "0001-01-01":
-        return None
-    return datetime.datetime.strptime(value, "%d/%m/%Y").date()
 
 @dataclass
 class Dividendo:

@@ -13,8 +13,7 @@ from urllib.parse import urljoin
 import requests
 from lxml.html import document_fromstring
 
-from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, parse_date, slug
-
+from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, download_files, parse_date, slug
 
 REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
 REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
