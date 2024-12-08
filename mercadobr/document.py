@@ -2,15 +2,16 @@ import copy
 import datetime
 import decimal
 import re
-from dataclasses import dataclass, fields as class_fields
+from dataclasses import dataclass
+from dataclasses import fields as class_fields
 
 import xmltodict
 from rows.fields import slug
 
 from .utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
 
-
 REGEXP_NUMBERS = re.compile("[^0-9]+")
+
 
 def clean_cnpj(value):
     """
@@ -578,7 +579,7 @@ class InformeFII:
         elif informe_anual:
             tipo = "Informe Anual"
         else:
-            raise ValueError(f"Tipo de informe desconhecido")
+            raise ValueError("Tipo de informe desconhecido")
 
         autorregulacao = gerais.pop("Autorregulacao")
         entidade_administradora = gerais.pop("EntidadeAdministradora")

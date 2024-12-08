@@ -17,7 +17,9 @@ from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, download_files, 
 
 REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
 REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
-REGEXP_DATAHORA = re.compile(r"^<spanOrder>[0-9]+</spanOrder> ([0-9]+/[0-9]+/[0-9]+)\s?([0-9]+:[0-9]+)?$", flags=re.DOTALL)
+REGEXP_DATAHORA = re.compile(
+    r"^<spanOrder>[0-9]+</spanOrder> ([0-9]+/[0-9]+/[0-9]+)\s?([0-9]+:[0-9]+)?$", flags=re.DOTALL
+)
 REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
@@ -77,7 +79,9 @@ class CVM:
                     "titulo": li.xpath(".//h2/a/text()")[0].strip(),
                     "link": li.xpath(".//h2/a/@href")[0].strip(),
                     "data": li.xpath(".//span[@class = 'data']/text()")[0].strip(),
-                    "descricao": " ".join(item.strip() for item in li.xpath(".//span[@class = 'descricao']/text()") if item.strip()),
+                    "descricao": " ".join(
+                        item.strip() for item in li.xpath(".//span[@class = 'descricao']/text()") if item.strip()
+                    ),
                 }
             params["b_start:int"] += 60
             finished = len(items) != params["b_size"]
@@ -133,16 +137,17 @@ class CVM:
                         # "vl_patrim_liq"::varchar(15) AS "vl_patrim_liq"
                     }
 
+
 def informe_diario_fundo_url(data: datetime.date):
     if (data.year, data.month) >= (2021, 1):
         return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
     else:
         return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
 
+
 def extrai_informes_diarios(zip_filename):
     zf = zipfile.ZipFile(zip_filename)
     for file_info in zf.filelist:
-        inner_filename = file_info.filename
         with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
             for row in csv.DictReader(fobj, delimiter=";"):
                 yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
@@ -154,6 +159,7 @@ def extrai_data(valor):
         return None
     return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
 
+
 def extrai_datahora(valor, timezone=BRT):
     resultado = REGEXP_DATAHORA.findall(valor)
     if not resultado:
@@ -163,6 +169,7 @@ def extrai_datahora(valor, timezone=BRT):
         return datetime.datetime.strptime(data, "%d/%m/%Y").replace(tzinfo=timezone)
     else:
         return datetime.datetime.strptime(f"{data} {hora}", "%d/%m/%Y %H:%M").replace(tzinfo=timezone)
+
 
 def extrai_parametros(valor):
     result = REGEXP_PARAMETROS.match(valor.replace("\xa0", " "))
@@ -216,8 +223,18 @@ class DocumentoEmpresa:
     @classmethod
     def from_data(cls, data):
         header = [
-            "codigo_empresa", "empresa", "categoria", "subcategoria", "assunto", "datahora_referencia",
-            "datahora_entrega", "situacao", "versao", "modalidade", "campo_11", "campo_12",
+            "codigo_empresa",
+            "empresa",
+            "categoria",
+            "subcategoria",
+            "assunto",
+            "datahora_referencia",
+            "datahora_entrega",
+            "situacao",
+            "versao",
+            "modalidade",
+            "campo_11",
+            "campo_12",
         ]
         values = [value.strip() for value in data.split("$&")]
         row = dict(zip(header, values))
@@ -226,11 +243,7 @@ class DocumentoEmpresa:
         row["datahora_entrega"] = extrai_datahora(row["datahora_entrega"])
         row["especie"] = None
         if row["assunto"]:
-            #print("assunto", row["assunto"], REGEXP_ASSUNTO.findall(row["assunto"]))
-            row["assunto"], row["especie"] = [
-                item.strip()
-                for item in REGEXP_ASSUNTO.findall(row["assunto"])[0]
-            ]
+            row["assunto"], row["especie"] = [item.strip() for item in REGEXP_ASSUNTO.findall(row["assunto"])[0]]
             row["assunto"] = row["assunto"] if row["assunto"] not in ("", "-") else None
             row["especie"] = row["especie"] if row["especie"] not in ("", "-") else None
         html = row["campo_11"]
@@ -240,7 +253,10 @@ class DocumentoEmpresa:
         if search_on_click:
             search_function, search_params = extrai_parametros(search_on_click[0])
             if search_params:
-                assert search_function in ("OpenPopUpVer", "VisualizaArquivo_ITR_DFP_IAN"), f"Dados para link de visualização não reconhecidos: {search_function}, {search_params}"
+                assert search_function in (
+                    "OpenPopUpVer",
+                    "VisualizaArquivo_ITR_DFP_IAN",
+                ), f"Dados para link de visualização não reconhecidos: {search_function}, {search_params}"
                 if search_function == "OpenPopUpVer":
                     # params: ['frmExibirArquivoIPEExterno.aspx?NumeroProtocoloEntrega=66913']
                     row["url_visualizacao"] = urljoin("https://www.rad.cvm.gov.br/ENET/", search_params[0])
@@ -257,7 +273,10 @@ class DocumentoEmpresa:
                     )
         download_documento = tree.xpath("//i[@class='fi-download']/@onclick")[0]
         download_function, download_params = extrai_parametros(download_documento)
-        assert download_function in ("OpenDownloadDocumentos", "VisualizaArquivo_ITR_DFP_IAN"), f"Função de download desconhecida: {download_function}"
+        assert download_function in (
+            "OpenDownloadDocumentos",
+            "VisualizaArquivo_ITR_DFP_IAN",
+        ), f"Função de download desconhecida: {download_function}"
         if download_function == "OpenDownloadDocumentos":
             row["id"], _, row["protocolo"], row["tipo"] = download_params
             row["id"] = int(row["id"])
@@ -268,9 +287,9 @@ class DocumentoEmpresa:
             )
         elif download_function == "VisualizaArquivo_ITR_DFP_IAN":
             sDescTPDoc, sDataEncerra, sFuncao, sRazao, sPregao, sCodCVM, sMoeda = download_params
-            row["id"] = None # TODO: deveríamos preencher?
-            row["protocolo"] = None # TODO: deveríamos preencher?
-            row["tipo"] = None # TODO: deveríamos preencher? (sDescTPDoc is a number, not a string as expected)
+            row["id"] = None  # TODO: deveríamos preencher?
+            row["protocolo"] = None  # TODO: deveríamos preencher?
+            row["tipo"] = None  # TODO: deveríamos preencher? (sDescTPDoc is a number, not a string as expected)
             # XXX: 'http://siteempresas.bovespa.com.br' vem de `$('#siteDXW').val()`, que pode mudar
             # TODO: `sRazao` usa a função JS `escape()` e aqui não estamos escapando
             row["url_download"] = (

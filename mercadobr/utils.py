@@ -10,7 +10,7 @@ import requests
 import requests.packages.urllib3.util.connection as urllib3_connection
 from requests.adapters import HTTPAdapter, Retry
 from rows.fields import camel_to_snake as rows_camel_to_snake
-from rows.utils.download import Downloader, Download
+from rows.utils.download import Download, Downloader
 
 urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
@@ -24,7 +24,7 @@ REGEXP_YEAR_PART = re.compile(
     "^(1º|2º|3º|4º|1°|2°|3°|4°|1|2|3|4|primeiro|segundo|terceiro) (trimestre|semestre)( [0-9]{4})?$"
 )
 REGEXP_SEPARATOR = re.compile("(_+)")
-REGEXP_WORD_BOUNDARY = re.compile("(\\w\\b)")
+REGEXP_WORD_BOUNDARY = re.compile(r"(\w\b)")
 REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?$""")
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
@@ -62,11 +62,9 @@ def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
 
     # Remove double occurrencies of separator
     # Example: u'_alvaro__justen_' -> u'_alvaro_justen_'
-    text = (
-        REGEXP_SEPARATOR
-        if separator == "_"
-        else re.compile("(" + re.escape(separator) + "+)")
-    ).sub(separator, text)
+    text = (REGEXP_SEPARATOR if separator == "_" else re.compile("(" + re.escape(separator) + "+)")).sub(
+        separator, text
+    )
 
     # Strip separators
     # Example: u'_alvaro_justen_' -> u'alvaro_justen'
@@ -77,7 +75,9 @@ def create_session():
     session = requests.Session()
     adapter = HTTPAdapter(max_retries=Retry(total=7, backoff_factor=0.1))
     session.headers["User-Agent"] = "Mozilla/5.0 mercadobr/python"
-    session.headers["Accept"] = "application/json,text/html,application/xhtml+xml,application/xml,application/pdf"
+    session.headers["Accept"] = (
+        "application/json,text/html,application/xhtml+xml,application/xml,application/pdf,text/csv"
+    )
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session

@@ -15,7 +15,10 @@ from .document import DocumentMeta
 from .utils import create_session
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
-REGEXP_CERTIFICADO_DESCRICAO = re.compile(r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$")
+REGEXP_CERTIFICADO_DESCRICAO = re.compile(
+    r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$"
+)
+
 
 def parse_certificado_descricao(value):
     result = REGEXP_CERTIFICADO_DESCRICAO.findall(value)
@@ -364,7 +367,6 @@ if __name__ == "__main__":
     from rows.plugins.utils import ipartition
     from rows.utils import CsvLazyDictWriter, open_compressed
     from rows.utils.date import date_range
-    from rows.utils.download import Download, Downloader
     from tqdm import tqdm
 
     parser = argparse.ArgumentParser()

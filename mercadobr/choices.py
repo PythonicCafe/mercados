@@ -268,6 +268,7 @@ DOCUMENTO_STATUS = (
     ("IC", "Inativo com visualização"),
     ("CC", "Cancelado com visualização"),
 )
+
 DOCUMENTO_TIPO = (
     (125, "AG - Especial de Investidores"),
     (3, "AGE"),

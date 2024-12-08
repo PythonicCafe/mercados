@@ -50,6 +50,7 @@ class Dividendo:
     def serialize(self):
         return asdict(self)
 
+
 @dataclass
 class FundoDocumento:
     acronimo: str
@@ -78,6 +79,7 @@ class FundoDocumento:
 
     def serialize(self):
         return asdict(self)
+
 
 @dataclass
 class FundoB3:
@@ -310,7 +312,7 @@ class B3:
                 method="GET",
                 url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
                 url_params={"typeFund": type_id, "identifierFund": identifier},
-            )
+            ),
         )
 
     def _fund_dividends(self, type_id, cnpj, identifier):
@@ -395,7 +397,7 @@ class B3:
     def fii_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(7, cnpj, identificador)
 
-    def fii_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fii_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -415,7 +417,9 @@ class B3:
     def fiinfra_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(27, cnpj, identificador)
 
-    def fiinfra_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fiinfra_documents(
+        self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
+    ):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -435,7 +439,7 @@ class B3:
     def fip_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(21, cnpj, identificador)
 
-    def fip_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fip_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -455,14 +459,15 @@ class B3:
     def fiagro_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(34, cnpj, identificador)
 
-    def fiagro_documents(self, cnpj, identificador, data_inicial: datetime.date=None, data_final: datetime.date=None):
+    def fiagro_documents(
+        self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
+    ):
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
         if data_final is None:
             data_final = today.date()
         yield from self._fund_documents(34, cnpj, identificador, data_inicial, data_final)
-
 
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
