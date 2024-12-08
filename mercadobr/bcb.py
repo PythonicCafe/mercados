@@ -145,3 +145,48 @@ class BancoCentral:
                     fator *= taxa.valor
         fator = fator.quantize(Decimal("0.0000000000000001"))
         return (fator * valor).quantize(Decimal("0.01"))
+
+
+if __name__ == "__main__":
+    import argparse
+
+    def iso_date(value):
+        return parse_date("iso-date", value)
+
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    subparser_ajustar_selic = subparsers.add_parser("ajustar-selic")
+    subparser_ajustar_selic.add_argument("tipo_periodo", choices=["dia", "mês"])
+    subparser_ajustar_selic.add_argument("data_inicial", type=iso_date, help="Data de início")
+    subparser_ajustar_selic.add_argument("data_final", type=iso_date, help="Data de fim")
+    subparser_ajustar_selic.add_argument("valor", type=Decimal, help="Valor a ser ajustado")
+
+    subparser_serie_temporal = subparsers.add_parser("serie-temporal")
+    subparser_serie_temporal.add_argument("--data-inicial", "-i", type=iso_date, help="Data de início (opcional)")
+    subparser_serie_temporal.add_argument("--data-final", "-f", type=iso_date, help="Data de fim (opcional)")
+    subparser_serie_temporal.add_argument(
+        "serie", choices=list(BancoCentral.series.keys()), help="Nome da série temporal"
+    )
+
+    args = parser.parse_args()
+    bc = BancoCentral()
+
+    if args.command == "ajustar-selic":
+        tipo = args.tipo_periodo
+        inicio = args.data_inicial
+        fim = args.data_final
+        valor = args.valor
+
+        if tipo == "dia":
+            ajustado = bc.ajustar_selic_por_dia(data_inicial=inicio, data_final=fim, valor=valor)
+        elif tipo == "mês":
+            ajustado = bc.ajustar_selic_por_mês(data_inicial=inicio, data_final=fim, valor=valor)
+        print(ajustado)
+
+    elif args.command == "serie-temporal":
+        inicio = args.data_inicial
+        fim = args.data_final
+        nome_serie = args.serie
+        for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim):
+            print(f"{tx.data} {tx.valor}")
