@@ -72,13 +72,13 @@ def fix_segmento(value):
         "hibrido": "Híbrido",
         "hospital": "Hospital",
         "hotel": "Hotel",
-        "lajes_corporativas": "Lajes corporativas",
+        "lajes_corporativas": "Lajes Corporativas",
         "logistica": "Logística",
         "outros": "Outros",
         "residencial": "Residencial",
         "shoppings": "Shoppings",
-        "titulos_e_valores_mobiliarios": "Títulos e Valores mobiliários",
-        "titulos_e_val_mob": "Títulos e Valores mobiliários",
+        "titulos_e_valores_mobiliarios": "Títulos e Valores Mobiliários",
+        "titulos_e_val_mob": "Títulos e Valores Mobiliários",
     }[slug(value)]
 
 
@@ -88,7 +88,7 @@ def fix_mandato(value):
     return {
         "renda": "Renda",
         "hibrido": "Híbrido",
-        "titulos_e_valores_mobiliarios": "Títulos e Valores mobiliários",
+        "titulos_e_valores_mobiliarios": "Títulos e Valores Mobiliários",
         "desenvolvimento_para_renda": "Desenvolvimento para Renda",
         "desenvolvimento_para_venda": "Desenvolvimento para Venda",
     }[slug(value)]

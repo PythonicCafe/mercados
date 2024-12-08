@@ -54,7 +54,7 @@ def test_informe_mensal_378398():
             numero="153",
             prazo_duracao="Indeterminado",
             publico_alvo="Investidores em Geral",
-            segmento="Títulos e Val. Mob.",
+            segmento="Títulos e Valores Mobiliários",
             site="www.xpi.com.br",
             telefone_1="(11) 3027-2237",
             telefone_2=None,
