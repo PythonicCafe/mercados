@@ -1,3 +1,5 @@
+"""Raspador para pegar a cota de fundos na CVM -- prefira usar `InformeDiario` de `mercadobr.cvm`"""
+
 import datetime
 import io
 from dataclasses import asdict, dataclass
