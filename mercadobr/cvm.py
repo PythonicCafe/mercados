@@ -65,14 +65,14 @@ class Noticia:
 class CVM:
     def __init__(self):
         # TODO: trocar user agent
-        self._session = create_session()
+        self.session = create_session()
 
     def noticias(self):
         url = "https://www.gov.br/cvm/pt-br/assuntos/noticias"
         params = {"b_size": 60, "b_start:int": 0}
         finished = False
         while not finished:
-            response = self._session.get(url, params=params)
+            response = self.session.get(url, params=params)
             tree = document_fromstring(response.text)
             items = tree.xpath("//ul[contains(@class, 'noticias')]/li")
             for li in items:
@@ -105,7 +105,7 @@ class CVM:
 
     def informe_diario_fundo(self, data: datetime.date):
         url = self.url_informe_diario_fundo(data)
-        response = self._session.get(url)
+        response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_informe_diario(zip_fobj)
 

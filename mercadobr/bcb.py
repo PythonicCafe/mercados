@@ -43,9 +43,9 @@ class BancoCentral:
     # TODO: pegar outras das principais séries
 
     def __init__(self):
-        self._session = create_session()
+        self.session = create_session()
         # Por algum motivo, o serviço REST "novoselic" não retorna resultados caso o cabeçalho `Accept` seja passado
-        del self._session.headers["Accept"]
+        del self.session.headers["Accept"]
 
     def serie_temporal(self, nome: str, inicio: datetime.date = None, fim: datetime.date = None) -> list[Taxa]:
         """
@@ -65,11 +65,11 @@ class BancoCentral:
             params["dataInicial"] = inicio.strftime("%d/%m/%Y")
         if fim is not None:
             params["dataFinal"] = fim.strftime("%d/%m/%Y")
-        response = self._session.get(url, params=params)
+        response = self.session.get(url, params=params)
         return [Taxa(data=parse_br_date(row["data"]), valor=Decimal(row["valor"])) for row in response.json()]
 
     def _novoselic_csv_request(self, filtro: dict, ordenacao: list[dict]):
-        response = self._session.post(
+        response = self.session.post(
             "https://www3.bcb.gov.br/novoselic/rest/fatoresAcumulados/pub/exportarCsv",
             data={"filtro": json.dumps(filtro), "parametrosOrdenacao": json.dumps(ordenacao)},
         )

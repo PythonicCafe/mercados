@@ -62,7 +62,7 @@ class CVMFundo:
     base_url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultBuscaPartic.aspx"
 
     def __init__(self):
-        self._session = create_session()
+        self.session = create_session()
 
     def _parse_dados_fundo(self, tree):
         dados_fundo = [
@@ -92,7 +92,7 @@ class CVMFundo:
             "CNPJNome": cnpj,
             "COMPTC": competencia.strftime("%m/%Y") if competencia is not None else "",
         }
-        response = self._session.get(self.base_url, params=params, allow_redirects=True)
+        response = self.session.get(self.base_url, params=params, allow_redirects=True)
         tree = document_fromstring(response.text)
         meta = self._parse_dados_fundo(tree)
         assert clean_cnpj(meta["fundo_cnpj"]) == clean_cnpj(cnpj)
@@ -136,7 +136,7 @@ class CVMFundo:
             "CNPJNome": cnpj,
             "COMPTC": "",
         }
-        response = self._session.get(self.base_url, params=params, allow_redirects=True)
+        response = self.session.get(self.base_url, params=params, allow_redirects=True)
         tree = document_fromstring(response.text)
         datas_competencias = []
         for competencia in tree.xpath("//select[@name = 'ddComptc']/option/@value"):

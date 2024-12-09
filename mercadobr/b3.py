@@ -349,7 +349,7 @@ class B3:
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
 
     def __init__(self):
-        self._session = create_session()
+        self.session = create_session()
         # Requisição para guardar cookies:
         self.request(
             "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm",
@@ -391,7 +391,7 @@ class B3:
         assert frequencia in ("dia", "mês", "ano")
 
         url = self.url_negociacao_bolsa(frequencia, data)
-        response = self._session.get(url, verify=False)
+        response = self.session.get(url, verify=False)
         if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
             return ValueError(
                 f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
@@ -421,14 +421,14 @@ class B3:
 
     def negociacao_intraday(self, data: datetime.date):
         url = self.url_intraday_zip(data)
-        response = self._session.get(url)
+        response = self.session.get(url)
         yield from self._le_zip_intraday(io.BytesIO(response.content))
 
     def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
-        response = self._session.request(method, url, params=params, timeout=timeout, verify=False)
+        response = self.session.request(method, url, params=params, timeout=timeout, verify=False)
         if decode_json:
             text = response.text
             if text and text[0] == text[-1] == '"':  # WTF, B3?
@@ -1026,7 +1026,7 @@ if __name__ == "__main__":
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
 
         url = b3.url_intraday_zip(data)
-        response = b3._session.get(url, stream=True)
+        response = b3.session.get(url, stream=True)
         response.raise_for_status()
         with zip_filename.open("wb") as fobj:
             for chunk in response.iter_content(chunk_size):
