@@ -10,10 +10,9 @@ from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urljoin
 
-import requests
 from lxml.html import document_fromstring
 
-from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, download_files, parse_date, slug
+from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, download_files, parse_date, parse_iso_date, slug
 
 REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
 REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
@@ -24,10 +23,6 @@ REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
 REGEXP_INFO_FUNCTION = re.compile('''class='fi-info'[^>]*onmouseover="([^>]*)"''', flags=re.DOTALL)
-
-
-def parse_iso_date(value):
-    return parse_date("iso-date", value)
 
 
 @dataclass
@@ -62,7 +57,7 @@ class InformeDiarioFundo:
 class CVM:
     def __init__(self):
         # TODO: trocar user agent
-        self._session = requests.Session()
+        self._session = create_session()
 
     @property
     def noticias(self):
@@ -146,18 +141,12 @@ def informe_diario_fundo_url(data: datetime.date):
 
 
 def extrai_informes_diarios(zip_filename):
+    # TODO: adicionar método à classe CVM
     zf = zipfile.ZipFile(zip_filename)
     for file_info in zf.filelist:
         with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
             for row in csv.DictReader(fobj, delimiter=";"):
                 yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
-
-
-def extrai_data(valor):
-    valor = str(valor or "").strip()
-    if not valor:
-        return None
-    return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
 
 
 def extrai_datahora(valor, timezone=BRT):
@@ -311,6 +300,7 @@ class DocumentoEmpresa:
 
 
 class RAD:
+    # TODO: métodos deveriam ser movidos para classe CVM?
     def __init__(self):
         self.session = create_session()
         self._empresas = None
