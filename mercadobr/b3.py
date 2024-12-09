@@ -22,7 +22,7 @@ from .utils import (
 
 
 @dataclass
-class Cotacao:
+class NegociacaoBolsa:
     quantidade: Optional[int]
     pontos_strike: Optional[int]
     data: datetime.date
@@ -359,7 +359,7 @@ class B3:
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
 
-    def _url_arquivo_cotacao(self, frequencia: str, data: datetime.date):
+    def _url_arquivo_negociacao_bolsa(self, frequencia: str, data: datetime.date):
         """
         :param frequencia: deve ser "dia", "mês" ou "ano"
         :param data: data desejada (use o dia "01" caso frequência seja "mês" e o dia e mês "01" caso frequência seja
@@ -375,7 +375,7 @@ class B3:
             date = data.strftime("%Y")
             return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_A{date}.ZIP"
 
-    def cotacao(self, frequencia: str, data: datetime.date):
+    def negociacao_bolsa(self, frequencia: str, data: datetime.date):
         """
         Baixa cotação para uma determinada data (dia, mês ou ano)
 
@@ -390,7 +390,7 @@ class B3:
         """
         assert frequencia in ("dia", "mês", "ano")
 
-        url = self._url_arquivo_cotacao(frequencia, data)
+        url = self._url_arquivo_negociacao_bolsa(frequencia, data)
         response = self._session.get(url, verify=False)
         if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
             return ValueError(
@@ -402,7 +402,7 @@ class B3:
         for line in fobj:
             if line[:2] != "01":  # Não é um registro de fato
                 continue
-            yield Cotacao.from_line(line)
+            yield NegociacaoBolsa.from_line(line)
 
     def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
         if url_params is not None:
@@ -720,16 +720,16 @@ if __name__ == "__main__":
         subparser = subparsers.add_parser(comando)
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser_cotacao = subparsers.add_parser("cotacao")
-    subparser_cotacao.add_argument(
+    subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")
+    subparser_negociacao_bolsa.add_argument(
         "frequencia", type=str, choices=["dia", "mês", "ano"], help="Frequência do arquivo de cotação disponível"
     )
-    subparser_cotacao.add_argument(
+    subparser_negociacao_bolsa.add_argument(
         "data",
         type=parse_iso_date,
         help="Data a ser baixada em formato YYYY-MM-DD (para frequência mensal, use dia = 01, para anual use mês e dia = 01)",
     )
-    subparser_cotacao.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+    subparser_negociacao_bolsa.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     args = parser.parse_args()
     b3 = B3()
@@ -975,14 +975,14 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "cotacao":
+    elif command == "negociacao-bolsa":
         frequencia = args.frequencia
         data = args.data
 
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for cotacao in b3.cotacao(frequencia, data):
-                row = asdict(cotacao)
+            for negociacao in b3.negociacao_bolsa(frequencia, data):
+                row = asdict(negociacao)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
