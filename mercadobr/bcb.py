@@ -3,10 +3,10 @@ import datetime
 import io
 import json
 from calendar import monthrange
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from decimal import Decimal
 
-from .utils import create_session, parse_br_date, parse_date
+from .utils import create_session, dicts_to_str, parse_br_date, parse_date
 
 
 @dataclass
@@ -166,7 +166,11 @@ if __name__ == "__main__":
     subparser_serie_temporal.add_argument("--data-inicial", "-i", type=iso_date, help="Data de início (opcional)")
     subparser_serie_temporal.add_argument("--data-final", "-f", type=iso_date, help="Data de fim (opcional)")
     subparser_serie_temporal.add_argument(
-        "serie", choices=list(BancoCentral.series.keys()), help="Nome da série temporal"
+        "--formato", "-F", type=str, choices=["csv", "tsv", "md", "markdown", "txt"], default="txt",
+        help="Formato de saída",
+    )
+    subparser_serie_temporal.add_argument(
+        "serie", choices=list(BancoCentral.series.keys()), help="Nome da série temporal",
     )
 
     args = parser.parse_args()
@@ -188,5 +192,6 @@ if __name__ == "__main__":
         inicio = args.data_inicial
         fim = args.data_final
         nome_serie = args.serie
-        for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim):
-            print(f"{tx.data} {tx.valor}")
+        fmt = args.formato
+        data = [asdict(tx) for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim)]
+        print(dicts_to_str(data, fmt))
