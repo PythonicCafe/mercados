@@ -150,21 +150,20 @@ class BancoCentral:
 if __name__ == "__main__":
     import argparse
 
-    def iso_date(value):
-        return parse_date("iso-date", value)
+    from .utils import parse_iso_date
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparser_ajustar_selic = subparsers.add_parser("ajustar-selic")
     subparser_ajustar_selic.add_argument("tipo_periodo", choices=["dia", "mês"])
-    subparser_ajustar_selic.add_argument("data_inicial", type=iso_date, help="Data de início")
-    subparser_ajustar_selic.add_argument("data_final", type=iso_date, help="Data de fim")
+    subparser_ajustar_selic.add_argument("data_inicial", type=parse_iso_date, help="Data de início")
+    subparser_ajustar_selic.add_argument("data_final", type=parse_iso_date, help="Data de fim")
     subparser_ajustar_selic.add_argument("valor", type=Decimal, help="Valor a ser ajustado")
 
     subparser_serie_temporal = subparsers.add_parser("serie-temporal")
-    subparser_serie_temporal.add_argument("--data-inicial", "-i", type=iso_date, help="Data de início (opcional)")
-    subparser_serie_temporal.add_argument("--data-final", "-f", type=iso_date, help="Data de fim (opcional)")
+    subparser_serie_temporal.add_argument("--data-inicial", "-i", type=parse_iso_date, help="Data de início (opcional)")
+    subparser_serie_temporal.add_argument("--data-final", "-f", type=parse_iso_date, help="Data de fim (opcional)")
     subparser_serie_temporal.add_argument(
         "--formato", "-F", type=str, choices=["csv", "tsv", "md", "markdown", "txt"], default="txt",
         help="Formato de saída",
