@@ -367,3 +367,108 @@ class RAD:
             raise RuntimeError(f"Erro ao efetuar busca: {erro}")
         raw_data = data["d"]["dados"]
         return list(self._extract_rows(raw_data))
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Captura e trata dados da CVM")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    parser_noticias = subparsers.add_parser("noticias", help="Baixa notícias do site da CVM a partir de hoje")
+    parser_noticias.add_argument("data_minima", type=parse_iso_date, help="Data mínima para baixar")
+    parser_noticias.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_informe_diario_fundo = subparsers.add_parser(
+        "informe-diario-fundo", help="Baixa informes diários dos fundos para uma determinada data"
+    )
+    parser_informe_diario_fundo.add_argument("data", type=parse_iso_date, help="Data de referência do informe")
+    parser_informe_diario_fundo.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_rad_empresas = subparsers.add_parser("rad-empresas", help="Baixa lista de empresas disponíveis no RAD")
+    parser_rad_empresas.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_rad_busca = subparsers.add_parser("rad-busca", help="Busca por documentos publicados por empresas")
+    parser_rad_busca.add_argument(
+        "--empresa",
+        "-e",
+        type=str,
+        action="append",
+        help="Nome de empresa para filtrar. Precisa ser o mesmo nome retornado por rad-empresas",
+    )
+    parser_rad_busca.add_argument(
+        "--data-inicial", "-i", type=parse_iso_date, help="Data mínima de publicação do documento"
+    )
+    parser_rad_busca.add_argument(
+        "--data-final", "-f", type=parse_iso_date, help="Data máxima de publicação do documento"
+    )
+    parser_rad_busca.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    args = parser.parse_args()
+
+    if args.command == "noticias":
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+        data_minima = args.data_minima
+
+        cvm = CVM()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for noticia in cvm.noticias():
+                if noticia.data < data_minima:
+                    break
+                row = asdict(noticia)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "rad-empresas":
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        rad = RAD()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for key, value in rad.empresas().items():
+                row = {"codigo": key, "nome": value}
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "rad-busca":
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+        empresas = args.empresa
+        inicio = args.data_inicial
+        fim = args.data_final
+        print(empresas)
+
+        rad = RAD()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for documento in rad.busca(data_inicio=inicio, data_fim=fim, empresas=empresas):
+                row = documento.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "informe-diario-fundo":
+        data = args.data
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        session = create_session()
+        url = informe_diario_fundo_url(data)
+        response = session.get(url)
+        zip_fobj = io.BytesIO(response.content)
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for informe in extrai_informes_diarios(zip_fobj):
+                row = asdict(informe)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
