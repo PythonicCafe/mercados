@@ -1,5 +1,7 @@
+import csv
 import datetime
 import decimal
+import io
 import re
 import socket
 import subprocess
@@ -27,6 +29,73 @@ REGEXP_SEPARATOR = re.compile("(_+)")
 REGEXP_WORD_BOUNDARY = re.compile(r"(\w\b)")
 REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?$""")
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
+
+
+def dicts_to_str(data: list[dict], fmt: str):
+    """Convert a list of dictionaries to a string representation in a specific format.
+
+    Values are not expected to have new-line (\n) and if the markdown format is used, it won't escape special chars,
+    like `|`, `*` etc.
+
+    :param data: list of dicionaries with the data. The dictionaries don't need to have the same keys (a set of all of
+    them is used to create the table header)
+    :param fmt: one of: markdown (or md), csv, tsv or txt
+    """
+    assert fmt in ("markdown", "md", "csv", "tsv", "txt")
+    if not data:
+        return ""
+    header = []
+    for row in data:
+        for key in row.keys():
+            if key not in header:
+                header.append(key)
+    if fmt in ("csv", "tsv"):
+        delimiter = "\t" if fmt == "tsv" else ","
+        with io.StringIO() as fobj:
+            writer = csv.DictWriter(fobj, fieldnames=header, delimiter=delimiter)
+            writer.writeheader()
+            writer.writerows(data)
+            fobj.seek(0)
+            return fobj.read()
+    elif fmt in ("markdown", "md", "txt"):
+        # TODO: won't work if `\n` exists in a value
+        # TODO: for markdown, needs to replace "|" with "&#124;" in values
+        # TODO: escape markdown chars
+        max_length = [len(value) for value in header]
+
+        def values_as_str(values, separator="|", space=" "):
+            return (
+                f"{separator}{space}"
+                + f"{space}{separator}{space}".join(value.rjust(max_length[index]) for index, value in enumerate(values))
+                + f"{space}{separator}"
+            )
+
+        values = []
+        for row in data:
+            row_values = [str(row.get(key) or "") for key in header]
+            for index, value in enumerate(row_values):
+                if len(value) > max_length[index]:
+                    max_length[index] = len(value)
+            values.append(row_values)
+        if fmt == "txt":
+            separator_line = values_as_str(
+                ["-" * max_length[index] for index in range(len(header))],
+                separator="+",
+                space="-",
+            )
+            header_line = values_as_str(header, separator="|", space=" ")
+            values_lines = [
+                values_as_str(row_values, separator="|", space=" ")
+                for row_values in values
+            ]
+            lines = [separator_line, header_line, separator_line] + values_lines + [separator_line]
+        elif fmt in ("markdown", "md"):
+            values = [header, ["-" * max_length[index] for index, _ in enumerate(header)]] + values
+            lines = [
+                values_as_str(row_values, separator="|", space=" ")
+                for row_values in values
+            ]
+        return "\n".join(lines)
 
 
 def get_pdf_text(file_contents):
