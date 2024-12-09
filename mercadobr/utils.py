@@ -6,17 +6,18 @@ import re
 import socket
 import subprocess
 from functools import lru_cache
+from pathlib import Path
 from unicodedata import normalize
 
 import requests
 import requests.packages.urllib3.util.connection as urllib3_connection
 from requests.adapters import HTTPAdapter, Retry
-from rows.fields import camel_to_snake as rows_camel_to_snake
-from rows.utils.download import Download, Downloader
 
 urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
+REGEXP_CAMELCASE_1 = re.compile("(.)([A-Z][a-z]+)")
+REGEXP_CAMELCASE_2 = re.compile("([a-z0-9])([A-Z])")
 REGEXP_CNPJ_SEPARATORS = re.compile("[./ -]+")
 REGEXP_NUMERIC = re.compile(r"^[+-]? ?[0-9]+(\.[0-9]+)?$")
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")
@@ -29,6 +30,21 @@ REGEXP_SEPARATOR = re.compile("(_+)")
 REGEXP_WORD_BOUNDARY = re.compile(r"(\w\b)")
 REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?$""")
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
+
+
+@lru_cache(maxsize=1024)
+def camel_to_snake(value):
+    """
+    >>> camel_to_snake("CamelToSnakeCase")
+    'camel_to_snake_case'
+    >>> camel_to_snake("HTTPRequest")
+    'http_request'
+    """
+    value = str(value or "").strip()
+    if not value:
+        return ""
+    # Adapted from <https://stackoverflow.com/a/1176023/1299446>
+    return slug(REGEXP_CAMELCASE_2.sub(r"\1_\2", REGEXP_CAMELCASE_1.sub(r"\1_\2", value)))
 
 
 def day_range(start, stop):
@@ -170,11 +186,6 @@ def create_session():
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
-
-
-@lru_cache(maxsize=1024)
-def camel_to_snake(*args, **kwargs):
-    return rows_camel_to_snake(*args, **kwargs)
 
 
 @lru_cache(maxsize=20)
@@ -424,8 +435,11 @@ def clean_xml_dict(d):
     return result
 
 
-def download_files(urls, filenames, quiet=False):
-    downloader = Downloader.subclasses()["aria2c"](quiet=quiet)
+def download_files(urls: list[str], filenames: list[Path], quiet=False):
+    session = create_session()
     for url, filename in zip(urls, filenames):
-        downloader.add(Download(url=url, filename=filename))
-    downloader.run()
+        filename = Path(filename)
+        filename.mkdir(parents=True, exist_ok=True)
+        response = session.get(url)
+        with filename.open(mode="wb") as fobj:
+            fobj.write(response.content)
