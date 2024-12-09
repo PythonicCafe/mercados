@@ -752,13 +752,17 @@ if __name__ == "__main__":
     subparser_negociacao_bolsa.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser_baixar = subparsers.add_parser("intraday-baixar", help="Baixa arquivo ZIP de intraday para uma data.")
-    subparser_baixar.add_argument("--chunk-size", "-c", type=int, default=256 * 1024, help="Tamanho do chunk no download")
+    subparser_baixar.add_argument(
+        "--chunk-size", "-c", type=int, default=256 * 1024, help="Tamanho do chunk no download"
+    )
     subparser_baixar.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_baixar.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP a ser salvo")
 
     subparser_converter = subparsers.add_parser("intraday-converter", help="Converte arquivo ZIP de intraday para CSV.")
     subparser_converter.add_argument("--codigo-ativo", "-c", action="append", help="Filtra pelo código de negociação")
-    subparser_converter.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido")
+    subparser_converter.add_argument(
+        "zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido"
+    )
     subparser_converter.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
     args = parser.parse_args()

@@ -3,10 +3,10 @@ import datetime
 import io
 import json
 from calendar import monthrange
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from decimal import Decimal
 
-from .utils import create_session, dicts_to_str, parse_br_date, parse_date
+from .utils import create_session, dicts_to_str, parse_br_date
 
 
 @dataclass
@@ -137,7 +137,9 @@ class BancoCentral:
         if data_inicial.day != 1:
             raise ValueError("Data inicial precisa ser o primeiro dia do mês")
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
-            raise ValueError("Data final precisa ser o último dia do mês")
+            raise ValueError(
+                f"Data final precisa ser o último dia do mês: {data_final} vs {monthrange(data_final.year, data_final.month)}"
+            )
         fator = 1
         for ano in range(data_inicial.year, data_final.year + 1):
             for taxa in self.selic_por_mes(ano):
@@ -165,11 +167,17 @@ if __name__ == "__main__":
     subparser_serie_temporal.add_argument("--data-inicial", "-i", type=parse_iso_date, help="Data de início (opcional)")
     subparser_serie_temporal.add_argument("--data-final", "-f", type=parse_iso_date, help="Data de fim (opcional)")
     subparser_serie_temporal.add_argument(
-        "--formato", "-F", type=str, choices=["csv", "tsv", "md", "markdown", "txt"], default="txt",
+        "--formato",
+        "-F",
+        type=str,
+        choices=["csv", "tsv", "md", "markdown", "txt"],
+        default="txt",
         help="Formato de saída",
     )
     subparser_serie_temporal.add_argument(
-        "serie", choices=list(BancoCentral.series.keys()), help="Nome da série temporal",
+        "serie",
+        choices=list(BancoCentral.series.keys()),
+        help="Nome da série temporal",
     )
 
     args = parser.parse_args()

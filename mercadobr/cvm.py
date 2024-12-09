@@ -12,7 +12,16 @@ from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
 
-from .utils import BRT, REGEXP_CNPJ_SEPARATORS, REGEXP_SPACES, create_session, download_files, parse_date, parse_iso_date, slug
+from .utils import (
+    BRT,
+    REGEXP_CNPJ_SEPARATORS,
+    REGEXP_SPACES,
+    create_session,
+    download_files,
+    parse_date,
+    parse_iso_date,
+    slug,
+)
 
 REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
 REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
@@ -91,7 +100,9 @@ class CVM:
 
     def url_informe_diario_fundo(self, data: datetime.date):
         if (data.year, data.month) >= (2021, 1):
-            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
+            return (
+                f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
+            )
         else:
             return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
 
@@ -350,8 +361,13 @@ class RAD:
     # TODO: pegar código da empresa a partir de outros dados (CNPJ, razão social)
 
     def busca(
-        self, data_inicio: datetime.date, data_fim: datetime.date, categorias: list = None, empresas: list = None,
-        hora_inicio="00:00", hora_fim="23:59",
+        self,
+        data_inicio: datetime.date,
+        data_fim: datetime.date,
+        categorias: list = None,
+        empresas: list = None,
+        hora_inicio="00:00",
+        hora_fim="23:59",
     ):
         """Busca documentos disponíveis no RAD/CVM (desde março/1998)"""
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx/ListarDocumentos"

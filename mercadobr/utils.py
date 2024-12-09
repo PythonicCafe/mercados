@@ -100,7 +100,9 @@ def dicts_to_str(data: list[dict], fmt: str):
         def values_as_str(values, separator="|", space=" "):
             return (
                 f"{separator}{space}"
-                + f"{space}{separator}{space}".join(value.rjust(max_length[index]) for index, value in enumerate(values))
+                + f"{space}{separator}{space}".join(
+                    value.rjust(max_length[index]) for index, value in enumerate(values)
+                )
                 + f"{space}{separator}"
             )
 
@@ -118,17 +120,11 @@ def dicts_to_str(data: list[dict], fmt: str):
                 space="-",
             )
             header_line = values_as_str(header, separator="|", space=" ")
-            values_lines = [
-                values_as_str(row_values, separator="|", space=" ")
-                for row_values in values
-            ]
+            values_lines = [values_as_str(row_values, separator="|", space=" ") for row_values in values]
             lines = [separator_line, header_line, separator_line] + values_lines + [separator_line]
         elif fmt in ("markdown", "md"):
             values = [header, ["-" * max_length[index] for index, _ in enumerate(header)]] + values
-            lines = [
-                values_as_str(row_values, separator="|", space=" ")
-                for row_values in values
-            ]
+            lines = [values_as_str(row_values, separator="|", space=" ") for row_values in values]
         return "\n".join(lines)
 
 

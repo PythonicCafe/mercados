@@ -4,7 +4,6 @@ from textwrap import dedent
 
 from mercadobr.utils import dicts_to_str
 
-
 data = [
     {"data": date(2024, 11, 2)},
     {"valor": 0.123},
@@ -12,32 +11,40 @@ data = [
     {"data": "2024-11-05", "valor": Decimal("0.040168")},
 ]
 
+
 def test_dicts_to_str_csv():
-    esperado = dedent("""
+    esperado = dedent(
+        """
         data,valor
         2024-11-02,
         ,0.123
         2024-11-04,0.040168
         2024-11-05,0.040168
-    """)
+    """
+    )
     resultado = dicts_to_str(data, "csv")
     # Chamar .splitlines evita \r\n vs \n
     assert resultado.strip().splitlines() == esperado.strip().splitlines()
 
+
 def test_dicts_to_str_tsv():
-    esperado = dedent("""
+    esperado = dedent(
+        """
         data\tvalor
         2024-11-02\t
         \t0.123
         2024-11-04\t0.040168
         2024-11-05\t0.040168
-    """)
+    """
+    )
     resultado = dicts_to_str(data, "tsv")
     # Chamar .splitlines evita \r\n vs \n
     assert resultado.strip().splitlines() == esperado.strip().splitlines()
 
+
 def test_dicts_to_str_txt():
-    esperado = dedent("""
+    esperado = dedent(
+        """
         +------------+----------+
         |       data |    valor |
         +------------+----------+
@@ -46,18 +53,22 @@ def test_dicts_to_str_txt():
         | 2024-11-04 | 0.040168 |
         | 2024-11-05 | 0.040168 |
         +------------+----------+
-    """)
+    """
+    )
     resultado = dicts_to_str(data, "txt")
     assert resultado.strip() == esperado.strip()
 
+
 def test_dicts_to_str_md():
-    esperado = dedent("""
+    esperado = dedent(
+        """
         |       data |    valor |
         | ---------- | -------- |
         | 2024-11-02 |          |
         |            |    0.123 |
         | 2024-11-04 | 0.040168 |
         | 2024-11-05 | 0.040168 |
-    """)
+    """
+    )
     resultado = dicts_to_str(data, "md")
     assert resultado.strip() == esperado.strip()
