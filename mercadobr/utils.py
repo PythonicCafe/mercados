@@ -214,6 +214,10 @@ def parse_date(fmt, value, full=False):
         return obj.date()
 
 
+def parse_iso_date(value):
+    return parse_date("iso-date", value)
+
+
 def parse_datetime_force_timezone(value):
     return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
 

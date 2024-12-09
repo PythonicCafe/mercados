@@ -4,8 +4,10 @@ import datetime
 import decimal
 import io
 import json
+import zipfile
 from dataclasses import asdict, dataclass
 from decimal import Decimal
+from typing import Optional
 from urllib.parse import urljoin
 
 from rows.utils.date import date_range
@@ -17,7 +19,101 @@ from .utils import (
     parse_br_decimal,
     parse_date,
     parse_datetime_force_timezone,
+    parse_iso_date,
 )
+
+
+@dataclass
+class Cotacao:
+    quantidade: Optional[int]
+    pontos_strike: Optional[int]
+    data: datetime.date
+    data_vencimento: Optional[datetime.date]
+    negociacoes: Optional[int]
+    lote: Optional[int]
+    indice_correcao: Optional[int]
+    distribuicao: Optional[int]
+    codigo_bdi: Optional[int]
+    codigo_tipo_mercado: Optional[int]
+    prazo_termo: Optional[int]
+    codigo_isin: str
+    codigo_negociacao: str
+    moeda: str
+    nome_pregao: str
+    tipo_papel: str
+    preco_abertura: Optional[Decimal]
+    preco_maximo: Optional[Decimal]
+    preco_minimo: Optional[Decimal]
+    preco_medio: Optional[Decimal]
+    preco_ultimo: Optional[Decimal]
+    preco_melhor_oferta_compra: Optional[Decimal]
+    preco_melhor_oferta_venda: Optional[Decimal]
+    volume: Optional[Decimal]
+    preco_execucao: Optional[Decimal]
+
+    @classmethod
+    def _line_to_dict(cls, line):
+        return {
+            "date_of_exchange": line[2:10].strip(),
+            "codbdi": line[10:12].strip(),
+            "codneg": line[12:24].strip(),
+            "tpmerc": line[24:27].strip(),
+            "nomres": line[27:39].strip(),
+            "especi": line[39:49].strip(),
+            "prazot": line[49:52].strip(),
+            "modref": line[52:56].strip(),
+            "preabe": line[56:69].strip(),
+            "premax": line[69:82].strip(),
+            "premin": line[82:95].strip(),
+            "premed": line[95:108].strip(),
+            "preult": line[108:121].strip(),
+            "preofc": line[121:134].strip(),
+            "preofv": line[134:147].strip(),
+            "totneg": line[147:152].strip(),
+            "quatot": line[152:170].strip(),
+            "voltot": line[170:188].strip(),
+            "preexe": line[188:201].strip(),
+            "indopc": line[201:202].strip(),
+            "datven": line[202:210].strip(),
+            "fatcot": line[210:217].strip(),
+            "ptoexe": line[217:230].strip(),
+            "codisi": line[230:242].strip(),
+            "dismes": line[242:245].strip(),
+        }
+
+    @classmethod
+    def from_line(cls, line: str):
+        assert len(line) == 246 and line[:2] == "01"
+        row = cls._line_to_dict(line)
+        return cls(
+            quantidade=int(row["quatot"]) if row["quatot"] else None,
+            pontos_strike=int(row["ptoexe"]) if row["ptoexe"] != "0000000000000" else None,
+            data=datetime.datetime.strptime(row["date_of_exchange"], "%Y%m%d").date(),
+            data_vencimento=(
+                None if row["datven"] == "99991231" else datetime.datetime.strptime(row["datven"], "%Y%m%d").date()
+            ),
+            negociacoes=int(row["totneg"]) if row["totneg"] else None,
+            lote=int(row["fatcot"]) if row["fatcot"] else None,
+            indice_correcao=int(row["indopc"]) if row["indopc"] else None,
+            distribuicao=int(row["dismes"]) if row["dismes"] else None,
+            codigo_bdi=int(row["codbdi"]) if row["codbdi"] else None,
+            codigo_tipo_mercado=int(row["tpmerc"]) if row["tpmerc"] else None,
+            prazo_termo=None if row["prazot"] == "" else int(row["prazot"]),
+            codigo_isin=row["codisi"],
+            codigo_negociacao=row["codneg"].strip(),
+            moeda=row["modref"],
+            nome_pregao=row["nomres"],
+            tipo_papel=row["especi"],
+            preco_abertura=Decimal(row["preabe"]) / 100 if row["preabe"] else None,
+            preco_maximo=Decimal(row["premax"]) / 100 if row["premax"] else None,
+            preco_minimo=Decimal(row["premin"]) / 100 if row["premin"] else None,
+            preco_medio=Decimal(row["premed"]) / 100 if row["premed"] else None,
+            preco_ultimo=Decimal(row["preult"]) / 100 if row["preult"] else None,
+            preco_melhor_oferta_compra=Decimal(row["preofc"]) / 100 if row["preofc"] else None,
+            preco_melhor_oferta_venda=Decimal(row["preofv"]) / 100 if row["preofv"] else None,
+            volume=Decimal(row["voltot"]) / 100 if row["voltot"] else None,
+            preco_execucao=Decimal(row["preexe"]) / 100 if row["preexe"] else None,
+        )
 
 
 @dataclass
@@ -265,6 +361,51 @@ class B3:
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
 
+    def _url_arquivo_cotacao(self, frequencia: str, data: datetime.date):
+        """
+        :param frequencia: deve ser "dia", "mês" ou "ano"
+        :param data: data desejada (use o dia "01" caso frequência seja "mês" e o dia e mês "01" caso frequência seja
+        "ano")
+        """
+        if frequencia == "dia":
+            date = data.strftime("%d%m%Y")
+            return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_D{date}.ZIP"
+        elif frequencia == "mês":
+            date = data.strftime("%m%Y")
+            return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_M{date}.ZIP"
+        elif frequencia == "ano":
+            date = data.strftime("%Y")
+            return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_A{date}.ZIP"
+
+    def cotacao(self, frequencia: str, data: datetime.date):
+        """
+        Baixa cotação para uma determinada data (dia, mês ou ano)
+
+        :param frequencia: deve ser "dia", "mês" ou "ano"
+        :param data: data das cotações a serem baixadas (use o dia "01" caso frequência seja "mês" e o dia e mês "01"
+        caso frequência seja "ano")
+
+        Horários de atualização, de acordo com meus testes:
+        - Diária: 23:31:45 GMT
+        - Mensal: 00:20:56 GMT
+        - Anual: 23:32:31 GMT
+        """
+        assert frequencia in ("dia", "mês", "ano")
+
+        url = self._url_arquivo_cotacao(frequencia, data)
+        response = self._session.get(url, verify=False)
+        if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
+            return ValueError(
+                f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
+            )
+        zf = zipfile.ZipFile(io.BytesIO(response.content))
+        assert len(zf.filelist) == 1
+        fobj = io.TextIOWrapper(zf.open(zf.filelist[0].filename), encoding="iso-8859-1")
+        for line in fobj:
+            if line[:2] != "01":  # Não é um registro de fato
+                continue
+            yield Cotacao.from_line(line)
+
     def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
@@ -395,6 +536,7 @@ class B3:
         return self._fund_dividends(7, cnpj, identificador)
 
     def fii_subscriptions(self, cnpj, identificador):
+        # TODO: Corrigir: `KeyError: 'subscriptions'`
         return self._fund_subscriptions(7, cnpj, identificador)
 
     def fii_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
