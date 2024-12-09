@@ -1,14 +1,10 @@
-import csv
 import datetime
 import re
 import time
-from collections import OrderedDict
 from functools import cached_property
 from urllib.parse import urljoin
 
-import rows
 from lxml.html import document_fromstring
-from rows.utils.download import Download, Downloader
 
 from . import choices
 from .document import DocumentMeta
@@ -27,9 +23,21 @@ def parse_certificado_descricao(value):
     return {key: value for key, value in zip("nome tipo emissao serie data codigo".split(), result[0])}
 
 
-def format_document_path(pattern, doc):
+def format_document_path(pattern: str, doc: DocumentMeta, content_type: str):
     doc_id = int(doc.id)
     doc_id8 = f"{int(doc_id):08d}"
+    extension = ""
+    if content_type is not None:
+        extension = {
+            "application/pdf": "pdf",
+            "application/x-zip-compressed": "zip",
+            "application/zip": "zip",
+            "text/xml": "xml",
+        }.get(content_type)
+        if not extension and "/" in content_type:
+            extension = content_type.split("/")[-1]
+        if extension:
+            extension = f".{extension}"
     return pattern.format(
         **{
             "doc_id": doc_id,
@@ -41,73 +49,9 @@ def format_document_path(pattern, doc):
             "year": doc.datahora_entrega.year,
             "month": f"{doc.datahora_entrega.month:02d}",
             "day": f"{doc.datahora_entrega.day:02d}",
+            "extension": extension,
         }
     )
-
-
-class PtBrBoolField(rows.fields.BoolField):
-    @classmethod
-    def deserialize(cls, value):
-        value = str(value or "").strip().lower()
-        if value == "s":
-            return True
-        elif value == "n":
-            return False
-
-
-class PtBrDateTimeField(rows.fields.Field):
-    TYPE = (datetime.datetime,)
-
-    @classmethod
-    def serialize(cls, value, *args, **kwargs):
-        return value.isoformat() if value is not None else ""
-
-    @classmethod
-    def deserialize(cls, value, *args, **kwargs):
-        value = super().deserialize(value)
-        if value is None or isinstance(value, cls.TYPE):
-            return value
-
-        return datetime.datetime.strptime(value, "%d/%m/%Y %H:%M")
-
-
-field_types = OrderedDict(
-    [
-        ("id", rows.fields.IntegerField),
-        ("descricaoFundo", rows.fields.TextField),
-        ("categoriaDocumento", rows.fields.TextField),
-        ("tipoDocumento", rows.fields.TextField),
-        ("especieDocumento", rows.fields.TextField),
-        ("dataReferencia", rows.fields.TextField),
-        ("dataEntrega", PtBrDateTimeField),
-        ("status", rows.fields.TextField),
-        ("descricaoStatus", rows.fields.TextField),
-        ("analisado", PtBrBoolField),
-        ("situacaoDocumento", rows.fields.TextField),
-        ("assuntos", rows.fields.TextField),
-        ("altaPrioridade", rows.fields.BoolField),
-        ("formatoDataReferencia", rows.fields.IntegerField),
-        ("versao", rows.fields.IntegerField),
-        ("modalidade", rows.fields.TextField),
-        ("descricaoModalidade", rows.fields.TextField),
-        ("nomePregao", rows.fields.TextField),
-        ("informacoesAdicionais", rows.fields.TextField),
-        ("arquivoEstruturado", rows.fields.TextField),
-        ("formatoEstruturaDocumento", rows.fields.TextField),
-        ("nomeAdministrador", rows.fields.TextField),
-        ("cnpjAdministrador", rows.fields.TextField),
-        ("cnpjFundo", rows.fields.TextField),
-        ("idTemplate", rows.fields.IntegerField),
-        ("idSelectNotificacaoConvenio", rows.fields.TextField),
-        ("idSelectItemConvenio", rows.fields.IntegerField),
-        ("indicadorFundoAtivoB3", rows.fields.BoolField),
-        ("idEntidadeGerenciadora", rows.fields.TextField),
-        ("ofertaPublica", rows.fields.TextField),
-        ("numeroEmissao", rows.fields.TextField),
-        ("tipoPedido", rows.fields.TextField),
-        ("dda", rows.fields.TextField),
-    ]
-)
 
 
 # TODO: implementar crawler/parser para antes de 2016
@@ -348,90 +292,99 @@ class FundosNet:
             yield DocumentMeta.from_json(row)
 
 
-def download_url(document_id):
-    return f"https://fnet.bmfbovespa.com.br/fnet/publico/downloadDocumento?id={document_id}"
-
-
-def download(document_ids, path, quiet=False):
-    downloader = Downloader.subclasses()["aria2c"](path=path, quiet=quiet)
-    for doc_id in document_ids:
-        downloader.add(Download(url=download_url(doc_id), filename=str(doc_id)))
-    downloader.run()
-
-
 if __name__ == "__main__":
     import argparse
+    import csv
     from dataclasses import asdict
     from pathlib import Path
 
-    from rows.plugins.utils import ipartition
-    from rows.utils import CsvLazyDictWriter, open_compressed
-    from rows.utils.date import date_range
-    from tqdm import tqdm
+    from .utils import day_range, parse_iso_date
 
+    modelos_nomes_arquivos = {
+        "id": "{doc_id}{extension}",
+        "id-partes": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
+        "data": "{year}/{month}/{day}/{doc_id}",
+    }
+    modelos_str = "; ".join(f"{key}: {value}" for key, value in modelos_nomes_arquivos.items())
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch-size", type=int, default=100)
-    parser.add_argument("--path-pattern", default="by-date", choices=["by-date", "by-id", "by-id-8"])
-    parser.add_argument("--download-path")
-    parser.add_argument("--start-date")
-    parser.add_argument("--end-date")
-    parser.add_argument("--category", choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA])
-    parser.add_argument("--document-type", choices=[item[1] for item in choices.DOCUMENTO_TIPO])
-    parser.add_argument("output_filename")
+    parser.add_argument(
+        "--modelo-nome-arquivo",
+        "-m",
+        default="id",
+        choices=["id", "id-partes", "data"],
+        help=f"Modelo para usar no nome do arquivo a ser baixado.\n{modelos_str}",
+    )
+    parser.add_argument(
+        "--download-path", "-d", type=Path, help="Se especificado, baixa os documentos encontrados nessa pasta"
+    )
+    parser.add_argument(
+        "--data-inicial",
+        "-i",
+        type=parse_iso_date,
+        default=datetime.date(2016, 1, 1),
+        help="Data de início (de publicação do documento) para a busca",
+    )
+    parser.add_argument(
+        "--data-final",
+        "-f",
+        type=parse_iso_date,
+        default=datetime.datetime.now().date(),
+        help="Data de fim (de publicação do documento) para a busca",
+    )
+    parser.add_argument(
+        "--categoria",
+        "-c",
+        type=str,
+        choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA],
+        metavar="",
+        help="Filtra pela categoria do documento",
+    )
+    parser.add_argument(
+        "--tipo",
+        "-t",
+        type=str,
+        choices=[item[1] for item in choices.DOCUMENTO_TIPO],
+        metavar="",
+        help="Filtra pelo tipo de documento",
+    )
+    parser.add_argument("csv_filename", type=Path, help="Arquivo CSV com os documentos encontrados")
     args = parser.parse_args()
-    if args.start_date:
-        start_date = datetime.datetime.strptime(args.start_date, "%Y-%m-%d").date()
-    else:
-        start_date = datetime.date(2016, 1, 1)
-    if args.end_date:
-        end_date = datetime.datetime.strptime(args.end_date, "%Y-%m-%d").date()
-    else:
-        end_date = datetime.datetime.now().date()
-    months = list(date_range(start_date, end_date, step="monthly"))
-    if months[-1] != end_date:
-        months.append(end_date)
-    path_pattern = {
-        "by-date": "{year}/{month}/{day}/{doc_id}",
-        "by-id": "{doc_id}",
-        "by-id-8": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
-    }[args.path_pattern]
+    data_inicial, data_final = args.data_inicial, args.data_final
+    datas_a_pesquisar = [
+        dia
+        for dia in day_range(data_inicial, data_final + datetime.timedelta(days=1))
+        if dia.day == 1 or dia in (data_inicial, data_final)
+    ]
+    modelo_nome_arquivo = modelos_nomes_arquivos[args.modelo_nome_arquivo]
     download_path = args.download_path
     if download_path:
-        download_path = Path(download_path)
-        if not download_path.exists():
-            download_path.mkdir(parents=True)
-
+        download_path.mkdir(parents=True, exist_ok=True)
+    csv_filename = args.csv_filename
+    csv_filename.parent.mkdir(parents=True, exist_ok=True)
     filters = {}
-    if args.category:
-        filters["category"] = args.category
-    if args.document_type:
-        filters["type_"] = args.document_type
-    fnet = FundosNet()
-    progress = tqdm()
-    writer = CsvLazyDictWriter(args.output_filename)
-    counter = 0
-    for start, stop in zip(months, months[1:]):
-        stop = stop - datetime.timedelta(days=1) if stop != end_date else stop
-        progress.desc = f"Downloading {start} to {stop}"
-        filters["start_date"] = start
-        filters["end_date"] = stop
-        result = fnet.search(**filters)
-        for row in result:
-            counter += 1
-            writer.writerow(asdict(row))
-            progress.update()
-    progress.close()
-    writer.close()
+    if args.categoria:
+        filters["category"] = args.categoria
+    if args.tipo:
+        filters["type_"] = args.tipo
 
-    if download_path:
-        progress = tqdm(desc="Downloading files", total=counter)
-        fobj = open_compressed(args.output_filename)
-        reader = csv.DictReader(fobj)
-        for batch in ipartition(reader, args.batch_size):
-            downloader = Downloader.subclasses()["aria2c"](path=download_path, quiet=True)
-            for row in batch:
-                doc = DocumentMeta.from_dict(row)
-                downloader.add(Download(url=doc.url, filename=format_document_path(path_pattern, doc)))
-            downloader.run()
-            progress.update(len(batch))
-        progress.close()
+    fnet = FundosNet()
+    with csv_filename.open(mode="w") as csv_fobj:
+        writer = None
+        for inicio, fim in zip(datas_a_pesquisar, datas_a_pesquisar[1:]):
+            fim = fim - datetime.timedelta(days=1) if fim != data_final else fim
+            filters["start_date"] = inicio  # TODO: renomear parâmetro para Português
+            filters["end_date"] = fim  # TODO: renomear parâmetro para Português
+            resultado = fnet.search(**filters)
+            for documento in resultado:
+                row = asdict(documento)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+                if download_path:
+                    response = fnet.session.get(documento.url, verify=False)
+                    content_type = response.headers.get("Content-Type")
+                    filename = download_path / Path(format_document_path(modelo_nome_arquivo, documento, content_type))
+                    filename.parent.mkdir(parents=True, exist_ok=True)
+                    with filename.open(mode="wb") as fobj:
+                        fobj.write(response.content)

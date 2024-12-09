@@ -6,9 +6,8 @@ from dataclasses import dataclass
 from dataclasses import fields as class_fields
 
 import xmltodict
-from rows.fields import slug
 
-from .utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int
+from .utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int, slug
 
 REGEXP_NUMBERS = re.compile("[^0-9]+")
 
