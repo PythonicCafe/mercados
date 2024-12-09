@@ -54,12 +54,19 @@ class InformeDiarioFundo:
         )
 
 
+@dataclass
+class Noticia:
+    titulo: str
+    link: str
+    data: datetime.date
+    descricao: str
+
+
 class CVM:
     def __init__(self):
         # TODO: trocar user agent
         self._session = create_session()
 
-    @property
     def noticias(self):
         url = "https://www.gov.br/cvm/pt-br/assuntos/noticias"
         params = {"b_size": 60, "b_start:int": 0}
@@ -69,8 +76,7 @@ class CVM:
             tree = document_fromstring(response.text)
             items = tree.xpath("//ul[contains(@class, 'noticias')]/li")
             for li in items:
-                # TODO: criar dataclass (e converter data)
-                yield {
+                row = {
                     "titulo": li.xpath(".//h2/a/text()")[0].strip(),
                     "link": li.xpath(".//h2/a/@href")[0].strip(),
                     "data": li.xpath(".//span[@class = 'data']/text()")[0].strip(),
@@ -78,11 +84,13 @@ class CVM:
                         item.strip() for item in li.xpath(".//span[@class = 'descricao']/text()") if item.strip()
                     ),
                 }
+                row["data"] = parse_date("br-date", row["data"])
+                yield Noticia(**row)
             params["b_start:int"] += 60
             finished = len(items) != params["b_size"]
 
-    def cadastro_fundos(self):
-        # TODO: criar dataclass
+    def __cadastro_fundos(self):
+        # TODO: criar dataclass e finalizar implementação
         url = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
         with tempfile.NamedTemporaryFile(suffix=".csv") as temp:
             download_filename = Path(temp.name)
