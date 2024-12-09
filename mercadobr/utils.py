@@ -18,6 +18,7 @@ MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubr
 MONTHS_3 = [item[:3] for item in MONTHS]
 REGEXP_CAMELCASE_1 = re.compile("(.)([A-Z][a-z]+)")
 REGEXP_CAMELCASE_2 = re.compile("([a-z0-9])([A-Z])")
+REGEXP_SPACES = re.compile(r"\s{2,}", flags=re.MULTILINE)
 REGEXP_CNPJ_SEPARATORS = re.compile("[./ -]+")
 REGEXP_NUMERIC = re.compile(r"^[+-]? ?[0-9]+(\.[0-9]+)?$")
 REGEXP_MONTH_YEAR = re.compile("^([0-9]{1,2})-([0-9]{2,4})$")

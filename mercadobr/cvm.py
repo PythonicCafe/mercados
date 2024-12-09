@@ -12,7 +12,7 @@ from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
 
-from .utils import BRT, REGEXP_CNPJ_SEPARATORS, create_session, download_files, parse_date, parse_iso_date, slug
+from .utils import BRT, REGEXP_CNPJ_SEPARATORS, REGEXP_SPACES, create_session, download_files, parse_date, parse_iso_date, slug
 
 REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
 REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
@@ -311,7 +311,7 @@ class RAD:
     # TODO: métodos deveriam ser movidos para classe CVM?
     def __init__(self):
         self.session = create_session()
-        self._empresas = None
+        self._empresas = self._categorias = None
 
     def _extract_rows(self, raw_data):
         records = raw_data.split("$&&*")
@@ -332,7 +332,23 @@ class RAD:
             result[other_code] = real_name
         return result
 
-    def busca(self, data_inicio=None, data_fim=None, empresas=None, hora_inicio="00:00", hora_fim="23:59"):
+    def categorias(self):
+        url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
+        response = self.session.get(url)
+        tree = document_fromstring(response.content.decode("utf-8"))
+        options = {}
+        for option in tree.xpath("//select[@id = 'cboCategorias']//option"):
+            value = option.xpath(".//@value")[0]
+            label = " ".join(item.strip() for item in option.xpath(".//text()") if item.strip())
+            options[REGEXP_SPACES.sub(" ", label)] = value
+        return options
+
+    # TODO: pegar código da empresa a partir de outros dados (CNPJ, razão social)
+
+    def busca(
+        self, data_inicio: datetime.date, data_fim: datetime.date, categorias: list = None, empresas: list = None,
+        hora_inicio="00:00", hora_fim="23:59",
+    ):
         """Busca documentos disponíveis no RAD/CVM (desde março/1998)"""
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx/ListarDocumentos"
         if empresas is not None:
@@ -341,6 +357,23 @@ class RAD:
             codigos_empresas = "," + ",".join(codigo for codigo, nome in self._empresas.items() if nome in empresas)
         else:
             codigos_empresas = ""
+
+        if categorias is None:
+            categorias = ["TODAS"]
+        if self._categorias is None:
+            self._categorias = self.categorias()
+        codigos_categorias = []
+        for categoria in categorias:
+            codigo = self.categorias[categoria]
+            if codigo.startswith("9000"):
+                codigo = int(codigo[4:])
+                categoria = f"EST_{codigo}"
+            else:
+                codigo = int(codigo)
+                categoria = f"IPE_{codigo}_-1_-1"
+            codigos_categorias.append(categoria)
+        categorias = ",".join(codigos_categorias)
+
         form_data = {
             "dataDe": data_inicio.strftime("%d/%m/%Y") if data_inicio else "",
             "dataAte": data_fim.strftime("%d/%m/%Y") if data_fim else "",
@@ -350,7 +383,7 @@ class RAD:
             "situacaoEmissor": "-1",
             "tipoParticipante": "-1",
             "dataReferencia": "",
-            "categoria": "EST_-1,IPE_-1_-1_-1",
+            "categoria": categorias,
             "periodo": "2",
             "horaIni": hora_inicio,
             "horaFim": hora_fim,
@@ -360,6 +393,7 @@ class RAD:
             "token": "",
             "versaoCaptcha": "",
         }
+        # TODO: fazer paginação?
         response = self.session.post(url, json=form_data)
         data = response.json()
         erro = data["d"]["msgErro"]
