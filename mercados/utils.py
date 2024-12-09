@@ -210,7 +210,7 @@ def parse_br_decimal(value):
 
 def parse_date(fmt, value, full=False):
     value = str(value or "").strip()
-    if not value:
+    if not value or value == "0001-01-01":
         return None
     if fmt == "1":
         value = f"01/01/{value}"

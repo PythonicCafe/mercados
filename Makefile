@@ -21,9 +21,9 @@ lint:					# Run linter script inside `main` container
 	docker compose run --rm -it main /app/scripts/lint.sh
 
 test:					# Execute `pytest` inside `main` container
-	docker compose run --rm -it main pytest
+	docker compose run --rm -it main pytest --doctest-modules mercados/ tests/
 
 test-v:					# Execute `pytest` with verbose option inside `main` container
-	docker compose run --rm -it main pytest -vvv
+	docker compose run --rm -it main pytest --doctest-modules -vvv mercados/ tests/
 
 .PHONY:	bash bash-root build container-clean help kill lint test test-v
