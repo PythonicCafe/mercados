@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from textwrap import dedent
 
-from mercadobr.utils import dicts_to_str
+from mercados.utils import dicts_to_str
 
 data = [
     {"data": date(2024, 11, 2)},

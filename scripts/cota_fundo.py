@@ -1,4 +1,4 @@
-"""Raspador para pegar a cota de fundos na CVM -- prefira usar `InformeDiario` de `mercadobr.cvm`"""
+"""Raspador para pegar a cota de fundos na CVM -- prefira usar `InformeDiario` de `mercados.cvm`"""
 
 import datetime
 import io
@@ -13,7 +13,7 @@ from .utils import create_session
 
 
 def clean_cnpj(value):
-    # TODO: move to mercadobr.utils
+    # TODO: move to mercados.utils
     if value is None:
         return None
     for char in ".-/ ":

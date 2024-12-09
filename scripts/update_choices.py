@@ -2,7 +2,7 @@
 
 from pprint import pprint
 
-from mercadobr.fundosnet import FundosNet
+from mercados.fundosnet import FundosNet
 
 
 def print_choices(name, values):

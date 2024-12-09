@@ -1,6 +1,6 @@
-# capitais
+# mercados
 
-`capitais` é uma biblioteca em Python e uma interface de linha de comando (CLI) para baixar, extrair e limpar dados do
+`mercados` é uma biblioteca em Python e uma interface de linha de comando (CLI) para baixar, extrair e limpar dados do
 mercado financeiro brasileiro de diversas organizações, como Comissão de Valores Mobiliários (CVM), Bolsa, Brasil e
 Balcão (B3) e Banco Central do Brasil (BCB). A biblioteca foi desenvolvida ao longo dos últimos anos, já é utilizada em
 sistemas que estão em produção e tem como objetivo ser a melhor, mais robusta e fácil opção para acessar dados do
@@ -11,14 +11,14 @@ mais recentes e em algumas anteriores sem problemas; como ela é feita totalment
 problemas em outros sistemas, como Windows e Mac OS X. Instale-a executando:
 
 ```shell
-pip install capitais
+pip install mercados
 ```
 
-O código da `capitais` está licenciado sob [LGPL versão 3](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Você só
+O código da `mercados` está licenciado sob [LGPL versão 3](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Você só
 deve utilizá-la se aceitar os termos da licença (veja mais detalhes na seção abaixo).
 
 A documentação ainda está em desenvolvimento. A biblioteca está dividida em módulos, onde cada módulo é responsável por
-coletar as informações de um órgão/sistema, por exemplo: `mercadobr.cvm` coleta dados disponibilizados pela CVM. Veja
+coletar as informações de um órgão/sistema, por exemplo: `mercados.cvm` coleta dados disponibilizados pela CVM. Veja
 a seção [Dados disponíveis](#dados-disponiveis) para mais detalhes. Para exemplos da interface de linha de comando,
 veja o script `scripts/smoke-tests.sh`.
 
@@ -30,7 +30,7 @@ Caso queira contribuir com o projeto, veja [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licença
 
-`capitais` tem como licença a [Licença Pública Geral Menor GNU versão 3 (LGPL
+`mercados` tem como licença a [Licença Pública Geral Menor GNU versão 3 (LGPL
 v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 
 **✅ O que você pode fazer:**
