@@ -10,8 +10,6 @@ from decimal import Decimal
 from typing import Optional
 from urllib.parse import urljoin
 
-from rows.utils.date import date_range
-
 from .utils import (
     clean_string,
     create_session,
@@ -693,9 +691,9 @@ class B3:
 if __name__ == "__main__":
     import argparse
     import datetime
+    from pathlib import Path
 
-    from rows.utils import CsvLazyDictWriter
-    from tqdm import tqdm
+    from .utils import day_range
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -721,202 +719,245 @@ if __name__ == "__main__":
         ],
     )
     args = parser.parse_args()
+    b3 = B3()
+    command = args.command
+    csv_filename = args.csv_filename
+    csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
-    if args.command == "cri-documents":
-        writer = CsvLazyDictWriter("cri-documents.csv.gz")
+    if command == "cri-documents":
         current_year = datetime.datetime.now().year
-        b3 = B3()
         securitizadoras = b3.securitizadoras()
-        progress = tqdm()
-        for securitizadora in securitizadoras:
-            progress.desc = securitizadora["companyName"]
-            for cri in b3.cris(securitizadora["cnpj"]):
-                start_date = parse_date("iso-datetime-tz", cri["issueDate"])
-                base_row = {**securitizadora, **cri}
-                for year in range(start_date.year, current_year + 1):
-                    start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                    documents = list(
-                        b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop)
-                    )
-                    for doc in documents:
-                        writer.writerow({**base_row, **doc})
-                    progress.update(len(documents))
-        progress.close()
-        writer.close()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for securitizadora in securitizadoras:
+                for cri in b3.cris(securitizadora["cnpj"]):
+                    start_date = parse_date("iso-datetime-tz", cri["issueDate"])
+                    base_row = {**securitizadora, **cri}
+                    for year in range(start_date.year, current_year + 1):
+                        start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+                        documents = list(
+                            b3.certificate_documents(cri["identificationCode"], start_date=start, end_date=stop)
+                        )
+                        for doc in documents:
+                            row = {**base_row, **doc}
+                            if writer is None:
+                                writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                                writer.writeheader()
+                            writer.writerow(row)
 
-    elif args.command == "cra-documents":
-        writer = CsvLazyDictWriter("cra-documents.csv.gz")
+    elif command == "cra-documents":
         current_year = datetime.datetime.now().year
-        b3 = B3()
         securitizadoras = b3.securitizadoras()
-        progress = tqdm()
-        for securitizadora in securitizadoras:
-            progress.desc = securitizadora["companyName"]
-            for cra in b3.cras(securitizadora["cnpj"]):
-                start_date = parse_date("iso-datetime-tz", cra["issueDate"])
-                base_row = {**securitizadora, **cra}
-                for year in range(start_date.year, current_year + 1):
-                    start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
-                    documents = list(
-                        b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop)
-                    )
-                    for doc in documents:
-                        writer.writerow({**base_row, **doc})
-                    progress.update(len(documents))
-        progress.close()
-        writer.close()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for securitizadora in securitizadoras:
+                for cra in b3.cras(securitizadora["cnpj"]):
+                    start_date = parse_date("iso-datetime-tz", cra["issueDate"])
+                    base_row = {**securitizadora, **cra}
+                    for year in range(start_date.year, current_year + 1):
+                        start, stop = datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+                        documents = list(
+                            b3.certificate_documents(cra["identificationCode"], start_date=start, end_date=stop)
+                        )
+                        for doc in documents:
+                            row = {**base_row, **doc}
+                            if writer is None:
+                                writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                                writer.writeheader()
+                            writer.writerow(row)
 
-    elif args.command == "fundo-listado":
-        b3 = B3()
+    elif command == "fundo-listado":
         data_sources = (
             (b3.fiis(), "FII"),
             (b3.fiinfras(), "FI-Infra"),
             (b3.fips(), "FIP"),
             (b3.fiagros(), "FI-Agro"),
         )
-        writer = CsvLazyDictWriter("fundo-listado.csv.gz")
-        for iterator, type_name in data_sources:
-            for obj in tqdm(iterator, desc=f"Coletando dados de {type_name}s"):
-                writer.writerow(obj.serialize())
-        writer.close()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for iterator, type_name in data_sources:
+                for obj in iterator:
+                    row = obj.serialize()
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fii-dividends":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fii-dividends.csv.gz")
-        for obj in tqdm(b3.fiis()):
-            base_fund_data = obj.serialize()
-            for dividend in b3.fii_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend.serialize()})
-                # TODO: include stock_dividends?
-        writer.close()
+    elif command == "fii-dividends":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiis():
+                base_fund_data = obj.serialize()
+                for dividend in b3.fii_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                    row = {**base_fund_data, **dividend.serialize()}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
+                    # TODO: include stock_dividends?
 
-    elif args.command == "fii-subscriptions":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fii-subscriptions.csv.gz")
-        for obj in tqdm(b3.fiis()):
-            base_fund_data = obj.serialize()
-            data = b3.fii_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
-            for subscription in data:
-                writer.writerow({**base_fund_data, **subscription})
-        writer.close()
+    elif command == "fii-subscriptions":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiis():
+                base_fund_data = obj.serialize()
+                data = b3.fii_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+                for subscription in data:
+                    row = {**base_fund_data, **subscription}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fii-documents":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fii-documents.csv.gz")
-        for obj in tqdm(b3.fiis()):
-            base_fund_data = obj.serialize()
-            data = b3.fii_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
-            for doc in data:
-                writer.writerow({**base_fund_data, **doc})
-        writer.close()
+    elif command == "fii-documents":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiis():
+                base_fund_data = obj.serialize()
+                data = b3.fii_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+                for doc in data:
+                    row = {**base_fund_data, **doc}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fiinfra-dividends":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiinfra-dividends.csv.gz")
-        for obj in tqdm(b3.fiinfras()):
-            base_fund_data = obj.serialize()
-            for dividend in b3.fiinfra_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend.serialize()})
-                # TODO: include stock_dividends?
-        writer.close()
+    elif command == "fiinfra-dividends":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiinfras():
+                base_fund_data = obj.serialize()
+                for dividend in b3.fiinfra_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                    row = {**base_fund_data, **dividend.serialize()}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
+                    # TODO: include stock_dividends?
 
-    elif args.command == "fiinfra-subscriptions":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiinfra-subscriptions.csv.gz")
-        for obj in tqdm(b3.fiinfras()):
-            base_fund_data = obj.serialize()
-            data = b3.fiinfra_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
-            for subscription in data:
-                writer.writerow({**base_fund_data, **subscription})
-        writer.close()
+    elif command == "fiinfra-subscriptions":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiinfras():
+                base_fund_data = obj.serialize()
+                data = b3.fiinfra_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+                for subscription in data:
+                    row = {**base_fund_data, **subscription}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fiinfra-documents":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiinfra-documents.csv.gz")
-        for obj in tqdm(b3.fiinfras()):
-            base_fund_data = obj.serialize()
-            data = b3.fiinfra_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
-            for doc in data:
-                writer.writerow({**base_fund_data, **doc})
-        writer.close()
+    elif command == "fiinfra-documents":
+        # TODO: o arquivo está ficando em branco, verificar
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiinfras():
+                base_fund_data = obj.serialize()
+                data = b3.fiinfra_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+                for doc in data:
+                    row = {**base_fund_data, **doc}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fiagro-dividends":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiagro-dividends.csv.gz")
-        for obj in tqdm(b3.fiagros()):
-            base_fund_data = obj.serialize()
-            for dividend in b3.fiagro_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend.serialize()})
-                # TODO: include stock_dividends?
-        writer.close()
+    elif command == "fiagro-dividends":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiagros():
+                base_fund_data = obj.serialize()
+                for dividend in b3.fiagro_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                    row = {**base_fund_data, **dividend.serialize()}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
+                    # TODO: include stock_dividends?
 
-    elif args.command == "fiagro-subscriptions":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiagro-subscriptions.csv.gz")
-        for obj in tqdm(b3.fiagros()):
-            base_fund_data = obj.serialize()
-            data = b3.fiagro_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
-            for subscription in data:
-                writer.writerow({**base_fund_data, **subscription})
-        writer.close()
+    elif command == "fiagro-subscriptions":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiagros():
+                base_fund_data = obj.serialize()
+                data = b3.fiagro_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
+                for subscription in data:
+                    row = {**base_fund_data, **subscription}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fiagro-documents":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fiagro-documents.csv.gz")
-        for obj in tqdm(b3.fiagros()):
-            base_fund_data = obj.serialize()
-            data = b3.fiagro_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
-            for doc in data:
-                writer.writerow({**base_fund_data, **doc})
-        writer.close()
+    elif command == "fiagro-documents":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fiagros():
+                base_fund_data = obj.serialize()
+                data = b3.fiagro_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
+                for doc in data:
+                    row = {**base_fund_data, **doc}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fip-dividends":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fip-dividends.csv.gz")
-        for obj in tqdm(b3.fips()):
-            base_fund_data = obj.serialize()
-            for dividend in b3.fip_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **dividend.serialize()})
-                # TODO: include stock_dividends?
-        writer.close()
-        writer.close()
+    elif command == "fip-dividends":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fips():
+                base_fund_data = obj.serialize()
+                for dividend in b3.fip_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                    row = {**base_fund_data, **dividend.serialize()}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
+                    # TODO: include stock_dividends?
 
-    elif args.command == "fip-documents":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fip-documents.csv.gz")
-        for obj in tqdm(b3.fips()):
-            base_fund_data = obj.serialize()
-            for doc in b3.fip_documents(identificador=obj.acronimo, cnpj=obj.cnpj):
-                writer.writerow({**base_fund_data, **doc})
-        writer.close()
+    elif command == "fip-documents":
+        # TODO: o arquivo está ficando em branco, verificar
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fips():
+                base_fund_data = obj.serialize()
+                for doc in b3.fip_documents(identificador=obj.acronimo, cnpj=obj.cnpj):
+                    row = {**base_fund_data, **doc}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "fip-subscriptions":
-        b3 = B3()
-        writer = CsvLazyDictWriter("fip-subscriptions.csv.gz")
-        for obj in tqdm(b3.fips()):
-            base_fund_data = obj.serialize()
-            for subscription in b3.fip_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo):
-                writer.writerow({**base_fund_data, **subscription})
-        writer.close()
+    elif command == "fip-subscriptions":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for obj in b3.fips():
+                base_fund_data = obj.serialize()
+                for subscription in b3.fip_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo):
+                    row = {**base_fund_data, **subscription}
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)
 
-    elif args.command == "debentures":
-        b3 = B3()
-        writer = CsvLazyDictWriter("debentures.csv.gz")
-        for row in tqdm(b3.debentures()):
-            writer.writerow(row)
-        writer.close()
+    elif command == "debentures":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.debentures():
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
 
-    elif args.command == "negociacao-balcao":
-        b3 = B3()
+    elif command == "negociacao-balcao":
         today = datetime.datetime.now().date()
         start_date = datetime.date(today.year, 1, 1)
         end_date = today + datetime.timedelta(days=1)
-        writer = CsvLazyDictWriter(f"negociacao-balcao-{start_date.year}.csv.gz")
-        progress = tqdm()
-        for date in date_range(start_date, end_date):
-            progress.desc = str(date)
-            for row in b3.negociacao_balcao(date):
-                writer.writerow(asdict(row))
-                progress.update()
-        progress.close()
-        writer.close()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for date in day_range(start_date, end_date + datetime.timedelta(days=1)):
+                for row in b3.negociacao_balcao(date):
+                    row = asdict(row)
+                    if writer is None:
+                        writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                        writer.writeheader()
+                    writer.writerow(row)

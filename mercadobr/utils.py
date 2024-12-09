@@ -31,6 +31,23 @@ REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
 
 
+def day_range(start, stop):
+    """
+    >>> list(day_range(datetime.date(2020, 1, 1), datetime.date(2020, 1, 3)))
+    [datetime.date(2020, 1, 1), datetime.date(2020, 1, 2)]
+    >>> len(list(day_range(datetime.date(2021, 1, 1), datetime.date(2021, 3, 30))))  # 31 + 28 + 29
+    88
+    """
+    if start > stop:
+        raise ValueError("`start` cannot be greater than `stop`")
+
+    current = start
+    one_day = datetime.timedelta(days=1)
+    while current < stop:
+        yield current
+        current += one_day
+
+
 def dicts_to_str(data: list[dict], fmt: str):
     """Convert a list of dictionaries to a string representation in a specific format.
 
