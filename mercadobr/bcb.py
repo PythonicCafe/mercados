@@ -140,7 +140,7 @@ class BancoCentral:
             raise ValueError("Data final precisa ser o último dia do mês")
         fator = 1
         for ano in range(data_inicial.year, data_final.year + 1):
-            for taxa in self.por_mes(ano):
+            for taxa in self.selic_por_mes(ano):
                 if taxa.data_inicial >= data_inicial and taxa.data_final <= data_final:
                     fator *= taxa.valor
         fator = fator.quantize(Decimal("0.0000000000000001"))
@@ -185,7 +185,7 @@ if __name__ == "__main__":
         if tipo == "dia":
             ajustado = bc.ajustar_selic_por_dia(data_inicial=inicio, data_final=fim, valor=valor)
         elif tipo == "mês":
-            ajustado = bc.ajustar_selic_por_mês(data_inicial=inicio, data_final=fim, valor=valor)
+            ajustado = bc.ajustar_selic_por_mes(data_inicial=inicio, data_final=fim, valor=valor)
         print(ajustado)
 
     elif args.command == "serie-temporal":
