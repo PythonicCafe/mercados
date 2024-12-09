@@ -695,29 +695,42 @@ if __name__ == "__main__":
 
     from .utils import day_range
 
+    comandos_padrao = [
+        "cra-documents",
+        "cri-documents",
+        "debentures",
+        "fiagro-dividends",
+        "fiagro-documents",
+        "fiagro-subscriptions",
+        "fii-dividends",
+        "fii-documents",
+        "fii-subscriptions",
+        "fiinfra-dividends",
+        "fiinfra-documents",
+        "fiinfra-subscriptions",
+        "fip-dividends",
+        "fip-documents",
+        "fip-subscriptions",
+        "fundo-listado",
+        "negociacao-balcao",
+    ]
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "command",
-        choices=[
-            "cra-documents",
-            "cri-documents",
-            "debentures",
-            "fiagro-dividends",
-            "fiagro-documents",
-            "fiagro-subscriptions",
-            "fii-dividends",
-            "fii-documents",
-            "fii-subscriptions",
-            "fiinfra-dividends",
-            "fiinfra-documents",
-            "fiinfra-subscriptions",
-            "fip-dividends",
-            "fip-documents",
-            "fip-subscriptions",
-            "fundo-listado",
-            "negociacao-balcao",
-        ],
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    for comando in comandos_padrao:
+        subparser = subparsers.add_parser(comando)
+        subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+
+    subparser_cotacao = subparsers.add_parser("cotacao")
+    subparser_cotacao.add_argument(
+        "frequencia", type=str, choices=["dia", "mês", "ano"], help="Frequência do arquivo de cotação disponível"
     )
+    subparser_cotacao.add_argument(
+        "data",
+        type=parse_iso_date,
+        help="Data a ser baixada em formato YYYY-MM-DD (para frequência mensal, use dia = 01, para anual use mês e dia = 01)",
+    )
+    subparser_cotacao.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+
     args = parser.parse_args()
     b3 = B3()
     command = args.command
@@ -961,3 +974,16 @@ if __name__ == "__main__":
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                         writer.writeheader()
                     writer.writerow(row)
+
+    elif command == "cotacao":
+        frequencia = args.frequencia
+        data = args.data
+
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for cotacao in b3.cotacao(frequencia, data):
+                row = asdict(cotacao)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
