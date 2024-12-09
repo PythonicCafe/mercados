@@ -384,7 +384,7 @@ class RAD:
             self._categorias = self.categorias()
         codigos_categorias = []
         for categoria in categorias:
-            codigo = self.categorias[categoria]
+            codigo = self._categorias[categoria]
             if codigo.startswith("9000"):
                 codigo = int(codigo[4:])
                 categoria = f"EST_{codigo}"
@@ -497,7 +497,6 @@ if __name__ == "__main__":
         empresas = args.empresa
         inicio = args.data_inicial
         fim = args.data_final
-        print(empresas)
 
         rad = RAD()
         with csv_filename.open(mode="w") as csv_fobj:
