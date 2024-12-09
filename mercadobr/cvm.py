@@ -89,6 +89,26 @@ class CVM:
             params["b_start:int"] += 60
             finished = len(items) != params["b_size"]
 
+    def url_informe_diario_fundo(self, data: datetime.date):
+        if (data.year, data.month) >= (2021, 1):
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
+        else:
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
+
+    def _le_zip_informe_diario(self, zip_filename):
+        zf = zipfile.ZipFile(zip_filename)
+        # TODO: verificar se lista de arquivos contém nomes corretos?
+        for file_info in zf.filelist:
+            with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
+                for row in csv.DictReader(fobj, delimiter=";"):
+                    yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
+
+    def informe_diario_fundo(self, data: datetime.date):
+        url = self.url_informe_diario_fundo(data)
+        response = self._session.get(url)
+        zip_fobj = io.BytesIO(response.content)
+        yield from self._le_zip_informe_diario(zip_fobj)
+
     def __cadastro_fundos(self):
         # TODO: criar dataclass e finalizar implementação
         url = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
@@ -139,22 +159,6 @@ class CVM:
                         # "trib_lprazo"::varchar(3) AS "trib_lprazo",
                         # "vl_patrim_liq"::varchar(15) AS "vl_patrim_liq"
                     }
-
-
-def informe_diario_fundo_url(data: datetime.date):
-    if (data.year, data.month) >= (2021, 1):
-        return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
-    else:
-        return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
-
-
-def extrai_informes_diarios(zip_filename):
-    # TODO: adicionar método à classe CVM
-    zf = zipfile.ZipFile(zip_filename)
-    for file_info in zf.filelist:
-        with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
-            for row in csv.DictReader(fobj, delimiter=";"):
-                yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
 
 
 def extrai_datahora(valor, timezone=BRT):
@@ -494,13 +498,10 @@ if __name__ == "__main__":
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
-        session = create_session()
-        url = informe_diario_fundo_url(data)
-        response = session.get(url)
-        zip_fobj = io.BytesIO(response.content)
+        cvm = CVM()
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for informe in extrai_informes_diarios(zip_fobj):
+            for informe in cvm.informe_diario_fundo(data):
                 row = asdict(informe)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
