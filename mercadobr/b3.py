@@ -359,7 +359,7 @@ class B3:
     def _make_url_params(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
 
-    def _url_arquivo_negociacao_bolsa(self, frequencia: str, data: datetime.date):
+    def url_negociacao_bolsa(self, frequencia: str, data: datetime.date):
         """
         :param frequencia: deve ser "dia", "mês" ou "ano"
         :param data: data desejada (use o dia "01" caso frequência seja "mês" e o dia e mês "01" caso frequência seja
@@ -390,7 +390,7 @@ class B3:
         """
         assert frequencia in ("dia", "mês", "ano")
 
-        url = self._url_arquivo_negociacao_bolsa(frequencia, data)
+        url = self.url_negociacao_bolsa(frequencia, data)
         response = self._session.get(url, verify=False)
         if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
             return ValueError(
@@ -403,6 +403,26 @@ class B3:
             if line[:2] != "01":  # Não é um registro de fato
                 continue
             yield NegociacaoBolsa.from_line(line)
+
+    def url_intraday_zip(self, data: datetime.date):
+        data_str = data.strftime("%Y-%m-%d")
+        url = f"https://arquivos.b3.com.br/rapinegocios/tickercsv/{data_str}"
+        return url
+
+    def _le_zip_intraday(self, fobj):
+        zf = zipfile.ZipFile(fobj)
+        assert len(zf.filelist) == 1
+        filename = zf.filelist[0].filename
+        assert "_NEGOCIOSAVISTA.txt" in filename
+        fobj = io.TextIOWrapper(zf.open(zf.filelist[0].filename), encoding="iso-8859-1")
+        reader = csv.DictReader(fobj, delimiter=";")
+        # TODO: criar dataclass e converter valores em objetos Python
+        yield from reader
+
+    def negociacao_intraday(self, data: datetime.date):
+        url = self.url_intraday_zip(data)
+        response = self._session.get(url)
+        yield from self._le_zip_intraday(io.BytesIO(response.content))
 
     def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
         if url_params is not None:
@@ -731,11 +751,22 @@ if __name__ == "__main__":
     )
     subparser_negociacao_bolsa.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
+    subparser_baixar = subparsers.add_parser("intraday-baixar", help="Baixa arquivo ZIP de intraday para uma data.")
+    subparser_baixar.add_argument("--chunk-size", "-c", type=int, default=256 * 1024, help="Tamanho do chunk no download")
+    subparser_baixar.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_baixar.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP a ser salvo")
+
+    subparser_converter = subparsers.add_parser("intraday-converter", help="Converte arquivo ZIP de intraday para CSV.")
+    subparser_converter.add_argument("--codigo-ativo", "-c", action="append", help="Filtra pelo código de negociação")
+    subparser_converter.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido")
+    subparser_converter.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
     args = parser.parse_args()
     b3 = B3()
     command = args.command
-    csv_filename = args.csv_filename
-    csv_filename.parent.mkdir(parents=True, exist_ok=True)
+    csv_filename = getattr(args, "csv_filename", None)
+    if csv_filename:
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
     if command == "cri-documents":
         current_year = datetime.datetime.now().year
@@ -987,3 +1018,31 @@ if __name__ == "__main__":
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
+
+    elif args.command == "intraday-baixar":
+        data = args.data
+        chunk_size = args.chunk_size
+        zip_filename = args.zip_filename
+        zip_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        url = b3.url_intraday_zip(data)
+        response = b3._session.get(url, stream=True)
+        response.raise_for_status()
+        with zip_filename.open("wb") as fobj:
+            for chunk in response.iter_content(chunk_size):
+                fobj.write(chunk)
+
+    elif args.command == "intraday-converter":
+        zip_filename = args.zip_filename
+        zip_filename.parent.mkdir(parents=True, exist_ok=True)
+        csv_filename = args.csv_filename
+        codigo_ativo = set(args.codigo_ativo) if args.codigo_ativo else None
+
+        with csv_filename.open(mode="w") as fobj, zip_filename.open(mode="rb") as zip_fobj:
+            writer = None
+            for row in b3._le_zip_intraday(zip_fobj):
+                if writer is None:
+                    writer = csv.DictWriter(fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                if codigo_ativo is None or row["CodigoInstrumento"] in codigo_ativo:
+                    writer.writerow(row)
