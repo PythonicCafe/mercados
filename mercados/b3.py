@@ -1,12 +1,12 @@
 import base64
 import csv
 import datetime
-import decimal
 import io
 import json
 import zipfile
 from dataclasses import asdict, dataclass
 from decimal import Decimal
+from functools import lru_cache
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -19,6 +19,55 @@ from .utils import (
     parse_datetime_force_timezone,
     parse_iso_date,
 )
+
+UM_CENTAVO = Decimal("0.01")
+
+
+@lru_cache(maxsize=16 * 1024)
+def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
+    """Converte um valor em centavos em str para Decimal em Reais com 2 casas decimais
+
+    >>> print(converte_centavos_para_decimal(""))
+    None
+    >>> print(converte_centavos_para_decimal(None))
+    None
+    >>> converte_centavos_para_decimal("0")
+    Decimal('0.00')
+    >>> converte_centavos_para_decimal("1")
+    Decimal('0.01')
+    >>> converte_centavos_para_decimal("10")
+    Decimal('0.10')
+    >>> converte_centavos_para_decimal("100")
+    Decimal('1.00')
+    >>> converte_centavos_para_decimal("12356")
+    Decimal('123.56')
+    """
+    return (Decimal(valor) / 100).quantize(UM_CENTAVO) if valor else None
+
+
+@lru_cache(maxsize=16 * 1024)
+def converte_decimal(valor: str) -> Optional[Decimal]:
+    """
+    >>> print(converte_decimal(""))
+    None
+    >>> print(converte_decimal("   \\t\\n "))
+    None
+    >>> print(converte_decimal(None))
+    None
+    >>> converte_decimal("1.23")
+    Decimal('1.23')
+    >>> converte_decimal("1.23456789")
+    Decimal('1.23456789')
+    >>> converte_decimal("1.2")
+    Decimal('1.20')
+    """
+    valor = str(valor or "").strip()
+    if not valor:
+        return None
+    valor = Decimal(valor)
+    if len(str(valor - int(valor))) < 4:
+        valor = valor.quantize(UM_CENTAVO)
+    return valor
 
 
 @dataclass
@@ -102,15 +151,15 @@ class NegociacaoBolsa:
             moeda=row["modref"],
             nome_pregao=row["nomres"],
             tipo_papel=row["especi"],
-            preco_abertura=Decimal(row["preabe"]) / 100 if row["preabe"] else None,
-            preco_maximo=Decimal(row["premax"]) / 100 if row["premax"] else None,
-            preco_minimo=Decimal(row["premin"]) / 100 if row["premin"] else None,
-            preco_medio=Decimal(row["premed"]) / 100 if row["premed"] else None,
-            preco_ultimo=Decimal(row["preult"]) / 100 if row["preult"] else None,
-            preco_melhor_oferta_compra=Decimal(row["preofc"]) / 100 if row["preofc"] else None,
-            preco_melhor_oferta_venda=Decimal(row["preofv"]) / 100 if row["preofv"] else None,
-            volume=Decimal(row["voltot"]) / 100 if row["voltot"] else None,
-            preco_execucao=Decimal(row["preexe"]) / 100 if row["preexe"] else None,
+            preco_abertura=converte_centavos_para_decimal(row["preabe"]),
+            preco_maximo=converte_centavos_para_decimal(row["premax"]),
+            preco_minimo=converte_centavos_para_decimal(row["premin"]),
+            preco_medio=converte_centavos_para_decimal(row["premed"]),
+            preco_ultimo=converte_centavos_para_decimal(row["preult"]),
+            preco_melhor_oferta_compra=converte_centavos_para_decimal(row["preofc"]),
+            preco_melhor_oferta_venda=converte_centavos_para_decimal(row["preofv"]),
+            volume=converte_centavos_para_decimal(row["voltot"]),
+            preco_execucao=converte_centavos_para_decimal(row["preexe"]),
         )
 
 
@@ -136,7 +185,7 @@ class Dividendo:
             data_aprovacao=parse_br_date(row["approvedOn"]),
             data_base=parse_br_date(row["lastDatePrior"]),
             data_pagamento=parse_br_date(row["paymentDate"]),
-            valor_por_cota=Decimal(row["rate"].replace(".", "").replace(",", ".")),
+            valor_por_cota=converte_decimal(row["rate"].replace(".", "").replace(",", ".")),
             periodo_referencia=row["relatedTo"],
             tipo=tipo_mapping.get(row["label"], row["label"]),
         )
@@ -282,15 +331,15 @@ class NegociacaoBalcao:
     codigo_if: str
     instrumento: str
     datahora: datetime.date
-    quantidade: decimal.Decimal
-    preco: decimal.Decimal
-    volume: decimal.Decimal
+    quantidade: Decimal
+    preco: Decimal
+    volume: Decimal
     origem: str
     codigo_isin: str = None
     data_liquidacao: datetime.date = None
     emissor: str = None
     situacao: str = None
-    taxa: decimal.Decimal = None
+    taxa: Decimal = None
 
     @classmethod
     def from_dict(cls, row):
@@ -331,14 +380,14 @@ class NegociacaoBalcao:
             codigo_if=row.pop("codigo_if"),
             instrumento=row.pop("instrumento"),
             datahora=parse_date("iso-datetime-tz", row.pop("datahora")),
-            quantidade=decimal.Decimal(row.pop("quantidade")),
-            preco=decimal.Decimal(row.pop("preco")),
-            volume=decimal.Decimal(row.pop("volume")),
+            quantidade=converte_decimal(row.pop("quantidade")),
+            preco=converte_decimal(row.pop("preco")),
+            volume=converte_decimal(row.pop("volume")),
             origem=row.pop("origem"),
             codigo_isin=row.pop("codigo_isin") or None,
             data_liquidacao=parse_date("iso-date", data_liquidacao) if data_liquidacao else None,
             emissor=row.pop("emissor") or None,
-            taxa=decimal.Decimal(taxa) if taxa else None,
+            taxa=converte_decimal(taxa) if taxa else None,
         )
         assert not row
         return obj
