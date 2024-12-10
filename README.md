@@ -17,10 +17,7 @@ pip install mercados
 O código da `mercados` está licenciado sob [LGPL versão 3](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Você só
 deve utilizá-la se aceitar os termos da licença (veja mais detalhes na seção abaixo).
 
-A documentação ainda está em desenvolvimento. A biblioteca está dividida em módulos, onde cada módulo é responsável por
-coletar as informações de um órgão/sistema, por exemplo: `mercados.cvm` coleta dados disponibilizados pela CVM. Veja
-a seção [Dados disponíveis](#dados-disponiveis) para mais detalhes. Para exemplos da interface de linha de comando,
-veja o script `scripts/smoke-tests.sh`.
+A documentação ainda está em desenvolvimento (veja o material em construção em [docs/tutorial.md](docs/tutorial.md)).
 
 > **Atenção**: apesar de todo o código funcionar e de ter sido testado em diversos sistemas em produção que o utilizam,
 > algumas mudanças poderão acontecer na interface da biblioteca até que ela atinja a versão `1.0.0`, ou seja, atente-se
