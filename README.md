@@ -62,6 +62,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
   - Cotação diária da negociação em balcão
   - Cadastro de fundos listados
   - Cadastro de debêntures ativas
+  - Cadastro de BDRs listadas
   - Informações cadastrais sobre CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
   - Documentos de CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
   - Dividendos de FI-Infras e FI-Agros

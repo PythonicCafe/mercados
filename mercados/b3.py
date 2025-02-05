@@ -396,6 +396,7 @@ class NegociacaoBalcao:
 class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
+    companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
 
     def __init__(self):
         self.session = create_session()
@@ -592,6 +593,13 @@ class B3:
     # TODO: GetListedByType/ b'{"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31"}'
     # TODO: GetListedCategory/ b'{"cnpj":"42537579000176"}'
     # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
+
+    def bdrs(self):
+        # TODO: retornar dataclass
+        return self.paginate(
+            base_url=urljoin(self.companies_call_url, "GetCompaniesBDR/"),
+            url_params={"language":"pt-br"},
+        )
 
     def fiis(self):
         yield from self._funds_by_type("FII", 7)
