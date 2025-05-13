@@ -989,6 +989,62 @@ if __name__ == "__main__":
     )
     subparser_converter.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
+    subparser_clearing_acoes_custodiadas = subparsers.add_parser("clearing-acoes-custodiadas", help="Coleta dados de Clearing - Ações Custodiadas")
+    subparser_clearing_acoes_custodiadas.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_acoes_custodiadas.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_creditos_de_proventos = subparsers.add_parser("clearing-creditos-de-proventos", help="Coleta dados de Clearing - Créditos de Proventos - Renda Variável")
+    subparser_clearing_creditos_de_proventos.add_argument("--emissor", type=str, help="Filtra por emissor")
+    subparser_clearing_creditos_de_proventos.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_creditos_de_proventos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_custodia_fungivel = subparsers.add_parser("clearing-custodia-fungivel", help="Coleta dados de Clearing - Custódia Fungível")
+    subparser_clearing_custodia_fungivel.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_custodia_fungivel.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_registrados = subparsers.add_parser("clearing-emprestimos-registrados", help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados")
+    subparser_clearing_emprestimos_registrados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_registrados.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_registrados.add_argument("data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_registrados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_negociados = subparsers.add_parser("clearing-emprestimos-negociados", help="Coleta dados de Clearing - Empréstimos de Ativos - Negócios")
+    subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
+    subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
+    subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_negociados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_negociados.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_negociados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_em_aberto = subparsers.add_parser("clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto")
+    subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_em_aberto.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_em_aberto.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_em_aberto.add_argument("data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+
+    subparser_clearing_opcoes_flexiveis = subparsers.add_parser("clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis")
+    subparser_clearing_opcoes_flexiveis.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_prazo_deposito_titulos = subparsers.add_parser("clearing-prazo-deposito-titulos", help="Coleta dados de Clearing - Prazo para Depósito de Títulos")
+    subparser_clearing_prazo_deposito_titulos.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_prazo_deposito_titulos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_posicoes_em_aberto = subparsers.add_parser("clearing-posicoes-em-aberto", help="Coleta dados de Clearing - Quadro Analítico das Posições em Aberto")
+    subparser_clearing_posicoes_em_aberto.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_posicoes_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_swap = subparsers.add_parser("clearing-swap", help="Coleta dados de Clearing - Swap")
+    subparser_clearing_swap.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_swap.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_termo_eletronico = subparsers.add_parser("clearing-termo-eletronico", help="Coleta dados de Clearing - Termo Eletrônico")
+    subparser_clearing_termo_eletronico.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
     args = parser.parse_args()
     b3 = B3()
     command = args.command
@@ -1274,3 +1330,102 @@ if __name__ == "__main__":
                     writer.writeheader()
                 if codigo_ativo is None or row["CodigoInstrumento"] in codigo_ativo:
                     writer.writerow(row)
+
+    elif command == "clearing-acoes-custodiadas":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_acoes_custodiadas(data_inicial=args.data_inicial):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-creditos-de-proventos":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_creditos_de_proventos(data_inicial=args.data_inicial, filtro_emissor=args.emissor):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-custodia-fungivel":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_custodia_fungivel(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-registrados":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_emprestimos_registrados(data_inicial=args.data_inicial, data_final=args.data_final, filtro_ticker=args.ticker):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-negociados":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_emprestimos_negociados(data=args.data, filtro_tomador=args.tomador, filtro_doador=args.doador, filtro_mercado=args.mercado, filtro_ticker=args.ticker):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-em-aberto":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_emprestimos_em_aberto(data_inicial=args.data_inicial, data_final=args.data_final, filtro_mercado=args.mercado, filtro_ticker=args.ticker):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-opcoes-flexiveis":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_opcoes_flexiveis(data=args.data, filtro_ticker=args.ticker):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-prazo-deposito-titulos":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_prazo_deposito_titulos(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-posicoes-em-aberto":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_posicoes_em_aberto(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-swap":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_swap(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-termo-eletronico":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_termo_eletronico(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
