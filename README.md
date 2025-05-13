@@ -4,7 +4,9 @@
 mercado financeiro brasileiro de diversas organizações, como Comissão de Valores Mobiliários (CVM), Bolsa, Brasil e
 Balcão (B3) e Banco Central do Brasil (BCB). A biblioteca foi desenvolvida ao longo dos últimos anos, já é utilizada em
 sistemas que estão em produção e tem como objetivo ser a melhor, mais robusta e fácil opção para acessar dados do
-mercado financeiro e macroeconômicos de maneira programática.
+mercado financeiro e macroeconômicos de maneira programática. O foco da biblioteca é coletar e tratar as informações
+nas fontes oficiais e apenas de dados que sejam abertos/gratuitos. Por isso, não possui dados que são vendidos (como os
+que são em tempo real).
 
 A biblioteca é desenvolvida e testada em sistema Debian GNU/Linux com Python 3.11. É possível que funcione em versões
 mais recentes e em algumas anteriores sem problemas; como ela é feita totalmente em Python, também deve funcionar sem

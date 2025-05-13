@@ -22,6 +22,23 @@ from .utils import (
 
 UM_CENTAVO = Decimal("0.01")
 
+# TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
+#       Descrição: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/descricao-dos-arquivos/
+#       Layout: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/layout-dos-arquivos/
+# TODO: 'Arquivo de Índices' https://www.b3.com.br/pesquisapregao/download?filelist=IR241210.zip,
+# TODO: 'Mercado de Títulos Públicos - Preços Referenciais para Títulos Públicos' https://www.b3.com.br/pesquisapregao/download?filelist=PU241210.ex_,
+# TODO: 'Mercado de Câmbio - Taxas Praticadas, Parâmetros de Abertura e Operações Contratadas' https://www.b3.com.br/pesquisapregao/download?filelist=CT241210.zip,
+# TODO: 'Mercado de Derivativos - Indicadores Econômicos e Agropecuários - Final' https://www.b3.com.br/pesquisapregao/download?filelist=ID241210.ex_,
+# TODO: 'Mercado de Derivativos - Negócios Realizados no Mercado de Balcão' https://www.b3.com.br/pesquisapregao/download?filelist=BE241210.ex_,
+# TODO: 'Mercado de Derivativos - Negócios Registrados em Leilão BACEN' https://www.b3.com.br/pesquisapregao/download?filelist=LB180802.zip,
+# TODO: 'Renda Fixa Privada' https://www.b3.com.br/pesquisapregao/download?filelist=RF241210.ex_,
+# TODO: 'Taxas do Mercado de Renda Variável' https://www.b3.com.br/pesquisapregao/download?filelist=TX241202.zip,
+
+# TODO: pegar negociações after market de
+# <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/>
+# ou de lugar parecido com as de balcão?
+
+# TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
 
 @lru_cache(maxsize=16 * 1024)
 def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
