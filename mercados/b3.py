@@ -491,11 +491,11 @@ class B3:
         response = self.session.get(url)
         yield from self._le_zip_intraday(io.BytesIO(response.content))
 
-    def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
+    def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True, verify_ssl=False, json_data=None):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
-        response = self.session.request(method, url, params=params, timeout=timeout, verify=False)
+        response = self.session.request(method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data)
         if decode_json:
             text = response.text
             if text and text[0] == text[-1] == '"':  # WTF, B3?
@@ -779,6 +779,156 @@ class B3:
         yield from self.paginate(
             base_url=urljoin(self.indexes_call_url, "GetPortfolioDay/"),
             url_params={"language": "pt-br", "index": indice, "segment": "1"},
+        )
+
+
+    def _tabela_clearing(self, url_template, url_params, query_params, json_data=None, page_size=1000, page=1):
+        """
+        Baixa dados de Clearing do Boletim do Mercado da B3
+
+        <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/boletim-diario-do-mercado/>
+        """
+        json_data = json_data if json_data is not None else {}
+        finished = False
+        while not finished:
+            url = url_template.format(page=page, page_size=page_size, **url_params)
+            data = self.request(url, params=query_params, method="POST", json_data=json_data, decode_json=True)
+            table = data["table"]
+            header = [col["friendlyNamePt"] for col in table["columns"]]
+            for item in table["values"]:
+                yield dict(zip(header, item))
+            finished = table["pageCount"] == page or len(table["values"]) == 0
+            page += 1
+
+    def clearing_acoes_custodiadas(self, data_inicial: datetime.date):
+        """Clearing - Ações Custodiadas"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/Custody/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
+    def clearing_creditos_de_proventos(self, data_inicial: datetime.date, filtro_emissor=None):
+        """Clearing - Créditos de Proventos - Renda Variável"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_emissor is not None:
+            query_params["filter"] = base64.b64encode(filtro_emissor.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/ProventionCreditVariable/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
+            query_params=query_params,
+        )
+
+    def clearing_custodia_fungivel(self, data: datetime.date):
+        """Clearing - Custódia Fungível"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/FugibleCustody/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
+    def clearing_emprestimos_registrados(self, data_inicial: datetime.date, data_final: datetime.date,
+                                         filtro_ticker=None):
+        """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBLoanBalance/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_final.isoformat()},
+            query_params=query_params,
+        )
+
+    def clearing_emprestimos_negociados(self, data: datetime.date,
+                                       filtro_tomador=None, filtro_doador=None, filtro_mercado=None, filtro_ticker=None):
+        """Clearing - Empréstimos de Ativos - Negócios"""
+        query_params = {"sort": "TckrSymb"}
+        json_data = {}
+        if filtro_tomador is not None:
+            json_data["EntryBuyerNm"] = filtro_tomador
+        if filtro_doador is not None:
+            json_data["EntrySellerNm"] = filtro_doador
+        if filtro_mercado is not None:
+            json_data["MarketBTB"] = filtro_mercado
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBTrade/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params=query_params,
+            json_data=json_data,
+        )
+
+    def clearing_filtros_emprestimos_negociados(self, data: datetime.date):
+        """Lista valores disponíveis para filtros de empréstimos negociados"""
+        data = data.isoformat()
+        return self.request(f"https://arquivos.b3.com.br/bdi/table/BTBTrade/{data}/{data}/filters")
+
+    def clearing_emprestimos_em_aberto(self, data_inicial: datetime.date, data_final: datetime.date,
+                                       filtro_mercado=None, filtro_ticker=None):
+        """Clearing - Empréstimos de Ativos - Posições em Aberto"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        json_data = {}
+        if filtro_mercado is not None:
+            json_data["Market"] = filtro_mercado
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_final.isoformat()},
+            query_params=query_params,
+            json_data=json_data,
+        )
+
+    def clearing_filtros_emprestimos_em_aberto(self, data_inicial: datetime.date, data_final: datetime.date):
+        """Lista valores disponíveis para filtros de empréstimos em aberto"""
+        data_inicial = data_inicial.isoformat()
+        data_final = data_final.isoformat()
+        return self.request(
+            f"https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/filters"
+        )
+
+    def clearing_opcoes_flexiveis(self, data: datetime.date, filtro_ticker=None):
+        """Clearing - Opções Flexíveis"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/FlexibleOptions/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params=query_params,
+        )
+
+    def clearing_prazo_deposito_titulos(self, data: datetime.date):
+        """Clearing - Prazo para Depósito de Títulos"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/DeadlineDepositSecurities/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
+    def clearing_posicoes_em_aberto(self, data: datetime.date):
+        """Clearing - Quadro Analítico das Posições em Aberto"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/AnalyticalFramework/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
+    def clearing_swap(self, data: datetime.date):
+        """Clearing - Swap"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/SwapFlex/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
+    def clearing_termo_eletronico(self, data: datetime.date):
+        """Clearing - Termo Eletrônico"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/EletronicTerm/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
         )
 
 
