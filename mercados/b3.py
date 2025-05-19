@@ -24,6 +24,7 @@ UM_CENTAVO = Decimal("0.01")
 UM_MILESIMO = Decimal("0.001")
 UM_PONTO_BASE = Decimal("0.0001")
 
+
 def parse_decimal(value, places=2):
     if value is None or value == "":
         return None
@@ -48,6 +49,7 @@ def parse_decimal(value, places=2):
 # ou de lugar parecido com as de balcão?
 
 # TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
+
 
 @lru_cache(maxsize=16 * 1024)
 def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
@@ -739,7 +741,6 @@ class CustodiaFungivel:
         return asdict(self)
 
 
-
 class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
@@ -821,7 +822,17 @@ class B3:
         response = self.session.get(url)
         yield from self._le_zip_intraday(io.BytesIO(response.content))
 
-    def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True, verify_ssl=False, json_data=None):
+    def request(
+        self,
+        url,
+        url_params=None,
+        params=None,
+        method="GET",
+        timeout=10,
+        decode_json=True,
+        verify_ssl=False,
+        json_data=None,
+    ):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
@@ -945,7 +956,7 @@ class B3:
         # TODO: retornar dataclass
         return self.paginate(
             base_url=urljoin(self.companies_call_url, "GetCompaniesBDR/"),
-            url_params={"language":"pt-br"},
+            url_params={"language": "pt-br"},
         )
 
     def fiis(self):
@@ -1111,7 +1122,6 @@ class B3:
             url_params={"language": "pt-br", "index": indice, "segment": "1"},
         )
 
-
     def _tabela_clearing(self, url_template, url_params, query_params, json_data=None, data_class=None):
         """
         Baixa dados de Clearing do Boletim do Mercado da B3
@@ -1165,8 +1175,9 @@ class B3:
             data_class=CustodiaFungivel,
         )
 
-    def clearing_emprestimos_registrados(self, data_inicial: datetime.date, data_final: datetime.date,
-                                         filtro_ticker=None):
+    def clearing_emprestimos_registrados(
+        self, data_inicial: datetime.date, data_final: datetime.date, filtro_ticker=None
+    ):
         """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
         query_params = {"sort": "TckrSymb"}
         if filtro_ticker is not None:
@@ -1178,8 +1189,9 @@ class B3:
             data_class=EmprestimoAtivo,
         )
 
-    def clearing_emprestimos_negociados(self, data: datetime.date,
-                                       filtro_tomador=None, filtro_doador=None, filtro_mercado=None, filtro_ticker=None):
+    def clearing_emprestimos_negociados(
+        self, data: datetime.date, filtro_tomador=None, filtro_doador=None, filtro_mercado=None, filtro_ticker=None
+    ):
         """Clearing - Empréstimos de Ativos - Negócios"""
         query_params = {"sort": "TckrSymb"}
         json_data = {}
@@ -1204,8 +1216,9 @@ class B3:
         data = data.isoformat()
         return self.request(f"https://arquivos.b3.com.br/bdi/table/BTBTrade/{data}/{data}/filters")
 
-    def clearing_emprestimos_em_aberto(self, data_inicial: datetime.date, data_final: datetime.date,
-                                       filtro_mercado=None, filtro_ticker=None):
+    def clearing_emprestimos_em_aberto(
+        self, data_inicial: datetime.date, data_final: datetime.date, filtro_mercado=None, filtro_ticker=None
+    ):
         """Clearing - Empréstimos de Ativos - Posições em Aberto"""
         query_params = {"sort": "TckrSymb"}
         if filtro_ticker is not None:
@@ -1334,51 +1347,85 @@ if __name__ == "__main__":
     )
     subparser_converter.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_acoes_custodiadas = subparsers.add_parser("clearing-acoes-custodiadas", help="Coleta dados de Clearing - Ações Custodiadas")
-    subparser_clearing_acoes_custodiadas.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_acoes_custodiadas = subparsers.add_parser(
+        "clearing-acoes-custodiadas", help="Coleta dados de Clearing - Ações Custodiadas"
+    )
+    subparser_clearing_acoes_custodiadas.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_acoes_custodiadas.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_creditos_de_proventos = subparsers.add_parser("clearing-creditos-de-proventos", help="Coleta dados de Clearing - Créditos de Proventos - Renda Variável")
+    subparser_clearing_creditos_de_proventos = subparsers.add_parser(
+        "clearing-creditos-de-proventos", help="Coleta dados de Clearing - Créditos de Proventos - Renda Variável"
+    )
     subparser_clearing_creditos_de_proventos.add_argument("--emissor", type=str, help="Filtra por emissor")
-    subparser_clearing_creditos_de_proventos.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_creditos_de_proventos.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_creditos_de_proventos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_custodia_fungivel = subparsers.add_parser("clearing-custodia-fungivel", help="Coleta dados de Clearing - Custódia Fungível")
+    subparser_clearing_custodia_fungivel = subparsers.add_parser(
+        "clearing-custodia-fungivel", help="Coleta dados de Clearing - Custódia Fungível"
+    )
     subparser_clearing_custodia_fungivel.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_custodia_fungivel.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_emprestimos_registrados = subparsers.add_parser("clearing-emprestimos-registrados", help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados")
+    subparser_clearing_emprestimos_registrados = subparsers.add_parser(
+        "clearing-emprestimos-registrados",
+        help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados",
+    )
     subparser_clearing_emprestimos_registrados.add_argument("--ticker", type=str, help="Filtra por ticker")
-    subparser_clearing_emprestimos_registrados.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
-    subparser_clearing_emprestimos_registrados.add_argument("data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_registrados.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_registrados.add_argument(
+        "data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_emprestimos_registrados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_emprestimos_negociados = subparsers.add_parser("clearing-emprestimos-negociados", help="Coleta dados de Clearing - Empréstimos de Ativos - Negócios")
+    subparser_clearing_emprestimos_negociados = subparsers.add_parser(
+        "clearing-emprestimos-negociados", help="Coleta dados de Clearing - Empréstimos de Ativos - Negócios"
+    )
     subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
     subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
     subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
     subparser_clearing_emprestimos_negociados.add_argument("--ticker", type=str, help="Filtra por ticker")
-    subparser_clearing_emprestimos_negociados.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_negociados.add_argument(
+        "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_emprestimos_negociados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_emprestimos_em_aberto = subparsers.add_parser("clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto")
+    subparser_clearing_emprestimos_em_aberto = subparsers.add_parser(
+        "clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto"
+    )
     subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
     subparser_clearing_emprestimos_em_aberto.add_argument("--ticker", type=str, help="Filtra por ticker")
-    subparser_clearing_emprestimos_em_aberto.add_argument("data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
-    subparser_clearing_emprestimos_em_aberto.add_argument("data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_emprestimos_em_aberto.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_em_aberto.add_argument(
+        "data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_emprestimos_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-
-    subparser_clearing_opcoes_flexiveis = subparsers.add_parser("clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis")
+    subparser_clearing_opcoes_flexiveis = subparsers.add_parser(
+        "clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis"
+    )
     subparser_clearing_opcoes_flexiveis.add_argument("--ticker", type=str, help="Filtra por ticker")
     subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_prazo_deposito_titulos = subparsers.add_parser("clearing-prazo-deposito-titulos", help="Coleta dados de Clearing - Prazo para Depósito de Títulos")
-    subparser_clearing_prazo_deposito_titulos.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_prazo_deposito_titulos = subparsers.add_parser(
+        "clearing-prazo-deposito-titulos", help="Coleta dados de Clearing - Prazo para Depósito de Títulos"
+    )
+    subparser_clearing_prazo_deposito_titulos.add_argument(
+        "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
     subparser_clearing_prazo_deposito_titulos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_posicoes_em_aberto = subparsers.add_parser("clearing-posicoes-em-aberto", help="Coleta dados de Clearing - Quadro Analítico das Posições em Aberto")
+    subparser_clearing_posicoes_em_aberto = subparsers.add_parser(
+        "clearing-posicoes-em-aberto", help="Coleta dados de Clearing - Quadro Analítico das Posições em Aberto"
+    )
     subparser_clearing_posicoes_em_aberto.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_posicoes_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
@@ -1386,7 +1433,9 @@ if __name__ == "__main__":
     subparser_clearing_swap.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_swap.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-    subparser_clearing_termo_eletronico = subparsers.add_parser("clearing-termo-eletronico", help="Coleta dados de Clearing - Termo Eletrônico")
+    subparser_clearing_termo_eletronico = subparsers.add_parser(
+        "clearing-termo-eletronico", help="Coleta dados de Clearing - Termo Eletrônico"
+    )
     subparser_clearing_termo_eletronico.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
@@ -1709,7 +1758,9 @@ if __name__ == "__main__":
     elif command == "clearing-emprestimos-registrados":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_emprestimos_registrados(data_inicial=args.data_inicial, data_final=args.data_final, filtro_ticker=args.ticker):
+            for item in b3.clearing_emprestimos_registrados(
+                data_inicial=args.data_inicial, data_final=args.data_final, filtro_ticker=args.ticker
+            ):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -1719,7 +1770,13 @@ if __name__ == "__main__":
     elif command == "clearing-emprestimos-negociados":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_emprestimos_negociados(data=args.data, filtro_tomador=args.tomador, filtro_doador=args.doador, filtro_mercado=args.mercado, filtro_ticker=args.ticker):
+            for item in b3.clearing_emprestimos_negociados(
+                data=args.data,
+                filtro_tomador=args.tomador,
+                filtro_doador=args.doador,
+                filtro_mercado=args.mercado,
+                filtro_ticker=args.ticker,
+            ):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -1729,7 +1786,12 @@ if __name__ == "__main__":
     elif command == "clearing-emprestimos-em-aberto":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_emprestimos_em_aberto(data_inicial=args.data_inicial, data_final=args.data_final, filtro_mercado=args.mercado, filtro_ticker=args.ticker):
+            for item in b3.clearing_emprestimos_em_aberto(
+                data_inicial=args.data_inicial,
+                data_final=args.data_final,
+                filtro_mercado=args.mercado,
+                filtro_ticker=args.ticker,
+            ):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
