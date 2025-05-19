@@ -24,6 +24,11 @@ UM_CENTAVO = Decimal("0.01")
 UM_MILESIMO = Decimal("0.001")
 UM_PONTO_BASE = Decimal("0.0001")
 
+def parse_float(value):
+    if value is None or value == "":
+        return None
+    return float(value)
+
 
 def parse_decimal(value, places=2):
     if value is None or value == "":
@@ -326,7 +331,7 @@ class FundoB3:
             nome_negociacao=clean_string(detail["tradingName"]),
             cnpj=clean_string(detail["cnpj"]),
             classificacao=clean_string(detail["classification"]),
-            cotas=float(clean_string(detail["quotaCount"])),
+            cotas=parse_float(clean_string(detail["quotaCount"])),
             data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
             tipo_fnet=clean_string(detail["typeFNET"]),
             segmento=clean_string(detail["segment"]),
@@ -451,12 +456,12 @@ class EmprestimoAtivo:
             mercado=row.pop("Mercado"),
             contratos=int(row.pop("Número de Contratos")),
             quantidade=int(row.pop("Quantidade de Ativos")),
-            minima=float(row.pop("Mínima")),
-            media_ponderada=float(row.pop("Média Ponderada")),
-            maxima=float(row.pop("Máxima")),
+            minima=parse_float(row.pop("Mínima")),
+            media_ponderada=parse_float(row.pop("Média Ponderada")),
+            maxima=parse_float(row.pop("Máxima")),
             valor=parse_decimal(row.pop("Valor em R$")),
-            taxa_doador=float(row.pop("Taxa Doador")),
-            taxa_tomador=float(row.pop("Taxa Tomador")),
+            taxa_doador=parse_float(row.pop("Taxa Doador")),
+            taxa_tomador=parse_float(row.pop("Taxa Tomador")),
         )
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
@@ -493,7 +498,7 @@ class EmprestimoNegociado:
             ticker=row.pop("Papel"),
             quantidade=int(row.pop("Quantidade")),
             codigo=int(row.pop("Código")),
-            taxa_remuneracao=float(row.pop("Taxa % Remuneração")),
+            taxa_remuneracao=parse_float(row.pop("Taxa % Remuneração")),
             numero_negocio=int(row.pop("Número do negócio")),
             mercado=row.pop("Mercado"),
             data_hora=parse_datetime_force_timezone(row.pop("Hora")),
