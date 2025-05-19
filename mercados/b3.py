@@ -1,12 +1,12 @@
 import base64
 import csv
 import datetime
-import decimal
 import io
 import json
 import zipfile
 from dataclasses import asdict, dataclass
 from decimal import Decimal
+from functools import lru_cache
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -19,6 +19,88 @@ from .utils import (
     parse_datetime_force_timezone,
     parse_iso_date,
 )
+
+UM_CENTAVO = Decimal("0.01")
+UM_MILESIMO = Decimal("0.001")
+UM_PONTO_BASE = Decimal("0.0001")
+
+def parse_float(value):
+    if value is None or value == "":
+        return None
+    return float(value)
+
+
+def parse_decimal(value, places=2):
+    if value is None or value == "":
+        return None
+    quantization = {2: UM_CENTAVO, 3: UM_MILESIMO, 4: UM_PONTO_BASE}[places]
+    return Decimal(value).quantize(quantization)
+
+
+# TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
+#       Descrição: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/descricao-dos-arquivos/
+#       Layout: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/layout-dos-arquivos/
+# TODO: 'Arquivo de Índices' https://www.b3.com.br/pesquisapregao/download?filelist=IR241210.zip,
+# TODO: 'Mercado de Títulos Públicos - Preços Referenciais para Títulos Públicos' https://www.b3.com.br/pesquisapregao/download?filelist=PU241210.ex_,
+# TODO: 'Mercado de Câmbio - Taxas Praticadas, Parâmetros de Abertura e Operações Contratadas' https://www.b3.com.br/pesquisapregao/download?filelist=CT241210.zip,
+# TODO: 'Mercado de Derivativos - Indicadores Econômicos e Agropecuários - Final' https://www.b3.com.br/pesquisapregao/download?filelist=ID241210.ex_,
+# TODO: 'Mercado de Derivativos - Negócios Realizados no Mercado de Balcão' https://www.b3.com.br/pesquisapregao/download?filelist=BE241210.ex_,
+# TODO: 'Mercado de Derivativos - Negócios Registrados em Leilão BACEN' https://www.b3.com.br/pesquisapregao/download?filelist=LB180802.zip,
+# TODO: 'Renda Fixa Privada' https://www.b3.com.br/pesquisapregao/download?filelist=RF241210.ex_,
+# TODO: 'Taxas do Mercado de Renda Variável' https://www.b3.com.br/pesquisapregao/download?filelist=TX241202.zip,
+
+# TODO: pegar negociações after market de
+# <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/>
+# ou de lugar parecido com as de balcão?
+
+# TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
+
+
+@lru_cache(maxsize=16 * 1024)
+def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
+    """Converte um valor em centavos em str para Decimal em Reais com 2 casas decimais
+
+    >>> print(converte_centavos_para_decimal(""))
+    None
+    >>> print(converte_centavos_para_decimal(None))
+    None
+    >>> converte_centavos_para_decimal("0")
+    Decimal('0.00')
+    >>> converte_centavos_para_decimal("1")
+    Decimal('0.01')
+    >>> converte_centavos_para_decimal("10")
+    Decimal('0.10')
+    >>> converte_centavos_para_decimal("100")
+    Decimal('1.00')
+    >>> converte_centavos_para_decimal("12356")
+    Decimal('123.56')
+    """
+    return (Decimal(valor) / 100).quantize(UM_CENTAVO) if valor else None
+
+
+@lru_cache(maxsize=16 * 1024)
+def converte_decimal(valor: str) -> Optional[Decimal]:
+    """
+    >>> print(converte_decimal(""))
+    None
+    >>> print(converte_decimal("   \\t\\n "))
+    None
+    >>> print(converte_decimal(None))
+    None
+    >>> converte_decimal("1.23")
+    Decimal('1.23')
+    >>> converte_decimal("1.23456789")
+    Decimal('1.23456789')
+    >>> converte_decimal("1.2")
+    Decimal('1.20')
+    """
+    valor = str(valor or "").strip()
+    if not valor:
+        return None
+    valor = Decimal(valor)
+    if len(str(valor - int(valor))) < 4:
+        valor = valor.quantize(UM_CENTAVO)
+    return valor
 
 
 @dataclass
@@ -102,15 +184,15 @@ class NegociacaoBolsa:
             moeda=row["modref"],
             nome_pregao=row["nomres"],
             tipo_papel=row["especi"],
-            preco_abertura=Decimal(row["preabe"]) / 100 if row["preabe"] else None,
-            preco_maximo=Decimal(row["premax"]) / 100 if row["premax"] else None,
-            preco_minimo=Decimal(row["premin"]) / 100 if row["premin"] else None,
-            preco_medio=Decimal(row["premed"]) / 100 if row["premed"] else None,
-            preco_ultimo=Decimal(row["preult"]) / 100 if row["preult"] else None,
-            preco_melhor_oferta_compra=Decimal(row["preofc"]) / 100 if row["preofc"] else None,
-            preco_melhor_oferta_venda=Decimal(row["preofv"]) / 100 if row["preofv"] else None,
-            volume=Decimal(row["voltot"]) / 100 if row["voltot"] else None,
-            preco_execucao=Decimal(row["preexe"]) / 100 if row["preexe"] else None,
+            preco_abertura=converte_centavos_para_decimal(row["preabe"]),
+            preco_maximo=converte_centavos_para_decimal(row["premax"]),
+            preco_minimo=converte_centavos_para_decimal(row["premin"]),
+            preco_medio=converte_centavos_para_decimal(row["premed"]),
+            preco_ultimo=converte_centavos_para_decimal(row["preult"]),
+            preco_melhor_oferta_compra=converte_centavos_para_decimal(row["preofc"]),
+            preco_melhor_oferta_venda=converte_centavos_para_decimal(row["preofv"]),
+            volume=converte_centavos_para_decimal(row["voltot"]),
+            preco_execucao=converte_centavos_para_decimal(row["preexe"]),
         )
 
 
@@ -136,7 +218,7 @@ class Dividendo:
             data_aprovacao=parse_br_date(row["approvedOn"]),
             data_base=parse_br_date(row["lastDatePrior"]),
             data_pagamento=parse_br_date(row["paymentDate"]),
-            valor_por_cota=Decimal(row["rate"].replace(".", "").replace(",", ".")),
+            valor_por_cota=converte_decimal(row["rate"].replace(".", "").replace(",", ".")),
             periodo_referencia=row["relatedTo"],
             tipo=tipo_mapping.get(row["label"], row["label"]),
         )
@@ -249,7 +331,7 @@ class FundoB3:
             nome_negociacao=clean_string(detail["tradingName"]),
             cnpj=clean_string(detail["cnpj"]),
             classificacao=clean_string(detail["classification"]),
-            cotas=float(clean_string(detail["quotaCount"])),
+            cotas=parse_float(clean_string(detail["quotaCount"])),
             data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
             tipo_fnet=clean_string(detail["typeFNET"]),
             segmento=clean_string(detail["segment"]),
@@ -282,15 +364,15 @@ class NegociacaoBalcao:
     codigo_if: str
     instrumento: str
     datahora: datetime.date
-    quantidade: decimal.Decimal
-    preco: decimal.Decimal
-    volume: decimal.Decimal
+    quantidade: Decimal
+    preco: Decimal
+    volume: Decimal
     origem: str
     codigo_isin: str = None
     data_liquidacao: datetime.date = None
     emissor: str = None
     situacao: str = None
-    taxa: decimal.Decimal = None
+    taxa: Decimal = None
 
     @classmethod
     def from_dict(cls, row):
@@ -331,22 +413,343 @@ class NegociacaoBalcao:
             codigo_if=row.pop("codigo_if"),
             instrumento=row.pop("instrumento"),
             datahora=parse_date("iso-datetime-tz", row.pop("datahora")),
-            quantidade=decimal.Decimal(row.pop("quantidade")),
-            preco=decimal.Decimal(row.pop("preco")),
-            volume=decimal.Decimal(row.pop("volume")),
+            quantidade=converte_decimal(row.pop("quantidade")),
+            preco=converte_decimal(row.pop("preco")),
+            volume=converte_decimal(row.pop("volume")),
             origem=row.pop("origem"),
             codigo_isin=row.pop("codigo_isin") or None,
             data_liquidacao=parse_date("iso-date", data_liquidacao) if data_liquidacao else None,
             emissor=row.pop("emissor") or None,
-            taxa=decimal.Decimal(taxa) if taxa else None,
+            taxa=converte_decimal(taxa) if taxa else None,
         )
         assert not row
         return obj
 
 
+@dataclass
+class EmprestimoAtivo:
+    data: datetime.date
+    ticker: str
+    codigo_isin: str
+    nome: str
+    mercado: str
+    contratos: int
+    quantidade: int
+    minima: float
+    media_ponderada: float
+    maxima: float
+    valor: Decimal
+    taxa_doador: float
+    taxa_tomador: float
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Data"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            data=row.pop("Data"),
+            ticker=row.pop("Ticker"),
+            codigo_isin=row.pop("ISIN"),
+            nome=row.pop("Empresa ou Fundo"),
+            mercado=row.pop("Mercado"),
+            contratos=int(row.pop("Número de Contratos")),
+            quantidade=int(row.pop("Quantidade de Ativos")),
+            minima=parse_float(row.pop("Mínima")),
+            media_ponderada=parse_float(row.pop("Média Ponderada")),
+            maxima=parse_float(row.pop("Máxima")),
+            valor=parse_decimal(row.pop("Valor em R$")),
+            taxa_doador=parse_float(row.pop("Taxa Doador")),
+            taxa_tomador=parse_float(row.pop("Taxa Tomador")),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class EmprestimoNegociado:
+    data_referencia: datetime.date
+    ticker: str
+    quantidade: int
+    taxa_remuneracao: float
+    numero_negocio: int
+    mercado: str
+    data_hora: datetime.datetime
+    codigo: int
+    doador: str
+    tomador: str
+    acao_atualizacao: str
+    tipo_sessao_pregao: str
+    participante_doador: str
+    participante_tomador: str
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Data de referência"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            data_referencia=row.pop("Data de referência"),
+            ticker=row.pop("Papel"),
+            quantidade=int(row.pop("Quantidade")),
+            codigo=int(row.pop("Código")),
+            taxa_remuneracao=parse_float(row.pop("Taxa % Remuneração")),
+            numero_negocio=int(row.pop("Número do negócio")),
+            mercado=row.pop("Mercado"),
+            data_hora=parse_datetime_force_timezone(row.pop("Hora")),
+            doador=row.pop("Nome Doador"),
+            tomador=row.pop("Nome Tomador"),
+            acao_atualizacao=row.pop("Ação de Atualização"),
+            tipo_sessao_pregao=row.pop("Tipo Sessão do Pregão"),
+            participante_doador=row.pop("Participante Doador"),
+            participante_tomador=row.pop("Participante Tomador"),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class EmprestimoEmAberto:
+    data: datetime.date
+    ticker: str
+    codigo_isin: str
+    empresa: str
+    tipo: str
+    mercado: str
+    saldo_quantidade: int
+    saldo: Decimal
+    preco_medio: Decimal = None
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Data"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            data=row.pop("Data"),
+            ticker=row.pop("Ticker"),
+            codigo_isin=row.pop("ISIN"),
+            empresa=row.pop("Empresa ou Fundo"),
+            tipo=row.pop("Tipo"),
+            mercado=row.pop("Mercado"),
+            saldo_quantidade=int(row.pop("Saldo em quantidade do ativo")),
+            preco_medio=parse_decimal(row.pop("Preço Médio")),
+            saldo=parse_decimal(row.pop("Saldo em R$")),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class OpcaoFlexivel:
+    ticker: str
+    operacao: str
+    descricao: str
+    vencimento: datetime.date
+    negocios: int
+    volume: Decimal
+    premio_medio: Decimal
+    preco_exercicio_medio: Decimal
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Vencimento"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            ticker=row.pop("Código"),
+            operacao=row.pop("Tipo de opção"),
+            descricao=row.pop("Opção"),
+            vencimento=row.pop("Vencimento"),
+            negocios=int(row.pop("Número de negócios")),
+            volume=parse_decimal(row.pop("Volume (R$)")),
+            premio_medio=parse_decimal(row.pop("Prêmio médio (R$)"), places=4),
+            preco_exercicio_medio=parse_decimal(row.pop("Preço exercício médio (R$)"), places=4),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class PrazoDeposito:
+    data: datetime.date
+    empresa: str
+    codigo: str
+    tipo: str
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Data"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            data=row.pop("Data"),
+            empresa=row.pop("Empresa"),
+            codigo=row.pop("Código"),
+            tipo=row.pop("Provento"),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class PosicaoEmAberto:
+    data: datetime.date
+    mercado: str
+    contratos: int
+    valor_milhares: Decimal
+    ordenacao: int
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Data"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            data=row.pop("Data"),
+            mercado=row.pop("Mercado"),
+            contratos=int(row.pop("Número de contratos")),
+            valor_milhares=parse_decimal(row.pop("Valor Referencial (mil R$)")),
+            ordenacao=int(row.pop("OrderCol")),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class Swap:
+    codigo: str
+    vencimento: datetime.date
+    negocios: int
+    volume: Decimal
+    taxa_media_diaria: Decimal
+
+    @classmethod
+    def from_dict(cls, row):
+        key = "Vencimento"
+        if key in row:
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            codigo=row.pop("Código"),
+            vencimento=row.pop("Vencimento"),
+            negocios=int(row.pop("Número de negócios")),
+            volume=parse_decimal(row.pop("Volume (R$)")),
+            taxa_media_diaria=parse_decimal(row.pop("Taxa média diária"), places=4),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class AcaoCustodiada:
+    empresa: str
+    tipo: str
+    quantidade: int
+
+    @classmethod
+    def from_dict(cls, row):
+        obj = cls(
+            empresa=row.pop("Empresa"),
+            tipo=row.pop("Tipo"),
+            quantidade=row.pop("Quantidade de ações"),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class CreditoProvento:
+    emissor: str
+    codigo_isin: str
+    tipo: str
+    data_aprovacao: datetime.date
+    valor: Decimal
+    data_credito: datetime.date
+
+    @classmethod
+    def from_dict(cls, row):
+        for key in ("Data de aprovação", "Data de crédito"):
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            emissor=row.pop("Emissor"),
+            codigo_isin=row.pop("Código ISIN"),
+            tipo=row.pop("Tipo de provento"),
+            data_aprovacao=row.pop("Data de aprovação"),
+            data_credito=row.pop("Data de crédito"),
+            valor=parse_decimal(row.pop("Valor (R$)")),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class CustodiaFungivel:
+    prazo_final_subscricao: datetime.date
+    prazo_final_cessao: datetime.date
+    emissor: str
+    codigo_isin_origem: str
+    codigo_isin_direito: str
+    codigo_isin_subscricao: str
+
+    @classmethod
+    def from_dict(cls, row):
+        for key in ("Prazo final subscrição", "Prazo final cessão"):
+            assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
+            row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
+        obj = cls(
+            prazo_final_subscricao=row.pop("Prazo final subscrição"),
+            prazo_final_cessao=row.pop("Prazo final cessão"),
+            emissor=row.pop("Emissor"),
+            codigo_isin_origem=row.pop("Código ISIN origem"),
+            codigo_isin_direito=row.pop("Código ISIN direito"),
+            codigo_isin_subscricao=row.pop("Código ISIN subscrição"),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
 class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
+    companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
 
     def __init__(self):
         self.session = create_session()
@@ -424,11 +827,21 @@ class B3:
         response = self.session.get(url)
         yield from self._le_zip_intraday(io.BytesIO(response.content))
 
-    def request(self, url, url_params=None, params=None, method="GET", timeout=10, decode_json=True):
+    def request(
+        self,
+        url,
+        url_params=None,
+        params=None,
+        method="GET",
+        timeout=10,
+        decode_json=True,
+        verify_ssl=False,
+        json_data=None,
+    ):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
-        response = self.session.request(method, url, params=params, timeout=timeout, verify=False)
+        response = self.session.request(method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data)
         if decode_json:
             text = response.text
             if text and text[0] == text[-1] == '"':  # WTF, B3?
@@ -543,6 +956,13 @@ class B3:
     # TODO: GetListedByType/ b'{"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31"}'
     # TODO: GetListedCategory/ b'{"cnpj":"42537579000176"}'
     # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
+
+    def bdrs(self):
+        # TODO: retornar dataclass
+        return self.paginate(
+            base_url=urljoin(self.companies_call_url, "GetCompaniesBDR/"),
+            url_params={"language": "pt-br"},
+        )
 
     def fiis(self):
         yield from self._funds_by_type("FII", 7)
@@ -707,6 +1127,173 @@ class B3:
             url_params={"language": "pt-br", "index": indice, "segment": "1"},
         )
 
+    def _tabela_clearing(self, url_template, url_params, query_params, json_data=None, data_class=None):
+        """
+        Baixa dados de Clearing do Boletim do Mercado da B3
+
+        <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/boletim-diario-do-mercado/>
+        """
+        page, page_size = 1, 1000
+        json_data = json_data if json_data is not None else {}
+        finished = False
+        while not finished:
+            url = url_template.format(page=page, page_size=page_size, **url_params)
+            data = self.request(url, params=query_params, method="POST", json_data=json_data, decode_json=True)
+            table = data["table"]
+            header = [col["friendlyNamePt"] or col["name"] for col in table["columns"]]
+            for item in table["values"]:
+                row = dict(zip(header, item))
+                if data_class is not None:
+                    yield data_class.from_dict(row)
+                else:
+                    yield row
+            finished = table["pageCount"] == page or len(table["values"]) == 0
+            page += 1
+
+    def clearing_acoes_custodiadas(self, data_inicial: datetime.date):
+        """Clearing - Ações Custodiadas"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/Custody/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
+            query_params={"sort": "TckrSymb"},
+            data_class=AcaoCustodiada,
+        )
+
+    def clearing_creditos_de_proventos(self, data_inicial: datetime.date, filtro_emissor=None):
+        """Clearing - Créditos de Proventos - Renda Variável"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_emissor is not None:
+            query_params["filter"] = base64.b64encode(filtro_emissor.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/ProventionCreditVariable/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
+            query_params=query_params,
+            data_class=CreditoProvento,
+        )
+
+    def clearing_custodia_fungivel(self, data: datetime.date):
+        """Clearing - Custódia Fungível"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/FugibleCustody/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+            data_class=CustodiaFungivel,
+        )
+
+    def clearing_emprestimos_registrados(
+        self, data_inicial: datetime.date, data_final: datetime.date, filtro_ticker=None
+    ):
+        """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBLoanBalance/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_final.isoformat()},
+            query_params=query_params,
+            data_class=EmprestimoAtivo,
+        )
+
+    def clearing_emprestimos_negociados(
+        self, data: datetime.date, filtro_tomador=None, filtro_doador=None, filtro_mercado=None, filtro_ticker=None
+    ):
+        """Clearing - Empréstimos de Ativos - Negócios"""
+        query_params = {"sort": "TckrSymb"}
+        json_data = {}
+        if filtro_tomador is not None:
+            json_data["EntryBuyerNm"] = filtro_tomador
+        if filtro_doador is not None:
+            json_data["EntrySellerNm"] = filtro_doador
+        if filtro_mercado is not None:
+            json_data["MarketBTB"] = filtro_mercado
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBTrade/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params=query_params,
+            json_data=json_data,
+            data_class=EmprestimoNegociado,
+        )
+
+    def clearing_filtros_emprestimos_negociados(self, data: datetime.date):
+        """Lista valores disponíveis para filtros de empréstimos negociados"""
+        data = data.isoformat()
+        return self.request(f"https://arquivos.b3.com.br/bdi/table/BTBTrade/{data}/{data}/filters")
+
+    def clearing_emprestimos_em_aberto(
+        self, data_inicial: datetime.date, data_final: datetime.date, filtro_mercado=None, filtro_ticker=None
+    ):
+        """Clearing - Empréstimos de Ativos - Posições em Aberto"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        json_data = {}
+        if filtro_mercado is not None:
+            json_data["Market"] = filtro_mercado
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_final.isoformat()},
+            query_params=query_params,
+            json_data=json_data,
+            data_class=EmprestimoEmAberto,
+        )
+
+    def clearing_filtros_emprestimos_em_aberto(self, data_inicial: datetime.date, data_final: datetime.date):
+        """Lista valores disponíveis para filtros de empréstimos em aberto"""
+        data_inicial = data_inicial.isoformat()
+        data_final = data_final.isoformat()
+        return self.request(
+            f"https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/filters"
+        )
+
+    def clearing_opcoes_flexiveis(self, data: datetime.date, filtro_ticker=None):
+        """Clearing - Opções Flexíveis"""
+        query_params = {"sort": "TckrSymb"}
+        if filtro_ticker is not None:
+            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/FlexibleOptions/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params=query_params,
+            data_class=OpcaoFlexivel,
+        )
+
+    def clearing_prazo_deposito_titulos(self, data: datetime.date):
+        """Clearing - Prazo para Depósito de Títulos"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/DeadlineDepositSecurities/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+            data_class=PrazoDeposito,
+        )
+
+    def clearing_posicoes_em_aberto(self, data: datetime.date):
+        """Clearing - Quadro Analítico das Posições em Aberto"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/AnalyticalFramework/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+            data_class=PosicaoEmAberto,
+        )
+
+    def clearing_swap(self, data: datetime.date):
+        """Clearing - Swap"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/SwapFlex/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+            data_class=Swap,
+        )
+
+    def clearing_termo_eletronico(self, data: datetime.date):
+        """Clearing - Termo Eletrônico"""
+        yield from self._tabela_clearing(
+            url_template="https://arquivos.b3.com.br/bdi/table/EletronicTerm/{data_inicial}/{data_final}/{page}/{page_size}",
+            url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
+            query_params={"sort": "TckrSymb"},
+        )
+
 
 if __name__ == "__main__":
     import argparse
@@ -764,6 +1351,98 @@ if __name__ == "__main__":
         "zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido"
     )
     subparser_converter.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_acoes_custodiadas = subparsers.add_parser(
+        "clearing-acoes-custodiadas", help="Coleta dados de Clearing - Ações Custodiadas"
+    )
+    subparser_clearing_acoes_custodiadas.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_acoes_custodiadas.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_creditos_de_proventos = subparsers.add_parser(
+        "clearing-creditos-de-proventos", help="Coleta dados de Clearing - Créditos de Proventos - Renda Variável"
+    )
+    subparser_clearing_creditos_de_proventos.add_argument("--emissor", type=str, help="Filtra por emissor")
+    subparser_clearing_creditos_de_proventos.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_creditos_de_proventos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_custodia_fungivel = subparsers.add_parser(
+        "clearing-custodia-fungivel", help="Coleta dados de Clearing - Custódia Fungível"
+    )
+    subparser_clearing_custodia_fungivel.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_custodia_fungivel.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_registrados = subparsers.add_parser(
+        "clearing-emprestimos-registrados",
+        help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados",
+    )
+    subparser_clearing_emprestimos_registrados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_registrados.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_registrados.add_argument(
+        "data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_registrados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_negociados = subparsers.add_parser(
+        "clearing-emprestimos-negociados", help="Coleta dados de Clearing - Empréstimos de Ativos - Negócios"
+    )
+    subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
+    subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
+    subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_negociados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_negociados.add_argument(
+        "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_negociados.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_emprestimos_em_aberto = subparsers.add_parser(
+        "clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto"
+    )
+    subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_em_aberto.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_em_aberto.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_em_aberto.add_argument(
+        "data_final", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_emprestimos_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_opcoes_flexiveis = subparsers.add_parser(
+        "clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis"
+    )
+    subparser_clearing_opcoes_flexiveis.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_prazo_deposito_titulos = subparsers.add_parser(
+        "clearing-prazo-deposito-titulos", help="Coleta dados de Clearing - Prazo para Depósito de Títulos"
+    )
+    subparser_clearing_prazo_deposito_titulos.add_argument(
+        "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
+    )
+    subparser_clearing_prazo_deposito_titulos.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_posicoes_em_aberto = subparsers.add_parser(
+        "clearing-posicoes-em-aberto", help="Coleta dados de Clearing - Quadro Analítico das Posições em Aberto"
+    )
+    subparser_clearing_posicoes_em_aberto.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_posicoes_em_aberto.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_swap = subparsers.add_parser("clearing-swap", help="Coleta dados de Clearing - Swap")
+    subparser_clearing_swap.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_swap.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
+
+    subparser_clearing_termo_eletronico = subparsers.add_parser(
+        "clearing-termo-eletronico", help="Coleta dados de Clearing - Termo Eletrônico"
+    )
+    subparser_clearing_termo_eletronico.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
+    subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
     args = parser.parse_args()
     b3 = B3()
@@ -1050,3 +1729,125 @@ if __name__ == "__main__":
                     writer.writeheader()
                 if codigo_ativo is None or row["CodigoInstrumento"] in codigo_ativo:
                     writer.writerow(row)
+
+    elif command == "clearing-acoes-custodiadas":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_acoes_custodiadas(data_inicial=args.data_inicial):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-creditos-de-proventos":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_creditos_de_proventos(data_inicial=args.data_inicial, filtro_emissor=args.emissor):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-custodia-fungivel":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_custodia_fungivel(data=args.data):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-registrados":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_emprestimos_registrados(
+                data_inicial=args.data_inicial, data_final=args.data_final, filtro_ticker=args.ticker
+            ):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-negociados":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_emprestimos_negociados(
+                data=args.data,
+                filtro_tomador=args.tomador,
+                filtro_doador=args.doador,
+                filtro_mercado=args.mercado,
+                filtro_ticker=args.ticker,
+            ):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-emprestimos-em-aberto":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_emprestimos_em_aberto(
+                data_inicial=args.data_inicial,
+                data_final=args.data_final,
+                filtro_mercado=args.mercado,
+                filtro_ticker=args.ticker,
+            ):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-opcoes-flexiveis":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_opcoes_flexiveis(data=args.data, filtro_ticker=args.ticker):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-prazo-deposito-titulos":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_prazo_deposito_titulos(data=args.data):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-posicoes-em-aberto":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_posicoes_em_aberto(data=args.data):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-swap":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in b3.clearing_swap(data=args.data):
+                row = item.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "clearing-termo-eletronico":
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.clearing_termo_eletronico(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)

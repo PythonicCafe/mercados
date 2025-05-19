@@ -4,7 +4,9 @@
 mercado financeiro brasileiro de diversas organizações, como Comissão de Valores Mobiliários (CVM), Bolsa, Brasil e
 Balcão (B3) e Banco Central do Brasil (BCB). A biblioteca foi desenvolvida ao longo dos últimos anos, já é utilizada em
 sistemas que estão em produção e tem como objetivo ser a melhor, mais robusta e fácil opção para acessar dados do
-mercado financeiro e macroeconômicos de maneira programática.
+mercado financeiro e macroeconômicos de maneira programática. O foco da biblioteca é coletar e tratar as informações
+nas fontes oficiais e apenas de dados que sejam abertos/gratuitos. Por isso, não possui dados que são vendidos (como os
+que são em tempo real).
 
 A biblioteca é desenvolvida e testada em sistema Debian GNU/Linux com Python 3.11. É possível que funcione em versões
 mais recentes e em algumas anteriores sem problemas; como ela é feita totalmente em Python, também deve funcionar sem
@@ -17,10 +19,7 @@ pip install mercados
 O código da `mercados` está licenciado sob [LGPL versão 3](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Você só
 deve utilizá-la se aceitar os termos da licença (veja mais detalhes na seção abaixo).
 
-A documentação ainda está em desenvolvimento. A biblioteca está dividida em módulos, onde cada módulo é responsável por
-coletar as informações de um órgão/sistema, por exemplo: `mercados.cvm` coleta dados disponibilizados pela CVM. Veja
-a seção [Dados disponíveis](#dados-disponiveis) para mais detalhes. Para exemplos da interface de linha de comando,
-veja o script `scripts/smoke-tests.sh`.
+A documentação ainda está em desenvolvimento (veja o material em construção em [docs/tutorial.md](docs/tutorial.md)).
 
 > **Atenção**: apesar de todo o código funcionar e de ter sido testado em diversos sistemas em produção que o utilizam,
 > algumas mudanças poderão acontecer na interface da biblioteca até que ela atinja a versão `1.0.0`, ou seja, atente-se
@@ -65,9 +64,11 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
   - Cotação diária da negociação em balcão
   - Cadastro de fundos listados
   - Cadastro de debêntures ativas
+  - Cadastro de BDRs listadas
   - Informações cadastrais sobre CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
   - Documentos de CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
   - Dividendos de FI-Infras e FI-Agros
+  - Clearing (diversas informações)
 
 
 ## Links úteis
@@ -96,7 +97,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 - [Ofertas públicas encerradas](https://www.b3.com.br/pt_br/produtos-e-servicos/solucoes-para-emissores/ofertas-publicas/ofertas-encerradas/)
 - [Plantão de notícias](https://sistemasweb.b3.com.br/PlantaoNoticias/Noticias/Index?agencia=18&SociedadeEmissora=LAVF)
 - [Debêntures](https://www.debenture.com.br/exploreosnd/consultaadados/emissoesdedebentures/puhistorico_r.asp)
-- [Instrumentos litados](https://arquivos.b3.com.br/tabelas/InstrumentsConsolidated/2024-06-24?lang=pt)
+- [Instrumentos listados](https://arquivos.b3.com.br/tabelas/InstrumentsConsolidated/2024-06-24?lang=pt)
 
 ### CETIP
 

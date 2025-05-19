@@ -100,5 +100,53 @@ python -m mercados.b3 fip-documents "${DATA_PATH}/fip-documents.csv"
 echo mercados.b3 fip-subscriptions
 python -m mercados.b3 fip-subscriptions "${DATA_PATH}/fip-subscriptions.csv"
 
+
+# B3 - Clearing
+TICKER="ABEV3"
+ontem=$(date -d "yesterday" +%Y-%m-%d)
+dia_semana=$(date -d "$ontem" +%u)
+if [ "$dia_semana" -eq 7 ]; then  # Domingo
+  DATA_INICIAL=$(date -d "$ontem -2 days" +%Y-%m-%d)
+elif [ "$dia_semana" -eq 6 ]; then  # Sábado
+  DATA_INICIAL=$(date -d "$ontem -1 days" +%Y-%m-%d)
+else
+  DATA_INICIAL=$ontem
+fi
+DATA_ANTERIOR=$(date -d "$DATA_INICIAL -15 days" +%Y-%m-%d)
+rm -f $DATA_PATH/clearing-*.csv
+
+echo mercados.b3 clearing-acoes-custodiadas
+python -m mercados.b3 clearing-acoes-custodiadas "$DATA_INICIAL" $DATA_PATH/clearing-acoes-custodiadas.csv
+
+echo mercados.b3 clearing-creditos-de-proventos
+python -m mercados.b3 clearing-creditos-de-proventos "$DATA_INICIAL" $DATA_PATH/clearing-creditos-de-proventos.csv
+
+echo mercados.b3 clearing-custodia-fungivel
+python -m mercados.b3 clearing-custodia-fungivel "$DATA_INICIAL" $DATA_PATH/clearing-custodia-fungivel.csv
+
+echo mercados.b3 clearing-emprestimos-registrados
+python -m mercados.b3 clearing-emprestimos-registrados --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-registrados.csv
+
+echo mercados.b3 clearing-emprestimos-negociados
+python -m mercados.b3 clearing-emprestimos-negociados --ticker "$TICKER" --doador 'BTG PACTUAL CTVM S/A' "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-negociados.csv
+
+echo mercados.b3 clearing-emprestimos-em-aberto
+python -m mercados.b3 clearing-emprestimos-em-aberto --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-em-aberto.csv
+
+echo mercados.b3 clearing-opcoes-flexiveis
+python -m mercados.b3 clearing-opcoes-flexiveis "$DATA_INICIAL" $DATA_PATH/clearing-opcoes-flexiveis.csv
+
+echo mercados.b3 clearing-prazo-deposito-titulos
+python -m mercados.b3 clearing-prazo-deposito-titulos "$DATA_INICIAL" $DATA_PATH/clearing-prazo-deposito-titulos.csv
+
+echo mercados.b3 clearing-posicoes-em-aberto
+python -m mercados.b3 clearing-posicoes-em-aberto "$DATA_INICIAL" $DATA_PATH/clearing-posicoes-em-aberto.csv
+
+echo mercados.b3 clearing-swap
+python -m mercados.b3 clearing-swap "$DATA_INICIAL" $DATA_PATH/clearing-swap.csv
+
+echo mercados.b3 clearing-termo-eletronico
+python -m mercados.b3 clearing-termo-eletronico "$DATA_INICIAL" $DATA_PATH/clearing-termo-eletronico.csv
+
 # TODO: implementar para mercados.cota_fundo (caso o arquivo continue na biblioteca)
 # TODO: implementar para mercados.rad (caso o arquivo continue na biblioteca)
