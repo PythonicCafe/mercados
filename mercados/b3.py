@@ -930,10 +930,10 @@ class B3:
         )
         return FundoB3.from_dict(response_data)
 
-    def _fund_dividends(self, type_id, cnpj, identifier):
+    def _fund_dividends(self, identifier):
         data = self.request(
-            url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
-            url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
+            url=urljoin(self.funds_call_url, "GetEventsCorporateActions/"),
+            url_params={"language": "pt-br", "idCEM": identifier},
         )
         dividends = data.get("cashDividends") if data else []
         return [Dividendo.from_dict(row) for row in dividends]
@@ -1013,8 +1013,8 @@ class B3:
     def fii_detail(self, fundo_id, identificador):
         return self._fund_detail("FII", fundo_id, identificador)
 
-    def fii_dividends(self, cnpj, identificador):
-        return self._fund_dividends(7, cnpj, identificador)
+    def fii_dividends(self, identificador):
+        return self._fund_dividends(identificador)
 
     def fii_subscriptions(self, cnpj, identificador):
         # TODO: Corrigir: `KeyError: 'subscriptions'`
@@ -1034,8 +1034,8 @@ class B3:
     def fiinfra_detail(self, fundo_id, identificador):
         return self._fund_detail("FI-Infra", fundo_id, identificador)
 
-    def fiinfra_dividends(self, cnpj, identificador):
-        return self._fund_dividends(27, cnpj, identificador)
+    def fiinfra_dividends(self, identificador):
+        return self._fund_dividends(identificador)
 
     def fiinfra_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(27, cnpj, identificador)
@@ -1056,8 +1056,8 @@ class B3:
     def fip_detail(self, fundo_id, identificador):
         return self._fund_detail("FIP", fundo_id, identificador)
 
-    def fip_dividends(self, cnpj, identificador):
-        return self._fund_dividends(21, cnpj, identificador)
+    def fip_dividends(self, identificador):
+        return self._fund_dividends(identificador)
 
     def fip_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(21, cnpj, identificador)
@@ -1076,8 +1076,8 @@ class B3:
     def fiagro_detail(self, fundo_id, identificador):
         return self._fund_detail("FIAGRO-FII", fundo_id, identificador)
 
-    def fiagro_dividends(self, cnpj, identificador):
-        return self._fund_dividends(34, cnpj, identificador)
+    def fiagro_dividends(self, identificador):
+        return self._fund_dividends(identificador)
 
     def fiagro_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(34, cnpj, identificador)
@@ -1558,7 +1558,7 @@ if __name__ == "__main__":
             writer = None
             for obj in b3.fiis():
                 base_fund_data = obj.serialize()
-                for dividend in b3.fii_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                for dividend in b3.fii_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -1597,7 +1597,7 @@ if __name__ == "__main__":
             writer = None
             for obj in b3.fiinfras():
                 base_fund_data = obj.serialize()
-                for dividend in b3.fiinfra_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                for dividend in b3.fiinfra_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -1637,7 +1637,7 @@ if __name__ == "__main__":
             writer = None
             for obj in b3.fiagros():
                 base_fund_data = obj.serialize()
-                for dividend in b3.fiagro_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                for dividend in b3.fiagro_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -1676,7 +1676,7 @@ if __name__ == "__main__":
             writer = None
             for obj in b3.fips():
                 base_fund_data = obj.serialize()
-                for dividend in b3.fip_dividends(cnpj=obj.cnpj, identificador=obj.acronimo):
+                for dividend in b3.fip_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
