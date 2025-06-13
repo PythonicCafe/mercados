@@ -4,6 +4,7 @@ import datetime
 import io
 import json
 import zipfile
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 from functools import lru_cache
@@ -23,6 +24,12 @@ from .utils import (
 UM_CENTAVO = Decimal("0.01")
 UM_MILESIMO = Decimal("0.001")
 UM_PONTO_BASE = Decimal("0.0001")
+
+def parse_br_int(value):
+    if value is None or value == "":
+        return None
+    return int(value.replace(".", ""))
+
 
 def parse_float(value):
     if value is None or value == "":
@@ -259,6 +266,7 @@ class FundoDocumento:
 
 @dataclass
 class FundoB3:
+    id_fnet: int
     tipo: str
     acronimo: str
     nome_negociacao: str
@@ -305,57 +313,94 @@ class FundoB3:
         return obj
 
     @classmethod
-    def from_dict(cls, type_name, obj):
-        detail = obj["detailFund"]
-        shareholder = obj["shareHolder"] or {}
-        codigos_negociacao = []
-        if detail["codes"]:
-            codigos_negociacao = [clean_string(item) for item in detail["codes"]]
-        if detail["codesOther"]:
-            for item in detail["codesOther"]:
+    def from_dict(cls, obj, check=True):
+        data = deepcopy(obj)
+
+        shareholder = data.pop("shareHolder")
+        administrador = clean_string(shareholder.pop("shareHolderName"))
+        administrador_endereco = clean_string(shareholder.pop("shareHolderAddress"))
+        administrador_ddd = clean_string(shareholder.pop("shareHolderPhoneNumberDDD"))
+        administrador_telefone = clean_string(shareholder.pop("shareHolderPhoneNumber"))
+        administrador_fax = clean_string(shareholder.pop("shareHolderFaxNumber"))
+        administrador_fax = administrador_fax if administrador_fax != "0" else None
+        administrador_email = clean_string(shareholder.pop("shareHolderEmail"))
+        administrador_responsavel = clean_string(data.pop("managerName"))
+        administrador_responsavel_cargo = clean_string(data.pop("positionManager"))
+        if check:
+            assert not shareholder, f"Dados de shareholder não extraídos: {shareholder}"
+
+        codigo_negociacao = clean_string(data.pop("tradingCode"))
+        codigos_negociacao = [codigo_negociacao] if codigo_negociacao else []
+        outros = data.pop("tradingCodeOthers")
+        if outros and outros is not None:
+            for item in outros.split(","):
                 item = clean_string(item)
                 if item not in codigos_negociacao:
                     codigos_negociacao.append(item)
-        fax = clean_string(detail["fundPhoneNumberFax"])
+        id_fnet = data.pop("idFNET")
+        tipo = data.pop("typeName")
+        acronimo = clean_string(data.pop("acronym"))
+        nome_negociacao = clean_string(data.pop("tradingName"))
+        fax = clean_string(data.pop("fundPhoneNumberFax"))
         fax = fax if fax != "0" else None
-        empresa_fax = clean_string(detail["companyPhoneNumberFax"])
+        empresa_fax = clean_string(data.pop("companyPhoneNumberFax", None))
         empresa_fax = empresa_fax if empresa_fax != "0" else None
-        administrador_fax = clean_string(shareholder.get("shareHolderFaxNumber"))
-        administrador_fax = administrador_fax if administrador_fax != "0" else None
-        website = clean_string(detail["webSite"])
+        cnpj = clean_string(data.pop("cnpj"))
+        classificacao = clean_string(data.pop("classification"))
+        cotas = parse_br_int(clean_string(data.pop("quotaCount")))
+        data_aprovacao_cotas = parse_br_date(clean_string(data.pop("quotaDateApproved")))
+        tipo_fnet = clean_string(data.pop("typeFNET"))
+        endereco = clean_string(data.pop("fundAddress"))
+        segmento = clean_string(data.pop("segment"))
+        ddd = clean_string(data.pop("fundPhoneNumberDDD"))
+        telefone = clean_string(data.pop("fundPhoneNumber"))
+        empresa_endereco = clean_string(data.pop("companyAddress", None))
+        empresa_ddd = clean_string(data.pop("companyPhoneNumberDDD", None))
+        empresa_telefone = clean_string(data.pop("companyPhoneNumber", None))
+        empresa_email = clean_string(data.pop("companyEmail", None))
+        empresa_razao_social = clean_string(data.pop("fundName"))
+        website = clean_string(data.pop("webSite"))
         if website and not website.lower().startswith("https:") and not website.lower().startswith("http:"):
             website = f"https://{website}"
-        return cls(
-            tipo=type_name,
-            acronimo=clean_string(detail["acronym"]),
-            nome_negociacao=clean_string(detail["tradingName"]),
-            cnpj=clean_string(detail["cnpj"]),
-            classificacao=clean_string(detail["classification"]),
-            cotas=parse_float(clean_string(detail["quotaCount"])),
-            data_aprovacao_cotas=parse_br_date(clean_string(detail["quotaDateApproved"])),
-            tipo_fnet=clean_string(detail["typeFNET"]),
-            segmento=clean_string(detail["segment"]),
-            codigos_negociacao=codigos_negociacao,
-            website=website,
-            endereco=clean_string(detail["fundAddress"]),
-            ddd=clean_string(detail["fundPhoneNumberDDD"]),
-            telefone=clean_string(detail["fundPhoneNumber"]),
+        # TODO: guardar/tratar esses campos
+        data.pop("type")
+        data.pop("classes")
+        if check:
+            assert not data, f"Dados do fundo não extraídos: {data}"
+
+        result = cls(
+            id_fnet=id_fnet,
+            tipo=tipo,
+            acronimo=acronimo,
+            nome_negociacao=nome_negociacao,
+            cnpj=cnpj,
+            classificacao=classificacao,
+            endereco=endereco,
+            ddd=ddd,
+            telefone=telefone,
             fax=fax,
-            empresa_endereco=clean_string(detail["companyAddress"]),
-            empresa_ddd=clean_string(detail["companyPhoneNumberDDD"]),
-            empresa_telefone=clean_string(detail["companyPhoneNumber"]),
+            empresa_endereco=empresa_endereco,
+            empresa_ddd=empresa_ddd,
+            empresa_telefone=empresa_telefone,
             empresa_fax=empresa_fax,
-            empresa_email=clean_string(detail["companyEmail"]),
-            empresa_razao_social=clean_string(detail["companyName"]),
-            administrador=clean_string(shareholder.get("shareHolderName")),
-            administrador_endereco=clean_string(shareholder.get("shareHolderAddress")),
-            administrador_ddd=clean_string(shareholder.get("shareHolderPhoneNumberDDD")),
-            administrador_telefone=clean_string(shareholder.get("shareHolderPhoneNumber")),
+            empresa_email=empresa_email,
+            empresa_razao_social=empresa_razao_social,
+            cotas=cotas,
+            data_aprovacao_cotas=data_aprovacao_cotas,
+            administrador=administrador,
+            administrador_endereco=administrador_endereco,
+            administrador_ddd=administrador_ddd,
+            administrador_telefone=administrador_telefone,
             administrador_fax=administrador_fax,
-            administrador_email=clean_string(shareholder.get("shareHolderEmail")),
-            administrador_responsavel=clean_string(detail["managerName"]),
-            administrador_responsavel_cargo=clean_string(detail["positionManager"]),
+            administrador_responsavel=administrador_responsavel,
+            administrador_responsavel_cargo=administrador_responsavel_cargo,
+            administrador_email=administrador_email,
+            website=website,
+            tipo_fnet=tipo_fnet,
+            codigos_negociacao=codigos_negociacao,
+            segmento=segmento,
         )
+        return result
 
 
 @dataclass
@@ -747,7 +792,7 @@ class CustodiaFungivel:
 
 
 class B3:
-    funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsProxy/fundsCall/"
+    funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsListedProxy/Search/"
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
     companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
 
@@ -869,23 +914,21 @@ class B3:
                 else:
                     yield response
 
-    def _funds_by_type(self, type_name, type_id):
+    def _funds_by_type(self, type_name):
         objs = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedFundsSIG/"),
-            url_params={"typeFund": type_id},
+            base_url=urljoin(self.funds_call_url, "GetListFunds/"),
+            url_params={"language":"pt-br", "typeFund": type_name},
         )
         for obj in objs:
-            yield self._fund_detail(type_name, type_id, obj["acronym"])
+            yield self._fund_detail(type_name, obj["id"], obj["acronym"])
 
-    def _fund_detail(self, type_name, type_id, identifier):
-        return FundoB3.from_dict(
-            type_name,
-            self.request(
-                method="GET",
-                url=urljoin(self.funds_call_url, "GetDetailFundSIG/"),
-                url_params={"typeFund": type_id, "identifierFund": identifier},
-            ),
+    def _fund_detail(self, type_name, obj_id, identifier):
+        response_data = self.request(
+            method="GET",
+            url=urljoin(self.funds_call_url, "GetDetailFund/"),
+            url_params={"language":"pt-br", "idFNET": obj_id, "idCEM": identifier, "typeFund": type_name},
         )
+        return FundoB3.from_dict(response_data)
 
     def _fund_dividends(self, type_id, cnpj, identifier):
         data = self.request(
@@ -965,10 +1008,10 @@ class B3:
         )
 
     def fiis(self):
-        yield from self._funds_by_type("FII", 7)
+        yield from self._funds_by_type("FII")
 
-    def fii_detail(self, identificador):
-        return self._fund_detail("FII", 7, identificador)
+    def fii_detail(self, fundo_id, identificador):
+        return self._fund_detail("FII", fundo_id, identificador)
 
     def fii_dividends(self, cnpj, identificador):
         return self._fund_dividends(7, cnpj, identificador)
@@ -986,10 +1029,10 @@ class B3:
         yield from self._fund_documents(7, cnpj, identificador, data_inicial, data_final)
 
     def fiinfras(self):
-        yield from self._funds_by_type("FI-Infra", 27)
+        yield from self._funds_by_type("FI-Infra")
 
-    def fiinfra_detail(self, identificador):
-        return self._fund_detail("FI-Infra", 27, identificador)
+    def fiinfra_detail(self, fundo_id, identificador):
+        return self._fund_detail("FI-Infra", fundo_id, identificador)
 
     def fiinfra_dividends(self, cnpj, identificador):
         return self._fund_dividends(27, cnpj, identificador)
@@ -1008,10 +1051,10 @@ class B3:
         yield from self._fund_documents(27, cnpj, identificador, data_inicial, data_final)
 
     def fips(self):
-        yield from self._funds_by_type("FIP", 21)
+        yield from self._funds_by_type("FIP")
 
-    def fip_detail(self, identificador):
-        return self._fund_detail("FIP", 21, identificador)
+    def fip_detail(self, fundo_id, identificador):
+        return self._fund_detail("FIP", fundo_id, identificador)
 
     def fip_dividends(self, cnpj, identificador):
         return self._fund_dividends(21, cnpj, identificador)
@@ -1028,10 +1071,10 @@ class B3:
         yield from self._fund_documents(21, cnpj, identificador, data_inicial, data_final)
 
     def fiagros(self):
-        yield from self._funds_by_type("FI-Agro", 34)
+        yield from self._funds_by_type("FIAGRO-FII")
 
-    def fiagro_detail(self, identificador):
-        return self._fund_detail("FI-Agro", 34, identificador)
+    def fiagro_detail(self, fundo_id, identificador):
+        return self._fund_detail("FIAGRO-FII", fundo_id, identificador)
 
     def fiagro_dividends(self, cnpj, identificador):
         return self._fund_dividends(34, cnpj, identificador)
