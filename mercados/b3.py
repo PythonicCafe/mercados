@@ -45,6 +45,12 @@ def parse_decimal(value, places=2):
     return Decimal(value).quantize(quantization)
 
 
+def json_decode(data):
+    try:
+        return json.loads(data)
+    except json.decoder.JSONDecodeError:
+        raise ValueError("Cannot decode JSON: {repr(data)}")
+
 
 # TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
 #       Descrição: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/descricao-dos-arquivos/
@@ -903,8 +909,8 @@ class B3:
         if decode_json:
             text = response.text
             if text and text[0] == text[-1] == '"':  # WTF, B3?
-                text = json.loads(text)
-            return json.loads(text) if text else {}
+                text = json_decode(text)
+            return json_decode(text) if text else {}
         return response
 
     def paginate(self, base_url, url_params=None, params=None, method="GET"):
