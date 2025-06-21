@@ -3,6 +3,7 @@ import csv
 import datetime
 import io
 import json
+import time
 import zipfile
 from copy import deepcopy
 from dataclasses import asdict, dataclass
@@ -42,6 +43,7 @@ def parse_decimal(value, places=2):
         return None
     quantization = {2: UM_CENTAVO, 3: UM_MILESIMO, 4: UM_PONTO_BASE}[places]
     return Decimal(value).quantize(quantization)
+
 
 
 # TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
@@ -882,11 +884,22 @@ class B3:
         decode_json=True,
         verify_ssl=False,
         json_data=None,
+        max_tries=5,
+        wait_between_errors=0.5,
     ):
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
-        response = self.session.request(method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data)
+        tried = 0
+        while tried < max_tries:
+            # São feitas múltiplas tentativas porque recorrentemente os servidores da CloudFlare respondem com erro
+            # HTTP 520.
+            response = self.session.request(method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data)
+            tried += 1
+            if response.status_code < 500:
+                break
+            else:
+                time.sleep(wait_between_errors)
         if decode_json:
             text = response.text
             if text and text[0] == text[-1] == '"':  # WTF, B3?
