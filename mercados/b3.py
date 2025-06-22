@@ -49,7 +49,7 @@ def json_decode(data):
     try:
         return json.loads(data)
     except json.decoder.JSONDecodeError:
-        raise ValueError("Cannot decode JSON: {repr(data)}")
+        raise ValueError(f"Cannot decode JSON: {repr(data)}")
 
 
 # TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
