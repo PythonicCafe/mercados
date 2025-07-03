@@ -40,6 +40,9 @@ python -m mercados.bcb serie-temporal -i 2024-10-01 -f 2024-12-31 -F md CDI
 
 # B3
 
+echo mercados.b3 valor-indice
+python -m mercados.b3 valor-indice IBOVESPA 2025 ${DATA_PATH}/b3-valor-indice-IBOVESPA-2025.csv
+
 echo mercados.b3 negociacao-bolsa
 python -m mercados.b3 negociacao-bolsa dia 2024-12-06 ${DATA_PATH}/b3-negociacao-bolsa-2024-12-06.csv
 

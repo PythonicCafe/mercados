@@ -59,6 +59,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
     Temporais](https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries):
     milhares de séries temporais, incluindo Selic, CDI e também publicadas por outros órgãos, como IPCA e IGP-M
 - [B3](https://www.b3.com.br/pt_br/para-voce):
+  - Valor histórico de diversos índices
   - Cotação diária da negociação em bolsa (um registro por ativo)
   - Micro-dados de negociação em bolsa (*intraday*, um registro por negociação)
   - Cotação diária da negociação em balcão

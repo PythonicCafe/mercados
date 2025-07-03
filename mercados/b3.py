@@ -12,6 +12,7 @@ from functools import lru_cache
 from typing import Optional
 from urllib.parse import urljoin
 
+from .bcb import Taxa
 from .utils import (
     clean_string,
     create_session,
@@ -25,6 +26,7 @@ from .utils import (
 UM_CENTAVO = Decimal("0.01")
 UM_MILESIMO = Decimal("0.001")
 UM_PONTO_BASE = Decimal("0.0001")
+
 
 def parse_br_int(value):
     if value is None or value == "":
@@ -69,6 +71,10 @@ def json_decode(data):
 # ou de lugar parecido com as de balcão?
 
 # TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
+
+# TODO: opções - séries autorizadas https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/mercado-a-vista/opcoes/series-autorizadas/
+# TOOD: dados em tempo real (com atraso) -- ver https://pypi.org/project/b3api/
+# TODO: pegar DI histórico http://estatisticas.cetip.com.br/astec/series_v05/paginas/lum_web_v05_template_informacoes_di.asp?str_Modulo=completo&int_Idioma=1&int_Titulo=6&int_NivelBD=2
 
 
 @lru_cache(maxsize=16 * 1024)
@@ -807,8 +813,14 @@ class CustodiaFungivel:
 
 class B3:
     funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsListedProxy/Search/"
+    indexes_stats_url = "https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/"
     indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
     companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
+    indices = (
+        "AGFS BDRX GPTW IBBC IBBE IBBR IBEE IBEP IBEW IBHB IBLV IBOVESPA IBRA IBSD IBXL IBXX ICO2 ICON IDIV IDVR IEEX "
+        "IFIL IFIX IFNC IGCT IGCX IGNM IMAT IMOB INDX ISEE ITAG IVBX MLCX SMLL UTIL".split()
+    )
+    # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
 
     def __init__(self):
         self.session = create_session()
@@ -906,7 +918,9 @@ class B3:
         while tried < max_tries:
             # São feitas múltiplas tentativas porque recorrentemente os servidores da CloudFlare respondem com erro
             # HTTP 520.
-            response = self.session.request(method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data)
+            response = self.session.request(
+                method, url, params=params, timeout=timeout, verify=verify_ssl, json=json_data
+            )
             tried += 1
             if response.status_code < 500:
                 break
@@ -942,7 +956,7 @@ class B3:
     def _funds_by_type(self, type_name):
         objs = self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListFunds/"),
-            url_params={"language":"pt-br", "typeFund": type_name},
+            url_params={"language": "pt-br", "typeFund": type_name},
         )
         for obj in objs:
             yield self._fund_detail(type_name, obj["id"], obj["acronym"])
@@ -951,7 +965,7 @@ class B3:
         response_data = self.request(
             method="GET",
             url=urljoin(self.funds_call_url, "GetDetailFund/"),
-            url_params={"language":"pt-br", "idFNET": obj_id, "idCEM": identifier, "typeFund": type_name},
+            url_params={"language": "pt-br", "idFNET": obj_id, "idCEM": identifier, "typeFund": type_name},
         )
         return FundoB3.from_dict(response_data)
 
@@ -1168,10 +1182,31 @@ class B3:
                     row[field] = None
             yield NegociacaoBalcao.from_dict(row)
 
-    # TODO: criar método para listar todos os índices
+    def valor_indice(self, indice: str, ano: int):
+        if indice not in self.indices:
+            # TODO: testar IDAP5 e ICBIO
+            raise ValueError(f"Índice desconhecido: {repr(indice)}")
+        response = self.request(
+            urljoin(self.indexes_stats_url, "GetPortfolioDay/"),
+            url_params={"index": indice, "language": "pt-br", "year": ano},
+            decode_json=True,
+        )
+        dados = []
+        for valor_dia in response["results"]:
+            dia = valor_dia.pop("day")
+            for mes in range(1, 12 + 1):
+                valor_mes = valor_dia.pop(f"rateValue{mes}")
+                if valor_mes is not None:
+                    dados.append(Taxa(data=datetime.date(ano, mes, dia), valor=parse_br_decimal(valor_mes)))
+            if valor_dia:
+                raise RuntimeError(f"Dados não extraídos: {repr(valor_dia)}")
+        dados.sort(key=lambda row: row.data)
+        return dados
 
     def carteira_indice(self, indice):
-        # TODO: seletor de tipo:
+        # TODO: adicionar checagem de índices. ATENÇÃO: a lista de strings não é a mesma de `valor_indice`, por
+        # exemplo: IBOV (carteira_indice) é IBOVESPA (valor_indice). Obrigado B3 mais uma vez pela consistência. :|
+        # TODO: adicionar parâmetro seletor de tipo:
         # - GetTheoricalPortfolio/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
         #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
         # - GetPortfolioDay/eyJsYW5ndWFnZSI6InB0LWJyIiwicGFnZU51bWJlciI6MSwicGFnZVNpemUiOjIwLCJpbmRleCI6IklCT1YiLCJzZWdtZW50IjoiMSJ9
@@ -1179,9 +1214,9 @@ class B3:
         # - GetQuartelyPreview/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
         #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
         # - GetDownloadPortfolioDay/eyJpbmRleCI6IklCT1ZFU1BBIiwibGFuZ3VhZ2UiOiJwdC1iciIsInllYXIiOiIyMDIyIn0=
-        #   b'{"index":"IBOVESPA","language":"pt-br","year":"2022"}'
+        #   b'{"index":"IBOVESPA","language":"pt-br","year":"2022"}'  # XXX: não tem paginação!
         #
-        # TODO: create dataclass:
+        # TODO: retornar dataclass:
         # {'segment': None,
         #  'cod': 'VINO11',
         #  'asset': 'FII VINCI OF',
@@ -1189,7 +1224,6 @@ class B3:
         #  'part': '0,814',
         #  'partAcum': None,
         #  'theoricalQty': '16.565.259'}
-        # TODO: assert indice in XXX
         yield from self.paginate(
             base_url=urljoin(self.indexes_call_url, "GetPortfolioDay/"),
             url_params={"language": "pt-br", "index": indice, "segment": "1"},
@@ -1394,6 +1428,11 @@ if __name__ == "__main__":
     for comando in comandos_padrao:
         subparser = subparsers.add_parser(comando)
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+
+    subparser = subparsers.add_parser("valor-indice")
+    subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=B3.indices)
+    subparser.add_argument("ano", type=int)
+    subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")
     subparser_negociacao_bolsa.add_argument(
@@ -1915,6 +1954,18 @@ if __name__ == "__main__":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for row in b3.clearing_termo_eletronico(data=args.data):
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "valor-indice":
+        indice = args.indice
+        ano = args.ano
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.valor_indice(indice=indice, ano=ano):
+                row = row.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()

@@ -205,7 +205,7 @@ def parse_br_decimal(value):
     value = str(value or "").strip()
     if not value:
         return None
-    return decimal.Decimal(value.replace(",", "."))
+    return decimal.Decimal(value.replace(".", "").replace(",", "."))
 
 
 def parse_date(fmt, value, full=False):
