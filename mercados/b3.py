@@ -210,6 +210,9 @@ class NegociacaoBolsa:
             preco_execucao=converte_centavos_para_decimal(row["preexe"]),
         )
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class Dividendo:
@@ -477,6 +480,9 @@ class NegociacaoBalcao:
         )
         assert not row
         return obj
+
+    def serialize(self):
+        return asdict(self)
 
 
 @dataclass

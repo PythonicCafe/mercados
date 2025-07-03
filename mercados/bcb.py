@@ -15,11 +15,17 @@ class TaxaIntervalo:
     data_final: datetime.date
     valor: Decimal
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class Taxa:
     data: datetime.date
     valor: Decimal
+
+    def serialize(self):
+        return asdict(self)
 
 
 class BancoCentral:

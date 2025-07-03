@@ -62,6 +62,9 @@ class InformeDiarioFundo:
             valor_carteira=Decimal(row["vl_total"]) if row["vl_total"] else None,
         )
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class Noticia:
@@ -69,6 +72,9 @@ class Noticia:
     link: str
     data: datetime.date
     descricao: str
+
+    def serialize(self):
+        return asdict(self)
 
 
 class CVM:

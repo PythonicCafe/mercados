@@ -46,6 +46,9 @@ class CotaFundo:
     cotistas: int
     data_proxima_informacao: datetime.date
 
+    def serialize(self):
+        return asdict(self)
+
 
 class BRDateField(rows.fields.DateField):
     INPUT_FORMAT = "%d/%m/%Y"

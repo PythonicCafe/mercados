@@ -2,7 +2,7 @@ import copy
 import datetime
 import decimal
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from dataclasses import fields as class_fields
 
 import xmltodict
@@ -259,6 +259,9 @@ class InformeRendimentos:
 
         return result
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class OfertaPublica:
@@ -412,6 +415,9 @@ class OfertaPublica:
             },
         )
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class DocumentMeta:
@@ -499,6 +505,9 @@ class DocumentMeta:
         )
         assert not row
         return obj
+
+    def serialize(self):
+        return asdict(self)
 
 
 @dataclass
@@ -647,6 +656,9 @@ class InformeFII:
             patrimonio_por_cota=parse_br_decimal(resumo.pop("ValorPatrCotas")),
         )
 
+    def serialize(self):
+        return asdict(self)
+
 
 @dataclass
 class InformeMensalFII:
@@ -656,3 +668,6 @@ class InformeMensalFII:
     patrimonio_por_cota: decimal.Decimal
     cotistas: int = None
     cotistas_pessoa_fisica: int = None
+
+    def serialize(self):
+        return asdict(self)
