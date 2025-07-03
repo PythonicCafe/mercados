@@ -125,6 +125,18 @@ def converte_decimal(valor: str) -> Optional[Decimal]:
 
 
 @dataclass
+class AtivoIndice:
+    codigo_negociacao: str
+    ativo: str
+    tipo: str
+    qtd_teorica: Decimal
+    participacao: Decimal
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
 class NegociacaoBolsa:
     quantidade: Optional[int]
     pontos_strike: Optional[int]
@@ -821,6 +833,7 @@ class B3:
         "IFIL IFIX IFNC IGCT IGCX IGNM IMAT IMOB INDX ISEE ITAG IVBX MLCX SMLL UTIL".split()
     )
     # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
+    carteira_indice_periodos = ("dia", "teórica", "próxima")
 
     def __init__(self):
         self.session = create_session()
@@ -1203,31 +1216,111 @@ class B3:
         dados.sort(key=lambda row: row.data)
         return dados
 
-    def carteira_indice(self, indice):
+    def carteira_indice(self, indice, periodo):
         # TODO: adicionar checagem de índices. ATENÇÃO: a lista de strings não é a mesma de `valor_indice`, por
         # exemplo: IBOV (carteira_indice) é IBOVESPA (valor_indice). Obrigado B3 mais uma vez pela consistência. :|
-        # TODO: adicionar parâmetro seletor de tipo:
-        # - GetTheoricalPortfolio/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
-        #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
-        # - GetPortfolioDay/eyJsYW5ndWFnZSI6InB0LWJyIiwicGFnZU51bWJlciI6MSwicGFnZVNpemUiOjIwLCJpbmRleCI6IklCT1YiLCJzZWdtZW50IjoiMSJ9
-        #   b'{"language":"pt-br","pageNumber":1,"pageSize":20,"index":"IBOV","segment":"1"}'
-        # - GetQuartelyPreview/eyJwYWdlTnVtYmVyIjoxLCJwYWdlU2l6ZSI6MjAsImxhbmd1YWdlIjoicHQtYnIiLCJpbmRleCI6IklCT1YifQ==
-        #   b'{"pageNumber":1,"pageSize":20,"language":"pt-br","index":"IBOV"}'
-        # - GetDownloadPortfolioDay/eyJpbmRleCI6IklCT1ZFU1BBIiwibGFuZ3VhZ2UiOiJwdC1iciIsInllYXIiOiIyMDIyIn0=
-        #   b'{"index":"IBOVESPA","language":"pt-br","year":"2022"}'  # XXX: não tem paginação!
-        #
-        # TODO: retornar dataclass:
-        # {'segment': None,
-        #  'cod': 'VINO11',
-        #  'asset': 'FII VINCI OF',
-        #  'type': 'CI  ER',
-        #  'part': '0,814',
-        #  'partAcum': None,
-        #  'theoricalQty': '16.565.259'}
-        yield from self.paginate(
-            base_url=urljoin(self.indexes_call_url, "GetPortfolioDay/"),
-            url_params={"language": "pt-br", "index": indice, "segment": "1"},
+        # XXX: a carteira "próxima" muitas vezes é igual à teórica (provavelmente somente pouco antes do
+        # rebalanceamento é que ela é atualizada).
+        if periodo not in self.carteira_indice_periodos:
+            raise ValueError(f"Período {repr(periodo)} inválido. Use: {', '.join(self.carteira_indice_periodos)}")
+
+        items = []
+
+        if periodo == "dia":
+            response = self.request(
+                urljoin(self.indexes_call_url, "GetPortfolioDay/"),
+                url_params={"language": "pt-br", "index": indice, "segment": "1", "pageNumber": 1, "pageSize": 120},
+                decode_json=True,
+            )
+            assert response["page"]["totalPages"] == 1, f"Número de páginas diferente do esperado: {response['page']}"
+            for row in response["results"]:
+                items.append(
+                    AtivoIndice(
+                        codigo_negociacao=row["cod"],
+                        ativo=row["asset"],
+                        tipo=row["type"],
+                        qtd_teorica=parse_br_decimal(row["theoricalQty"]),
+                        participacao=parse_br_decimal(row["part"]),
+                    )
+                )
+
+        elif periodo == "teórica":
+            response = self.request(
+                urljoin(self.indexes_call_url, "GetTheoricalPortfolio/"),
+                url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
+                decode_json=True,
+            )
+            assert response["page"]["totalPages"] == 1, f"Número de páginas diferente do esperado: {response['page']}"
+            for row in response["results"]:
+                items.append(
+                    AtivoIndice(
+                        codigo_negociacao=row["cod"],
+                        ativo=row["asset"],
+                        tipo=row["type"],
+                        qtd_teorica=parse_br_decimal(row["theoricalQty"]),
+                        participacao=parse_br_decimal(row["part"]),
+                    )
+                )
+
+        elif periodo == "próxima":
+            response = self.request(
+                urljoin(self.indexes_call_url, "GetQuartelyPreview/"),
+                url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
+                decode_json=True,
+            )
+            assert response["page"]["totalPages"] == 1, f"Número de páginas diferente do esperado: {response['page']}"
+            for row in response["results"]:
+                items.append(
+                    AtivoIndice(
+                        codigo_negociacao=row["cod"],
+                        ativo=row["asset"],
+                        tipo=row["type"],
+                        qtd_teorica=parse_br_decimal(row["theoricalQty"]),
+                        participacao=parse_br_decimal(row["part"]),
+                    )
+                )
+        header = response["header"]
+        items.extend(
+            [
+                AtivoIndice(
+                    codigo_negociacao="Quantidade Teórica Total",
+                    ativo="",
+                    tipo="",
+                    qtd_teorica=parse_br_decimal(header["theoricalQty"]),
+                    participacao=parse_br_decimal(header["part"]),
+                ),
+                AtivoIndice(
+                    codigo_negociacao="Redutor",
+                    ativo="",
+                    tipo="",
+                    qtd_teorica=parse_br_decimal(header["reductor"]),
+                    participacao=None,
+                ),
+            ]
         )
+        items.sort(key=lambda row: row.participacao or 0, reverse=True)
+        return items
+
+    # def carteira_indice_historica(self, indice, ano: int):
+    #     # TODO: ano não funciona!
+    #     response = self.request(
+    #         url=urljoin(self.indexes_call_url, "GetDownloadPortfolioDay/"),
+    #         url_params={"language": "pt-br", "index": indice, "year": ano},
+    #         decode_json=False
+    #     )
+    #     csv_data = response.content
+    #     if csv_data[0:1] == csv_data[-1:] == b'"':  # WTF, B3?
+    #         csv_data = base64.b64decode(csv_data[1:-1])
+    #     with io.StringIO(csv_data.decode("iso-8859-1")) as fobj:
+    #         _ = fobj.readline()  # Skip first line
+    #         for row in csv.DictReader(fobj, delimiter=";"):
+    #             yield AtivoIndice(
+    #                 codigo_negociacao=row["Código"],
+    #                 ativo=row["Ação"],
+    #                 tipo=row["Tipo"],
+    #                 qtd_teorica=parse_br_decimal(row["Qtde. Teórica"]),
+    #                 participacao=parse_br_decimal(row["Part. (%)"]),
+    #             )
 
     def _tabela_clearing(self, url_template, url_params, query_params, json_data=None, data_class=None):
         """
@@ -1432,6 +1525,14 @@ if __name__ == "__main__":
     subparser = subparsers.add_parser("valor-indice")
     subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=B3.indices)
     subparser.add_argument("ano", type=int)
+    subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+
+    subparser = subparsers.add_parser("carteira-indice")
+    indices_carteira = list(B3.indices) + ["IBOV"]
+    indices_carteira.remove("IBOVESPA")
+    indices_carteira.sort()
+    subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=indices_carteira)
+    subparser.add_argument("periodo", type=str, help="Período de validade da carteira", choices=B3.carteira_indice_periodos)
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")
@@ -1965,6 +2066,18 @@ if __name__ == "__main__":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for row in b3.valor_indice(indice=indice, ano=ano):
+                row = row.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "carteira-indice":
+        indice = args.indice
+        periodo = args.periodo
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.carteira_indice(indice=indice, periodo=periodo):
                 row = row.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
