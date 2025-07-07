@@ -18,8 +18,17 @@ python -m mercados.cvm rad-empresas "${DATA_PATH}/cvm-rad-empresas.csv"
 echo mercados.cvm rad-busca
 python -m mercados.cvm rad-busca -e 'MARCOPOLO S.A. (REGISTRO ATIVO)' -e 'VULCABRAS S.A. (REGISTRO ATIVO)' -i 2024-01-01 -f 2024-12-31 "${DATA_PATH}/cvm-rad-documento.csv"
 
+echo mercados.cvm contas-fundos
+python -m mercados.cvm contas-fundos "${DATA_PATH}/cvm-contas-fundos.csv"
+
 echo mercados.cvm informe-diario-fundo
 python -m mercados.cvm informe-diario-fundo 2024-12-06 "${DATA_PATH}/cvm-informe-diario-fundo-2024-12-06.csv"
+
+echo mercados.cvm balancete-fundo-investimento
+python -m mercados.cvm balancete-fundo-investimento 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-investimento-2025-06.csv"
+
+echo mercados.cvm balancete-fundo-estruturado
+python -m mercados.cvm balancete-fundo-estruturado 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-estruturado-2025-06.csv"
 
 
 # FundosNET

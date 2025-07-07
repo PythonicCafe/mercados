@@ -885,7 +885,11 @@ class B3:
                 f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
             )
         zf = zipfile.ZipFile(io.BytesIO(response.content))
-        assert len(zf.filelist) == 1
+        if len(zf.filelist) != 1:
+            filenames = ", ".join(sorted(info.filename for info in zf.filelist))
+            raise RuntimeError(
+                f"Esperado apenas um arquivo dentro do ZIP de negociação em bolsa, encontrados: {filenames}"
+            )
         fobj = io.TextIOWrapper(zf.open(zf.filelist[0].filename), encoding="iso-8859-1")
         for line in fobj:
             if line[:2] != "01":  # Não é um registro de fato
@@ -1537,7 +1541,9 @@ if __name__ == "__main__":
     indices_carteira.remove("IBOVESPA")
     indices_carteira.sort()
     subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=indices_carteira)
-    subparser.add_argument("periodo", type=str, help="Período de validade da carteira", choices=B3.carteira_indice_periodos)
+    subparser.add_argument(
+        "periodo", type=str, help="Período de validade da carteira", choices=B3.carteira_indice_periodos
+    )
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")

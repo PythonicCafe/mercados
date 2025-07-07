@@ -67,6 +67,59 @@ class InformeDiarioFundo:
 
 
 @dataclass
+class ContaBalancete:
+    codigo: int
+    descricao: str
+    data_inicio: datetime.date
+    data_fim: datetime.date | None = None
+    normal: bool | None = None
+    retificadora: bool | None = None
+    conta_superior: int | None = None
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class ItemBalanceteFundo:
+    """
+    Representa um item do balancete de fundos de investimento
+
+    O mapeamento da lista de contas/códigos está disponível em `CVM.contas_balancete_fundo()` ou em:
+    <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx>
+    """
+
+    fundo_tipo_classe: str
+    fundo_cnpj: str
+    data_competencia: datetime.date
+    plano_conta: str
+    codigo_conta: int
+    saldo: Decimal
+
+    @classmethod
+    def from_dict(cls, row):
+        if not row["CD_CONTA_BALCTE"] and not row["VL_SALDO_BALCTE"]:
+            return None
+        row_copy = {key.lower(): value for key, value in row.items()}
+        classe = row_copy.pop("tp_fundo_classe", None) or row_copy.pop("tp_fundo")  # 2013 não tem, estruturado é tp_fundo
+        cnpj = row_copy.pop("cnpj_fundo_classe", None) or row_copy.pop("cnpj_fundo")  # 2013 não tem "_classe"
+        obj = cls(
+            fundo_tipo_classe=classe,
+            fundo_cnpj=REGEXP_CNPJ_SEPARATORS.sub("", cnpj).strip(),
+            data_competencia=parse_iso_date(row_copy.pop("dt_comptc")),
+            plano_conta=row_copy.pop("plano_conta_balcte"),
+            codigo_conta=int(row_copy.pop("cd_conta_balcte")),
+            saldo=Decimal(row_copy.pop("vl_saldo_balcte")),
+        )
+        if row_copy:
+            raise ValueError(f"Item de balancete não pode ser extraído - campos extras: {', '.join(row_copy.keys())}")
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
 class Noticia:
     titulo: str
     link: str
@@ -114,7 +167,9 @@ class CVM:
 
     def _le_zip_informe_diario(self, zip_filename):
         zf = zipfile.ZipFile(zip_filename)
-        # TODO: verificar se lista de arquivos contém nomes corretos?
+        if len(zf.filelist) != 1:
+            filenames = ", ".join(sorted(info.filename for info in zf.filelist))
+            raise RuntimeError(f"Esperado apenas um arquivo dentro do ZIP de informe diário, encontrados: {filenames}")
         for file_info in zf.filelist:
             with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
                 for row in csv.DictReader(fobj, delimiter=";"):
@@ -126,6 +181,73 @@ class CVM:
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_informe_diario(zip_fobj)
+
+    def contas_fundos(self):
+        response = self.session.get("https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx")
+        tree = document_fromstring(response.content)
+        table = []
+        for row in tree.xpath("//table/tr"):
+            cols = [col.xpath("string(.)") for col in row.xpath(".//td")]
+            table.append(cols)
+        header = table[0]
+        if header != ["Código", "Descrição", "Data Início", "Data Fim", "Normal(N)/Retificadora(R)", "Conta Superior"]:
+            raise RuntimeError("Cabeçalho da tabela diferente do esperado")
+        result = []
+        for item in table[1:]:
+            row = dict(zip(header, item))
+            data_inicio = row["Data Início"]
+            data_fim = row["Data Fim"]
+            result.append(
+                ContaBalancete(
+                    codigo=int(row["Código"]),
+                    descricao=row["Descrição"].strip(),
+                    data_inicio=parse_date("br-date", data_inicio) if data_inicio else None,
+                    data_fim=parse_date(data_fim) if data_fim else None,
+                    normal="N" in row["Normal(N)/Retificadora(R)"],
+                    retificadora="R" in row["Normal(N)/Retificadora(R)"],
+                    conta_superior=int(row["Conta Superior"]),
+                )
+            )
+        return result
+
+    def url_balancete_fundo_investimento(self, data: datetime.date):
+        if data >= datetime.date(2015, 1, 1):
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/balancete_fi_{data.year}{data.month:02d}.zip"
+        else:
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/HIST/balancete_fi_{data.year}{data.month:02d}.zip"
+
+    def url_balancete_fundo_estruturado(self, data: datetime.date):
+        if data >= datetime.date(2024, 1, 1):
+            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{data.year}{data.month:02d}.zip"
+        else:
+            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/HIST/balancete_fie_{data.year}.zip"
+
+    def _le_zip_balancete(self, zip_filename):
+        zf = zipfile.ZipFile(zip_filename)
+        if len(zf.filelist) != 1:
+            filenames = ", ".join(sorted(info.filename for info in zf.filelist))
+            raise RuntimeError(f"Esperado apenas um arquivo dentro do ZIP de balancete, encontrados: {filenames}")
+        for file_info in zf.filelist:
+            with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
+                for row in csv.DictReader(fobj, delimiter=";"):
+                    obj = ItemBalanceteFundo.from_dict(row)
+                    if obj is not None:
+                        yield obj
+
+    def balancete_fundo_investimento(self, data: datetime.date):
+        # TODO: guardar em cache esse arquivo!
+        url = self.url_balancete_fundo_investimento(data)
+        response = self.session.get(url)
+        zip_fobj = io.BytesIO(response.content)
+        yield from self._le_zip_balancete(zip_fobj)
+
+    def balancete_fundo_estruturado(self, data: datetime.date):
+        # TODO: guardar em cache esse arquivo!
+        url = self.url_balancete_fundo_estruturado(data)
+        response = self.session.get(url)
+        zip_fobj = io.BytesIO(response.content)
+        # TODO: deveria extrair de maneira diferente o ZIP anual e o mensal?
+        yield from self._le_zip_balancete(zip_fobj)
 
     def __cadastro_fundos(self):
         # TODO: criar dataclass e finalizar implementação
@@ -441,10 +563,29 @@ if __name__ == "__main__":
     parser_noticias.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
     parser_informe_diario_fundo = subparsers.add_parser(
-        "informe-diario-fundo", help="Baixa informes diários dos fundos para uma determinada data"
+        "informe-diario-fundo", help="Baixa informes diários dos fundos para um determinado mês"
     )
-    parser_informe_diario_fundo.add_argument("data", type=parse_iso_date, help="Data de referência do informe")
+    parser_informe_diario_fundo.add_argument(
+        "data", type=parse_iso_date, help="Mês de referência do informe (YYYY-MM-DD)"
+    )
     parser_informe_diario_fundo.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_contas_fundos = subparsers.add_parser(
+        "contas-fundos", help="Baixa descrições das contas usadas nos balancetes de fundos"
+    )
+    parser_contas_fundos.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_balancete_fundo_investimento = subparsers.add_parser(
+        "balancete-fundo-investimento", help="Baixa balancetes dos fundos de investimento para um determinado mês"
+    )
+    parser_balancete_fundo_investimento.add_argument("data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)")
+    parser_balancete_fundo_investimento.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+
+    parser_balancete_fundo_estruturado = subparsers.add_parser(
+        "balancete-fundo-estruturado", help="Baixa balancetes dos fundos estruturados para um determinado mês"
+    )
+    parser_balancete_fundo_estruturado.add_argument("data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)")
+    parser_balancete_fundo_estruturado.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
     parser_rad_empresas = subparsers.add_parser("rad-empresas", help="Baixa lista de empresas disponíveis no RAD")
     parser_rad_empresas.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
@@ -525,6 +666,50 @@ if __name__ == "__main__":
             writer = None
             for informe in cvm.informe_diario_fundo(data):
                 row = asdict(informe)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "contas-fundos":
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        cvm = CVM()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in cvm.contas_fundos():
+                row = asdict(item)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "balancete-fundo-investimento":
+        data = args.data
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        cvm = CVM()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in cvm.balancete_fundo_investimento(data):
+                row = asdict(item)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif args.command == "balancete-fundo-estruturado":
+        data = args.data
+        csv_filename = args.csv_filename
+        csv_filename.parent.mkdir(parents=True, exist_ok=True)
+
+        cvm = CVM()
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for item in cvm.balancete_fundo_estruturado(data):
+                row = asdict(item)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()

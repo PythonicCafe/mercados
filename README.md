@@ -53,6 +53,8 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
   - [RAD](https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx): lista de companhias abertas
   - [RAD](https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx): busca por documentos publicados
   - [Portal de Dados Abertos](https://dados.cvm.gov.br/): informe diário de fundos de investimento
+  - Balancete de fundos [de investimento](https://dados.cvm.gov.br/dataset/fi-doc-balancete) e
+    [estruturados](https://dados.cvm.gov.br/dataset/fie-doc-balancete)
 - [BCB](https://www.bcb.gov.br/):
   - Sistema NovoSelic: Ajuste de valor pela Selic por dia ou mês
   - [Sistema Gerenciador de Séries
