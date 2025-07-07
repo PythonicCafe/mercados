@@ -121,6 +121,7 @@ class CVM:
                     yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
 
     def informe_diario_fundo(self, data: datetime.date):
+        # TODO: guardar em cache esse arquivo!
         url = self.url_informe_diario_fundo(data)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)

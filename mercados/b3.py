@@ -878,6 +878,7 @@ class B3:
         assert frequencia in ("dia", "mês", "ano")
 
         url = self.url_negociacao_bolsa(frequencia, data)
+        # TODO: salvar arquivo em cache
         response = self.session.get(url, verify=False)
         if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
             return ValueError(
@@ -892,13 +893,16 @@ class B3:
             yield NegociacaoBolsa.from_line(line)
 
     def url_intraday_zip(self, data: datetime.date):
+        # <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/cotacoes/cotacoes/>
         data_str = data.strftime("%Y-%m-%d")
         url = f"https://arquivos.b3.com.br/rapinegocios/tickercsv/{data_str}"
         return url
 
     def _le_zip_intraday(self, fobj):
         zf = zipfile.ZipFile(fobj)
-        assert len(zf.filelist) == 1
+        if len(zf.filelist) != 1:
+            filenames = ", ".join(sorted(info.filename for info in zf.filelist))
+            raise RuntimeError(f"Esperado apenas um arquivo dentro do ZIP de intraday, encontrados: {filenames}")
         filename = zf.filelist[0].filename
         assert "_NEGOCIOSAVISTA.txt" in filename
         fobj = io.TextIOWrapper(zf.open(zf.filelist[0].filename), encoding="iso-8859-1")
@@ -908,6 +912,7 @@ class B3:
 
     def negociacao_intraday(self, data: datetime.date):
         url = self.url_intraday_zip(data)
+        # TODO: salvar arquivo em cache
         response = self.session.get(url)
         yield from self._le_zip_intraday(io.BytesIO(response.content))
 
