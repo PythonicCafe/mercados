@@ -1,5 +1,17 @@
 # Tutorial
 
+## Códigos e Licença
+
+Todo o código mostrado nesse tutorial também está disponível na pasta
+[`exemplos`](https://github.com/PythonicCafe/mercados/blob/develop/exemplos), para facilitar a execução.
+
+O [código da biblitoeca em si está sob a licença
+LGPLv3](https://github.com/PythonicCafe/mercados/tree/develop?tab=readme-ov-file#licen%C3%A7a), mas todos os códigos
+disponíveis nesse tutorial e na pasta `exemplos` estão disponíveis sob a [licença
+CC0](https://creativecommons.org/public-domain/cc0/) (equivalente ao domínio público).
+
+## Introdução
+
 A biblioteca está dividida em módulos, onde cada módulo é responsável por coletar as informações de um órgão/sistema,
 por exemplo: `mercados.cvm` coleta dados disponibilizados pela CVM.
 
@@ -25,15 +37,12 @@ Para exemplos de uso da interface de linha de comando, veja o script
 
 Dados que podem ser baixados do Banco Central do Brasil:
 - Sistema NovoSelic: Ajuste de valor pela Selic por dia ou mês
-- Séries temporais
+- [Sistema Gerenciador de Séries
+  Temporais](https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries), que
+  possui milhares de séries disponíveis, incluindo Selic e CDI. O sistema também consolida séries de outros órgãos,
+  como IPCA (do IBGE), IGP-M (da FGV), dentre outros.
 
-
-### Séries temporais
-
-A biblioteca `mercados` consegue coletar dados do [Sistema Gerenciador de Séries
-Temporais](https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries), que
-possui milhares de séries disponíveis, incluindo Selic e CDI. O sistema também consolida séries de outros órgãos, como
-IPCA (do IBGE), IGP-M (da FGV), dentre outros. Vamos a um exemplo para baixar os dados do CDI:
+### Exemplo: CDI dos Últimos 7 Dias
 
 ```python
 import datetime
@@ -74,6 +83,39 @@ Dados que podem ser baixados da CVM:
 - [Portal de Dados Abertos](https://dados.cvm.gov.br/): informe diário de fundos de investimento
 
 
+### Exemplo: Cota Histórica de Fundos de Investimento
+
+Podemos usar os dados de informes diários de fundos de investimento e montar uma planilha com o histórico dos informes
+diários de um fundo específico. No informe constam dados como o valor da cota, valores de captação e resgate,
+quantidade de cotistas, patrimônio líquido e valor da carteira.
+
+
+```python
+cnpj_fundo = "18302338000163"  # Ártica Long Term FIA
+csv_filename = Path("data") / "cota-artica-long-term.csv"
+csv_filename.parent.mkdir(exist_ok=True, parents=True)
+inicio = datetime.date(2019, 9, 1)  # Mês em que migrou de clube para fundo (dados de clube não ficam disponíveis)
+fim = datetime.datetime.now().date()
+atual = inicio
+print(f"Salvando dados em {csv_filename}")
+cvm = CVM()
+with csv_filename.open(mode="w") as fobj:
+    writer = None
+    while atual <= fim:
+        print(f"Coletando para o mês {atual.month:02d}/{atual.year}")
+        for informe in cvm.informe_diario_fundo(atual):
+            # O método `informe_diario_fundo` ignora o campo "dia" da data passada e retorna todos os informes diários
+            # de todos os fundos para o ano/mês
+            if informe.fundo_cnpj == cnpj_fundo:
+                row = informe.serialize()  # Transforma em dicionário
+                if writer is None:
+                    writer = csv.DictWriter(fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+        atual = (atual.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)  # Próximo mês
+```
+
+
 ## B3
 
 Dados que podem ser baixados da B3:
@@ -86,7 +128,7 @@ Dados que podem ser baixados da B3:
 - Documentos de CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
 - Dividendos de FI-Infras e FI-Agros
 
-### Negociação em bolsa
+### Exemplo: Preços da Negociação em Bolsa
 
 No exemplo abaixo, pegamos os dados para negociação de diversos tipos de ativos listados: fundo de investimento
 imobiliário (FII), fundo de investimento em infraestrutura (FI-Infra), fundo de investimento em participações de
