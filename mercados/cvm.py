@@ -158,6 +158,7 @@ class CVM:
             finished = len(items) != params["b_size"]
 
     def url_informe_diario_fundo(self, data: datetime.date):
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         if (data.year, data.month) >= (2021, 1):
             return (
                 f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
@@ -165,22 +166,37 @@ class CVM:
         else:
             return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
 
-    def _le_zip_informe_diario(self, zip_filename):
+    def _le_zip_informe_diario(self, zip_filename, data):
         zf = zipfile.ZipFile(zip_filename)
-        if len(zf.filelist) != 1:
-            filenames = ", ".join(sorted(info.filename for info in zf.filelist))
-            raise RuntimeError(f"Esperado apenas um arquivo dentro do ZIP de informe diário, encontrados: {filenames}")
-        for file_info in zf.filelist:
-            with io.TextIOWrapper(zf.open(file_info.filename, mode="r"), encoding="iso-8859-1") as fobj:
-                for row in csv.DictReader(fobj, delimiter=";"):
-                    yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
+        if len(zf.filelist) == 1:
+            # A partir de 2021 os arquivos ZIP são mensais e existe apenas 1 CSV por ZIP
+            inner_filename = zf.filelist[0].filename
+        else:
+            # Antes de 2021 os ZIPs contém 12 CSVs, um para cada mês. Baixamos o ZIP inteiro e selecionamos apenas o
+            # CSV do mês de interesse.
+            expected_filename = f"inf_diario_fi_{data.year}{data.month:02d}.csv"
+            result = [info.filename for info in zf.filelist if info.filename == expected_filename]
+            if not result:
+                filenames = ", ".join(sorted(info.filename for info in zf.filelist))
+                raise RuntimeError(f"CSV de informe mensal não encontrado no ZIP - arquivos disponíveis: {filenames}")
+            inner_filename = result[0]
+        with io.TextIOWrapper(zf.open(inner_filename, mode="r"), encoding="iso-8859-1") as fobj:
+            for row in csv.DictReader(fobj, delimiter=";"):
+                yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
 
     def informe_diario_fundo(self, data: datetime.date):
+        """
+        Baixa e converte o arquivo ZIP de informe diário para todos os fundos de um determinado mês
+
+        Nota: o que importa no objeto `data` é apenas o ano e o mês (o dia é ignorado, dado que o arquivo baixado será
+        referente a um mês inteiro).
+        """
         # TODO: guardar em cache esse arquivo!
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         url = self.url_informe_diario_fundo(data)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
-        yield from self._le_zip_informe_diario(zip_fobj)
+        yield from self._le_zip_informe_diario(zip_fobj, data)
 
     def contas_fundos(self):
         response = self.session.get("https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx")
@@ -211,12 +227,14 @@ class CVM:
         return result
 
     def url_balancete_fundo_investimento(self, data: datetime.date):
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         if data >= datetime.date(2015, 1, 1):
             return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/balancete_fi_{data.year}{data.month:02d}.zip"
         else:
             return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/HIST/balancete_fi_{data.year}{data.month:02d}.zip"
 
     def url_balancete_fundo_estruturado(self, data: datetime.date):
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         if data >= datetime.date(2024, 1, 1):
             return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{data.year}{data.month:02d}.zip"
         else:
@@ -236,6 +254,7 @@ class CVM:
 
     def balancete_fundo_investimento(self, data: datetime.date):
         # TODO: guardar em cache esse arquivo!
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         url = self.url_balancete_fundo_investimento(data)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
@@ -243,6 +262,7 @@ class CVM:
 
     def balancete_fundo_estruturado(self, data: datetime.date):
         # TODO: guardar em cache esse arquivo!
+        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         url = self.url_balancete_fundo_estruturado(data)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
