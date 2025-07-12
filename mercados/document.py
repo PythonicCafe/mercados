@@ -1,9 +1,11 @@
 import copy
 import datetime
-import decimal
 import re
+import warnings
 from dataclasses import asdict, dataclass
 from dataclasses import fields as class_fields
+from decimal import Decimal
+from typing import List, Optional
 
 import xmltodict
 
@@ -106,8 +108,8 @@ def make_data_object(Class, row):
             value = datetime.datetime.strptime(value, "%Y-%m-%d").date()
         elif field.type is int:
             value = int(value)
-        elif field.type is decimal.Decimal:
-            value = decimal.Decimal(value)
+        elif field.type is Decimal:
+            value = Decimal(value)
         new[field.name] = value
     return Class(**new)
 
@@ -128,7 +130,7 @@ class InformeRendimentos:
     responsavel: str
     telefone: str
     codigo_isin: str
-    valor_por_cota: decimal.Decimal
+    valor_por_cota: Decimal
     data_informacao: datetime.date = None
     codigo_negociacao: str = None
     data_aprovacao: datetime.date = None
@@ -279,11 +281,11 @@ class OfertaPublica:
     numero_emissao: int = None
     qtd_cotas_divide_pl_fundo: int = None
     qtd_max_cotas_serem_emitidas: int = None
-    percentual_subscricao: decimal.Decimal = None
-    preco_emissao: decimal.Decimal = None
-    custo_distribuicao: decimal.Decimal = None
-    preco_subscricao: decimal.Decimal = None
-    montante_total: decimal.Decimal = None
+    percentual_subscricao: Decimal = None
+    preco_emissao: Decimal = None
+    custo_distribuicao: Decimal = None
+    preco_subscricao: Decimal = None
+    montante_total: Decimal = None
     codigo_isin: str = None
     codigo_negociacao: str = None
     dp_b3_data_inicio: datetime.date = None
@@ -517,7 +519,7 @@ class InformeFII:
     administrador: str
     administrador_cnpj: str
     data_funcionamento: datetime.date
-    cotas_emitidas: decimal.Decimal
+    cotas_emitidas: Decimal
     publico_alvo: str
     exclusivo: bool
     vinculo_familiar_cotistas: bool
@@ -662,12 +664,133 @@ class InformeFII:
 
 @dataclass
 class InformeMensalFII:
-    ativo: decimal.Decimal
-    cotas_emitidas: decimal.Decimal
-    patrimonio_liquido: decimal.Decimal
-    patrimonio_por_cota: decimal.Decimal
+    ativo: Decimal
+    cotas_emitidas: Decimal
+    patrimonio_liquido: Decimal
+    patrimonio_por_cota: Decimal
     cotistas: int = None
     cotistas_pessoa_fisica: int = None
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class CotistaFundo:
+    tipo: str
+    documento: str
+    participacao: Decimal
+
+    @classmethod
+    def from_dict(cls, row):
+        obj = cls(
+            tipo=row.pop("TP_PESSOA"),
+            documento=row.pop("CPF_CNPJ_COTST"),
+            participacao=parse_br_decimal(row.pop("PR_COTST")),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
+class InformeDiarioFundo:
+    """
+    Representa o informe diário de fundo, enviado em XML para o FundosNET
+
+    Informes diários de fundos são documentos cujo tipo no FundosNET é 'Informe Diário' (ID 64)
+    """
+
+    doc_codigo: str
+    doc_versao: str
+    data_competencia: datetime.date
+    cotistas: int
+    fundo_cnpj: str
+    carteira: Decimal
+    cota: Decimal
+    patrimonio_liquido: Decimal
+    captado: Decimal
+    resgatado: Decimal
+    saidas_previstas: Decimal
+    ativos_liquidaveis: Decimal
+    cotistas_significativos: List[CotistaFundo]
+    data_proximo_pl: datetime.date
+    doc_data_geracao: Optional[datetime.date] = None
+    fundo: Optional[str] = None
+    administradora: Optional[str] = None
+    administradora_cnpj: Optional[str] = None
+
+    @classmethod
+    def from_xml(cls, xml):
+        # Extrai dados do XML, como descrito em:
+        # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNetV3.asp>
+        # TODO: deve validar a versão no cabeçalho e se for diferente de "3.0", usar outro método de extração, exemplo:
+        # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNet.asp>
+        data = xmltodict.parse(xml)
+        doc = data.pop("DOC_ARQ")
+        assert not data, f"Dados sobraram e não foram extraídos para {cls.__name__}: {data}"
+
+        doc = {key: value for key, value in doc.items() if not key.startswith("@xmlns")}
+        header = doc.pop("CAB_INFORM")
+        informes = doc.pop("LISTA_INFORM")
+        assert not doc, f"Dados sobraram e não foram extraídos para {cls.__name__}: {doc}"
+
+        doc_versao = header.pop("VERSAO", None)
+        if doc_versao not in (None, "3.0"):
+            warnings.warn(f"Versão de documento diferente de versões conhecidas: {repr(doc_versao)}")
+        base_row = {
+            "doc_codigo": header.pop("COD_DOC"),
+            "doc_data_geracao": parse_date("br-date", header.pop("DT_GERAC_ARQ", None)),
+            "doc_versao": doc_versao,
+            "data_competencia": parse_date("br-date", header.pop("DT_COMPT")),
+            "administradora_cnpj": header.pop("CNPJADM", None),
+            "administradora": header.pop("RAZAOSOCIALADM", None),
+        }
+        fundo_cnpj = header.pop("CNPJ_FDO", None)
+        fundo = header.pop("NOME_FDO", None)
+        assert not header, f"Dados sobraram e não foram extraídos para {cls.__name__} (versão {doc_versao}): {header}"
+
+        if isinstance(informes, dict):
+            informes = [informes]
+        resultado = []
+        for informe in informes:
+            informe2 = informe.pop("INFORM")
+            assert (
+                not informe
+            ), f"Dados sobraram e não foram extraídos para {cls.__name__} (versão {doc_versao}): {informe}"
+            cotistas_sig = informe2.pop("LISTA_COTST_SIGNIF", None)
+            if cotistas_sig is None:
+                cotistas_significativos = []
+            else:
+                cotistas_significativos = cotistas_sig.pop("COTST_SIGNIF")
+                assert (
+                    not cotistas_sig
+                ), f"Dados sobraram e não foram extraídos para {cls.__name__} (versão {doc_versao}): {cotistas_sig}"
+                if isinstance(cotistas_significativos, dict):
+                    cotistas_significativos = [cotistas_significativos]
+            obj = cls(
+                **base_row,
+                cotistas=int(informe2.pop("NR_COTST")),
+                fundo_cnpj=informe2.pop("CNPJ_FDO", None) if fundo_cnpj is None else fundo_cnpj,
+                fundo=fundo,
+                carteira=parse_br_decimal(informe2.pop("VL_TOTAL")),
+                cota=parse_br_decimal(informe2.pop("VL_QUOTA")),
+                patrimonio_liquido=parse_br_decimal(informe2.pop("PATRIM_LIQ")),
+                captado=parse_br_decimal(informe2.pop("CAPTC_DIA")),
+                resgatado=parse_br_decimal(informe2.pop("RESG_DIA")),
+                saidas_previstas=parse_br_decimal(informe2.pop("VL_TOTAL_SAI", None)),
+                ativos_liquidaveis=parse_br_decimal(informe2.pop("VL_TOTAL_ATV", None)),
+                cotistas_significativos=[CotistaFundo.from_dict(cotista) for cotista in cotistas_significativos],
+                data_proximo_pl=parse_date("br-date", informe2.pop("DATA_PROX_PL", None)),
+            )
+            informe2.pop("DIA_COMPT", None)  # Ignora caso possua esse campo (ex: doc id 940533)
+            assert (
+                not informe2
+            ), f"Dados sobraram e não foram extraídos para {cls.__name__} (versão {doc_versao}): {informe2}"
+            resultado.append(obj)
+        return resultado
 
     def serialize(self):
         return asdict(self)

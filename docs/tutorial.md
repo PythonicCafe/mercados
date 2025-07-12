@@ -76,8 +76,6 @@ código da mesma).
 Dados que podem ser baixados da CVM:
 
 - [Notícias](https://www.gov.br/cvm/pt-br/assuntos/noticias)
-- [FundosNET](https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM): documentos publicados,
-  incluindo a extração de alguns tipos de XML
 - [RAD](https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx): lista de companhias abertas
 - [RAD](https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx): busca por documentos publicados
 - [Portal de Dados Abertos](https://dados.cvm.gov.br/): informe diário de fundos de investimento
@@ -156,4 +154,53 @@ KNCA11 81.80 80.71
 ENDD11 104.57 101.55
 CPTI11 80.43 81.48
 PETRX8 0.20 0.20
+```
+
+
+## FundosNET
+
+No [FundosNET](https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM) são publicados documentos estruturados (em XML) e não estruturados sobre fundos.
+A biblioteca `mercados` consegue extrair o XML de alguns desses documentos, retornando um objeto Python com os valores
+já convertidos para tipos nativos (`str`, `int`, `datetime.date`, `decimal.Decimal` etc.).
+
+### Exemplo: Baixar e Extrair Informes Diários de ETFs
+
+```python
+import base64
+import datetime
+import requests
+from mercados.document import InformeDiarioFundo
+from mercados.fundosnet import FundosNet
+from mercados.utils import format_dataclass
+
+data_inicial = datetime.date(2025, 7, 1)
+data_final = datetime.date(2025, 7, 11)
+fnet = FundosNet()
+session = requests.Session()
+
+print("Buscando documentos no FundosNET e selecionando informes diários")
+documentos = {}
+for doc in fnet.search(start_date=data_inicial, end_date=data_final):
+    if doc.tipo != "Informe Diário":
+        continue
+    documentos[doc.id] = doc
+    if len(documentos) % 10 == 0:
+        print(f"\r{len(documentos):5} encontrados", end="", flush=True)
+print(f"\r{len(documentos):5} encontrados", flush=True)
+
+print("Baixando XMLs dos informes selecionados")
+xmls = {}
+for doc_id, doc in documentos.items():
+    response = session.get(doc.url)
+    xmls[doc_id] = base64.b64decode(response.content)  # Sim, o contéudo é retornado em base64 :|
+    if len(xmls) % 10 == 0:
+        print(f"\r{len(xmls):5} baixados", end="", flush=True)
+print(f"\r{len(xmls):5} baixados", flush=True)
+
+for doc_id, xml in xmls.items():
+    print(f"Extraindo informes do XML de {doc_id}:")
+    informes = InformeDiarioFundo.from_xml(xml)
+    for rank, informe in enumerate(informes, start=1):
+        print(f"#{rank}: {format_dataclass(informe)}")
+    print()
 ```

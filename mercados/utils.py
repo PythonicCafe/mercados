@@ -5,6 +5,7 @@ import io
 import re
 import socket
 import subprocess
+from dataclasses import fields as dataclass_fields
 from functools import lru_cache
 from pathlib import Path
 from unicodedata import normalize
@@ -262,6 +263,19 @@ def parse_br_date(value):
     return parse_date("br-date", value)
 
 
+def parse_time(value):
+    """
+    >>> parse_time('165443336')  # 16 h 54 min 43 s 336 ms
+    """
+    assert value.isdigit() and len(value) == 9, f"Esperada string no formato HHMMSSNNN, recebida: {repr(value)}"
+    return datetime.time(
+        hour=int(value[0:2]),
+        minute=int(value[2:4]),
+        second=int(value[4:6]),
+        microsecond=int(value[6:]) * 1_000,  # ms para us
+    )
+
+
 @lru_cache(maxsize=120)
 def get_month(value):
     value = {
@@ -440,3 +454,17 @@ def download_files(urls: list[str], filenames: list[Path], quiet=False):
         response = session.get(url)
         with filename.open(mode="wb") as fobj:
             fobj.write(response.content)
+
+
+def format_dataclass(obj, indent=4):
+    class_name = obj.__class__.__name__
+    result = [f"{class_name}("]
+    for field in dataclass_fields(obj.__class__):
+        value = getattr(obj, field.name)
+        if isinstance(value, int):
+            representation = "{value:_}".format(value=value)
+        else:
+            representation = repr(value)
+        result.append(" " * indent + f"{field.name}={representation},")
+    result.append(")")
+    return "\n".join(result)
