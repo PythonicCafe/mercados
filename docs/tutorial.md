@@ -118,7 +118,7 @@ with csv_filename.open(mode="w") as fobj:
 
 Dados que podem ser baixados da B3:
 - Cotação diária da negociação em bolsa (um registro por ativo)
-- Micro-dados de negociação em bolsa (*intraday*, um registro por negociação)
+- Negociações intradiárias em bolsa (um registro por negociação)
 - Cotação diária da negociação em balcão
 - Cadastro de fundos listados
 - Cadastro de debêntures ativas

@@ -6,6 +6,16 @@
 export PYTHONPATH=.
 export DATA_PATH="data/test"
 rm -rf "${DATA_PATH}"
+ontem=$(date -d "yesterday" +%Y-%m-%d)
+dia_semana=$(date -d "$ontem" +%u)
+if [ "$dia_semana" -eq 7 ]; then  # Domingo
+  DATA_INICIAL=$(date -d "$ontem -2 days" +%Y-%m-%d)
+elif [ "$dia_semana" -eq 6 ]; then  # Sábado
+  DATA_INICIAL=$(date -d "$ontem -1 days" +%Y-%m-%d)
+else
+  DATA_INICIAL=$ontem
+fi
+DATA_ANTERIOR=$(date -d "$DATA_INICIAL -15 days" +%Y-%m-%d)
 
 
 # CVM
@@ -61,19 +71,19 @@ python -m mercados.b3 negociacao-bolsa dia 2024-12-06 ${DATA_PATH}/b3-negociacao
 echo mercados.b3 negociacao-balcao
 python -m mercados.b3 negociacao-balcao "${DATA_PATH}/negociacao-balcao.csv"
 
-echo mercados.b3 intraday-baixar
-python -m mercados.b3 intraday-baixar 2024-12-06 "${DATA_PATH}/intraday-2024-12-06.zip"
+echo mercados.b3 intradiaria-baixar
+python -m mercados.b3 intradiaria-baixar "$DATA_INICIAL" "${DATA_PATH}/intradiaria-${DATA_INICIAL}.zip"
 
-echo mercados.b3 intraday-converter
-python -m mercados.b3 intraday-converter -c XPML11 "${DATA_PATH}/intraday-2024-12-06.zip" "${DATA_PATH}/intraday-XPML11-2024-12-06.csv"
+echo mercados.b3 intradiaria-converter
+python -m mercados.b3 intradiaria-converter -c XPML11 "${DATA_PATH}/intradiaria-${DATA_INICIAL}.zip" "${DATA_PATH}/intradiaria-XPML11-${DATA_INICIAL}.csv"
 
 echo mercados.b3 fundo-listado
 python -m mercados.b3 fundo-listado "${DATA_PATH}/fundo-listado.csv"
 
-echo mercados.b3 cra-documents
+echo mercados.b3 cra-documents # TODO: não funciona!
 python -m mercados.b3 cra-documents "${DATA_PATH}/cra-documents.csv"
 
-echo mercados.b3 cri-documents
+echo mercados.b3 cri-documents # TODO: não funciona!
 python -m mercados.b3 cri-documents "${DATA_PATH}/cri-documents.csv"
 
 echo mercados.b3 debentures
@@ -83,16 +93,16 @@ echo mercados.b3 fiagro-dividends
 python -m mercados.b3 fiagro-dividends "${DATA_PATH}/fiagro-dividends.csv"
 
 echo mercados.b3 fiagro-documents
-python -m mercados.b3 fiagro-documents "${DATA_PATH}/fiagro-documents.csv"
+python -m mercados.b3 fiagro-documents "${DATA_PATH}/fiagro-documents.csv" # TODO: funciona parcialmente
 
 echo mercados.b3 fiagro-subscriptions
-python -m mercados.b3 fiagro-subscriptions "${DATA_PATH}/fiagro-subscriptions.csv"
+python -m mercados.b3 fiagro-subscriptions "${DATA_PATH}/fiagro-subscriptions.csv" # TODO: não funciona!
 
 echo mercados.b3 fii-dividends
 python -m mercados.b3 fii-dividends "${DATA_PATH}/fii-dividends.csv"
 
 echo mercados.b3 fii-documents
-python -m mercados.b3 fii-documents "${DATA_PATH}/fii-documents.csv"
+python -m mercados.b3 fii-documents "${DATA_PATH}/fii-documents.csv" # TODO: testar
 
 echo mercados.b3 fii-subscriptions
 python -m mercados.b3 fii-subscriptions "${DATA_PATH}/fii-subscriptions.csv"
@@ -101,7 +111,7 @@ echo mercados.b3 fiinfra-dividends
 python -m mercados.b3 fiinfra-dividends "${DATA_PATH}/fiinfra-dividends.csv"
 
 echo mercados.b3 fiinfra-documents
-python -m mercados.b3 fiinfra-documents "${DATA_PATH}/fiinfra-documents.csv"
+python -m mercados.b3 fiinfra-documents "${DATA_PATH}/fiinfra-documents.csv" # TODO: testar
 
 echo mercados.b3 fiinfra-subscriptions
 python -m mercados.b3 fiinfra-subscriptions "${DATA_PATH}/fiinfra-subscriptions.csv"
@@ -110,7 +120,7 @@ echo mercados.b3 fip-dividends
 python -m mercados.b3 fip-dividends "${DATA_PATH}/fip-dividends.csv"
 
 echo mercados.b3 fip-documents
-python -m mercados.b3 fip-documents "${DATA_PATH}/fip-documents.csv"
+python -m mercados.b3 fip-documents "${DATA_PATH}/fip-documents.csv" # TODO: testar
 
 echo mercados.b3 fip-subscriptions
 python -m mercados.b3 fip-subscriptions "${DATA_PATH}/fip-subscriptions.csv"
@@ -118,16 +128,6 @@ python -m mercados.b3 fip-subscriptions "${DATA_PATH}/fip-subscriptions.csv"
 
 # B3 - Clearing
 TICKER="ABEV3"
-ontem=$(date -d "yesterday" +%Y-%m-%d)
-dia_semana=$(date -d "$ontem" +%u)
-if [ "$dia_semana" -eq 7 ]; then  # Domingo
-  DATA_INICIAL=$(date -d "$ontem -2 days" +%Y-%m-%d)
-elif [ "$dia_semana" -eq 6 ]; then  # Sábado
-  DATA_INICIAL=$(date -d "$ontem -1 days" +%Y-%m-%d)
-else
-  DATA_INICIAL=$ontem
-fi
-DATA_ANTERIOR=$(date -d "$DATA_INICIAL -15 days" +%Y-%m-%d)
 rm -f $DATA_PATH/clearing-*.csv
 
 echo mercados.b3 clearing-acoes-custodiadas

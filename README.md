@@ -63,7 +63,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 - [B3](https://www.b3.com.br/pt_br/para-voce):
   - Valor histórico de diversos índices
   - Cotação diária da negociação em bolsa (um registro por ativo)
-  - Micro-dados de negociação em bolsa (*intraday*, um registro por negociação)
+  - Negociações intradiárias em bolsa (um registro por negociação)
   - Cotação diária da negociação em balcão
   - Cadastro de fundos listados
   - Cadastro de debêntures ativas

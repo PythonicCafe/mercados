@@ -4,16 +4,18 @@ import datetime
 import io
 import json
 import time
-import zipfile
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 from functools import lru_cache
-from typing import Optional
+from typing import Dict, Optional
 from urllib.parse import urljoin
+from zipfile import ZipFile
 
 from .bcb import Taxa
 from .utils import (
+    BRT,
+    REGEXP_CNPJ_SEPARATORS,
     clean_string,
     create_session,
     parse_br_date,
@@ -21,6 +23,7 @@ from .utils import (
     parse_date,
     parse_datetime_force_timezone,
     parse_iso_date,
+    parse_time,
 )
 
 UM_CENTAVO = Decimal("0.01")
@@ -53,6 +56,10 @@ def json_decode(data):
     except json.decoder.JSONDecodeError:
         raise ValueError(f"Cannot decode JSON: {repr(data)}")
 
+
+# TODO: Preço teórico de ETFs de renda fixa:
+# https://sistemaswebb3-derivativos.b3.com.br/financialIndicatorsProxy/PriceEtfShare/GetPrices/eyJsYW5ndWFnZSI6InB0LWJyIn0=
+# {"language":"pt-br"}
 
 # TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
 #       Descrição: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/descricao-dos-arquivos/
@@ -504,6 +511,48 @@ class NegociacaoBalcao:
 
 
 @dataclass
+class NegociacaoIntradiaria:
+    """
+    Representa uma negociação intradiária na B3
+
+    Extraído de acordo com o documento "Negócio a negócio - Listados (.PDF, 105KB)", encontrado em:
+    <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/glossario/>
+    """
+    datahora: datetime.datetime
+    codigo_negocio: int
+    codigo_negociacao: str
+    acao_atualizacao: int
+    preco: Decimal
+    quantidade: int
+    pregao_tipo: int
+    comprador_codigo: str
+    vendedor_codigo: str
+
+    @classmethod
+    def from_dict(cls, row: Dict):
+        row.pop("DataReferencia")  # Não será usado, dado que DataNegocio é a data em que o negócio ocorreu
+        data = parse_date("iso-date", row.pop("DataNegocio"))
+        hora = parse_time(row.pop("HoraFechamento"))
+        datahora = datetime.datetime.combine(data, hora).replace(tzinfo=BRT)
+        obj = cls(
+            datahora=datahora,
+            codigo_negociacao=row.pop("CodigoInstrumento"),
+            acao_atualizacao=int(row.pop("AcaoAtualizacao")),
+            preco=parse_br_decimal(row.pop("PrecoNegocio")),
+            quantidade=int(row.pop("QuantidadeNegociada")),
+            codigo_negocio=int(row.pop("CodigoIdentificadorNegocio")),
+            pregao_tipo=int(row.pop("TipoSessaoPregao")),
+            comprador_codigo=row.pop("CodigoParticipanteComprador"),
+            vendedor_codigo=row.pop("CodigoParticipanteVendedor"),
+        )
+        assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
 class EmprestimoAtivo:
     data: datetime.date
     ticker: str
@@ -884,7 +933,7 @@ class B3:
             return ValueError(
                 f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
             )
-        zf = zipfile.ZipFile(io.BytesIO(response.content))
+        zf = ZipFile(io.BytesIO(response.content))
         if len(zf.filelist) != 1:
             filenames = ", ".join(sorted(info.filename for info in zf.filelist))
             raise RuntimeError(
@@ -896,29 +945,31 @@ class B3:
                 continue
             yield NegociacaoBolsa.from_line(line)
 
-    def url_intraday_zip(self, data: datetime.date):
+    def url_intradiaria_zip(self, data: datetime.date):
         # <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/cotacoes/cotacoes/>
         data_str = data.strftime("%Y-%m-%d")
         url = f"https://arquivos.b3.com.br/rapinegocios/tickercsv/{data_str}"
         return url
 
-    def _le_zip_intraday(self, fobj):
-        zf = zipfile.ZipFile(fobj)
+    def _le_zip_intradiaria(self, fobj):
+        zf = ZipFile(fobj)
         if len(zf.filelist) != 1:
             filenames = ", ".join(sorted(info.filename for info in zf.filelist))
-            raise RuntimeError(f"Esperado apenas um arquivo dentro do ZIP de intraday, encontrados: {filenames}")
+            raise RuntimeError(
+                f"Esperado apenas um arquivo dentro do ZIP de negociações intradiárias, encontrados: {filenames}"
+            )
         filename = zf.filelist[0].filename
         assert "_NEGOCIOSAVISTA.txt" in filename
         fobj = io.TextIOWrapper(zf.open(zf.filelist[0].filename), encoding="iso-8859-1")
-        reader = csv.DictReader(fobj, delimiter=";")
-        # TODO: criar dataclass e converter valores em objetos Python
-        yield from reader
+        for row in csv.DictReader(fobj, delimiter=";"):
+            yield NegociacaoIntradiaria.from_dict(row)
 
-    def negociacao_intraday(self, data: datetime.date):
-        url = self.url_intraday_zip(data)
+    def negociacao_intradiaria(self, data: datetime.date):
+        url = self.url_intradiaria_zip(data)
         # TODO: salvar arquivo em cache
         response = self.session.get(url)
-        yield from self._le_zip_intraday(io.BytesIO(response.content))
+        yield from self._le_zip_intradiaria(io.BytesIO(response.content))
+
 
     def request(
         self,
@@ -1557,14 +1608,18 @@ if __name__ == "__main__":
     )
     subparser_negociacao_bolsa.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser_baixar = subparsers.add_parser("intraday-baixar", help="Baixa arquivo ZIP de intraday para uma data.")
+    subparser_baixar = subparsers.add_parser(
+        "intradiaria-baixar", help="Baixa arquivo ZIP de negociações intradiárias para uma data."
+    )
     subparser_baixar.add_argument(
         "--chunk-size", "-c", type=int, default=256 * 1024, help="Tamanho do chunk no download"
     )
     subparser_baixar.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_baixar.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP a ser salvo")
 
-    subparser_converter = subparsers.add_parser("intraday-converter", help="Converte arquivo ZIP de intraday para CSV.")
+    subparser_converter = subparsers.add_parser(
+        "intradiaria-converter", help="Converte arquivo ZIP de negociações intradiárias para CSV."
+    )
     subparser_converter.add_argument("--codigo-ativo", "-c", action="append", help="Filtra pelo código de negociação")
     subparser_converter.add_argument(
         "zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido"
@@ -1921,20 +1976,20 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "intraday-baixar":
+    elif args.command == "intradiaria-baixar":
         data = args.data
         chunk_size = args.chunk_size
         zip_filename = args.zip_filename
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
 
-        url = b3.url_intraday_zip(data)
+        url = b3.url_intradiaria_zip(data)
         response = b3.session.get(url, stream=True)
         response.raise_for_status()
         with zip_filename.open("wb") as fobj:
             for chunk in response.iter_content(chunk_size):
                 fobj.write(chunk)
 
-    elif args.command == "intraday-converter":
+    elif args.command == "intradiaria-converter":
         zip_filename = args.zip_filename
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
         csv_filename = args.csv_filename
@@ -1942,11 +1997,12 @@ if __name__ == "__main__":
 
         with csv_filename.open(mode="w") as fobj, zip_filename.open(mode="rb") as zip_fobj:
             writer = None
-            for row in b3._le_zip_intraday(zip_fobj):
+            for item in b3._le_zip_intradiaria(zip_fobj):
+                row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
-                if codigo_ativo is None or row["CodigoInstrumento"] in codigo_ativo:
+                if codigo_ativo is None or item.codigo_negociacao in codigo_ativo:
                     writer.writerow(row)
 
     elif command == "clearing-acoes-custodiadas":
