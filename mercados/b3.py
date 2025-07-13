@@ -1569,6 +1569,7 @@ if __name__ == "__main__":
 
     TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
     comandos_padrao = [
+        "bdr",
         "cra-documents",
         "cri-documents",
         "debentures",
@@ -1737,7 +1738,23 @@ if __name__ == "__main__":
     if csv_filename:
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
-    if command == "cri-documents":
+    if command == "bdr":
+        quiet = args.quiet
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            if not quiet:
+                print("\rBDR: ..." + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+            for counter, row in enumerate(b3.bdrs(), start=1):
+                if not quiet:
+                    print(f"\rBDR: {counter:3}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+            if not quiet:
+                print(f"\rBDR: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
+
+    elif command == "cri-documents":
         current_year = datetime.datetime.now().year
         securitizadoras = b3.securitizadoras()
         with csv_filename.open(mode="w") as csv_fobj:

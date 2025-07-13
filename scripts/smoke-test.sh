@@ -77,6 +77,9 @@ python -m mercados.b3 intradiaria-baixar "$DATA_INICIAL" "${DATA_PATH}/intradiar
 echo mercados.b3 intradiaria-converter
 python -m mercados.b3 intradiaria-converter -c XPML11 "${DATA_PATH}/intradiaria-${DATA_INICIAL}.zip" "${DATA_PATH}/intradiaria-XPML11-${DATA_INICIAL}.csv"
 
+echo mercados.b3 bdr
+python -m mercados.b3 bdr "${DATA_PATH}/b3-bdr.csv"
+
 echo mercados.b3 fundo-listado
 python -m mercados.b3 fundo-listado "${DATA_PATH}/fundo-listado.csv"
 
