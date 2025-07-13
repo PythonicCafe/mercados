@@ -8,7 +8,7 @@ from copy import deepcopy
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 from functools import lru_cache
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
@@ -320,18 +320,18 @@ class FundoB3:
     empresa_razao_social: str
     cotas: float
     data_aprovacao_cotas: datetime.date
-    administrador: str
-    administrador_endereco: str
-    administrador_ddd: str
-    administrador_telefone: str
-    administrador_fax: str
     administrador_responsavel: str
     administrador_responsavel_cargo: str
-    administrador_email: str = None
-    website: str = None
-    tipo_fnet: str = None
-    codigos_negociacao: list[str] = None
-    segmento: str = None
+    administrador: Optional[str] = None
+    administrador_endereco: Optional[str] = None
+    administrador_ddd: Optional[str] = None
+    administrador_telefone: Optional[str] = None
+    administrador_fax: Optional[str] = None
+    administrador_email: Optional[str] = None
+    website: Optional[str] = None
+    tipo_fnet: Optional[str] = None
+    codigos_negociacao: Optional[List[str]] = None
+    segmento: Optional[str] = None
 
     @property
     def codigo_negociacao(self):
@@ -352,14 +352,14 @@ class FundoB3:
     def from_dict(cls, obj, check=True):
         data = deepcopy(obj)
 
-        shareholder = data.pop("shareHolder")
-        administrador = clean_string(shareholder.pop("shareHolderName"))
-        administrador_endereco = clean_string(shareholder.pop("shareHolderAddress"))
-        administrador_ddd = clean_string(shareholder.pop("shareHolderPhoneNumberDDD"))
-        administrador_telefone = clean_string(shareholder.pop("shareHolderPhoneNumber"))
-        administrador_fax = clean_string(shareholder.pop("shareHolderFaxNumber"))
+        shareholder = data.pop("shareHolder") or {}
+        administrador = clean_string(shareholder.pop("shareHolderName", None))
+        administrador_endereco = clean_string(shareholder.pop("shareHolderAddress", None))
+        administrador_ddd = clean_string(shareholder.pop("shareHolderPhoneNumberDDD", None))
+        administrador_telefone = clean_string(shareholder.pop("shareHolderPhoneNumber", None))
+        administrador_fax = clean_string(shareholder.pop("shareHolderFaxNumber", None))
         administrador_fax = administrador_fax if administrador_fax != "0" else None
-        administrador_email = clean_string(shareholder.pop("shareHolderEmail"))
+        administrador_email = clean_string(shareholder.pop("shareHolderEmail", None))
         administrador_responsavel = clean_string(data.pop("managerName"))
         administrador_responsavel_cargo = clean_string(data.pop("positionManager"))
         if check:
@@ -1113,13 +1113,20 @@ class B3:
     # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
 
     def bdrs(self):
+        """Devolve os BDRs listados na B3"""
         # TODO: retornar dataclass
         return self.paginate(
             base_url=urljoin(self.companies_call_url, "GetCompaniesBDR/"),
             url_params={"language": "pt-br"},
         )
 
+    def etfs(self):
+        """Devolve os ETFs listados na B3 (incluindo os de renda fixa)"""
+        yield from self._funds_by_type("ETF")
+        yield from self._funds_by_type("ETF-RF")
+
     def fiis(self):
+        """Devolve os FIIs listados na B3 (incluindo os de renda fixa)"""
         yield from self._funds_by_type("FII")
 
     def fii_detail(self, fundo_id, identificador):
@@ -1141,6 +1148,7 @@ class B3:
         yield from self._fund_documents(7, cnpj, identificador, data_inicial, data_final)
 
     def fiinfras(self):
+        """Devolve os FI-Infras listados na B3"""
         yield from self._funds_by_type("FI-Infra")
 
     def fiinfra_detail(self, fundo_id, identificador):
@@ -1163,6 +1171,7 @@ class B3:
         yield from self._fund_documents(27, cnpj, identificador, data_inicial, data_final)
 
     def fips(self):
+        """Devolve os FIPs listados na B3"""
         yield from self._funds_by_type("FIP")
 
     def fip_detail(self, fundo_id, identificador):
@@ -1183,6 +1192,7 @@ class B3:
         yield from self._fund_documents(21, cnpj, identificador, data_inicial, data_final)
 
     def fiagros(self):
+        """Devolve os FI-Agros listados na B3"""
         yield from self._funds_by_type("FIAGRO-FII")
 
     def fiagro_detail(self, fundo_id, identificador):
@@ -1557,6 +1567,7 @@ if __name__ == "__main__":
 
     from .utils import day_range
 
+    TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
     comandos_padrao = [
         "cra-documents",
         "cri-documents",
@@ -1580,6 +1591,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="command", required=True)
     for comando in comandos_padrao:
         subparser = subparsers.add_parser(comando)
+        subparser.add_argument("--quiet", "-q", action="store_true", help="Não mostra mensagens de status")
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser = subparsers.add_parser("valor-indice")
@@ -1768,21 +1780,29 @@ if __name__ == "__main__":
                             writer.writerow(row)
 
     elif command == "fundo-listado":
+        quiet = args.quiet
         data_sources = (
             (b3.fiis(), "FII"),
             (b3.fiinfras(), "FI-Infra"),
             (b3.fips(), "FIP"),
             (b3.fiagros(), "FI-Agro"),
+            (b3.etfs(), "ETF"),
         )
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for iterator, type_name in data_sources:
-                for obj in iterator:
+                if not quiet:
+                    print(f"\r{type_name:10}: ..." + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+                for counter, obj in enumerate(iterator, start=1):
+                    if not quiet:
+                        print(f"\r{type_name:10}: {counter:3}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
                     row = obj.serialize()
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                         writer.writeheader()
                     writer.writerow(row)
+                if not quiet:
+                    print(f"\r{type_name:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
 
     elif command == "fii-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
