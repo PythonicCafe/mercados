@@ -43,7 +43,7 @@ python -m mercados.cvm balancete-fundo-estruturado 2025-06-01 "${DATA_PATH}/cvm-
 
 # FundosNET
 echo mercados.fundosnet
-python -m mercados.fundosnet -i 2024-10-01 -f 2024-10-03 "${DATA_PATH}/fnet.csv"
+python -m mercados.fundosnet -i 2024-10-01 -f 2024-10-03 "${DATA_PATH}/fnet-documento.csv"
 
 
 # BCB
@@ -60,73 +60,73 @@ python -m mercados.bcb serie-temporal -i 2024-10-01 -f 2024-12-31 -F md CDI
 # B3
 
 echo mercados.b3 valor-indice
-python -m mercados.b3 valor-indice IBOVESPA 2025 ${DATA_PATH}/b3-valor-indice-IBOVESPA-2025.csv
+python -m mercados.b3 valor-indice IBOVESPA 2025 "${DATA_PATH}/b3-valor-indice-IBOVESPA-2025.csv"
 
 echo mercados.b3 carteira-indice
-python -m mercados.b3 carteira-indice IFIX dia ${DATA_PATH}/b3-carteira-indice-IFIX-dia.csv
+python -m mercados.b3 carteira-indice IFIX dia "${DATA_PATH}/b3-carteira-indice-IFIX-dia.csv"
 
 echo mercados.b3 negociacao-bolsa
-python -m mercados.b3 negociacao-bolsa dia 2024-12-06 ${DATA_PATH}/b3-negociacao-bolsa-2024-12-06.csv
+python -m mercados.b3 negociacao-bolsa dia 2024-12-06 "${DATA_PATH}/b3-negociacao-bolsa-2024-12-06.csv"
 
 echo mercados.b3 negociacao-balcao
-python -m mercados.b3 negociacao-balcao "${DATA_PATH}/negociacao-balcao.csv"
+python -m mercados.b3 negociacao-balcao "${DATA_PATH}/b3-negociacao-balcao.csv"
 
 echo mercados.b3 intradiaria-baixar
-python -m mercados.b3 intradiaria-baixar "$DATA_INICIAL" "${DATA_PATH}/intradiaria-${DATA_INICIAL}.zip"
+python -m mercados.b3 intradiaria-baixar "$DATA_INICIAL" "${DATA_PATH}/b3-intradiaria-${DATA_INICIAL}.zip"
 
 echo mercados.b3 intradiaria-converter
-python -m mercados.b3 intradiaria-converter -c XPML11 "${DATA_PATH}/intradiaria-${DATA_INICIAL}.zip" "${DATA_PATH}/intradiaria-XPML11-${DATA_INICIAL}.csv"
+python -m mercados.b3 intradiaria-converter -c XPML11 "${DATA_PATH}/b3-intradiaria-${DATA_INICIAL}.zip" "${DATA_PATH}/b3-intradiaria-XPML11-${DATA_INICIAL}.csv"
 
 echo mercados.b3 bdr
 python -m mercados.b3 bdr "${DATA_PATH}/b3-bdr.csv"
 
 echo mercados.b3 fundo-listado
-python -m mercados.b3 fundo-listado "${DATA_PATH}/fundo-listado.csv"
+python -m mercados.b3 fundo-listado "${DATA_PATH}/b3-fundo-listado.csv"
 
 echo mercados.b3 cra-documents # TODO: não funciona!
-python -m mercados.b3 cra-documents "${DATA_PATH}/cra-documents.csv"
+python -m mercados.b3 cra-documents "${DATA_PATH}/b3-cra-documents.csv"
 
 echo mercados.b3 cri-documents # TODO: não funciona!
-python -m mercados.b3 cri-documents "${DATA_PATH}/cri-documents.csv"
+python -m mercados.b3 cri-documents "${DATA_PATH}/b3-cri-documents.csv"
 
 echo mercados.b3 debentures
-python -m mercados.b3 debentures "${DATA_PATH}/debentures.csv"
+python -m mercados.b3 debentures "${DATA_PATH}/b3-debentures.csv"
 
 echo mercados.b3 fiagro-dividends
-python -m mercados.b3 fiagro-dividends "${DATA_PATH}/fiagro-dividends.csv"
+python -m mercados.b3 fiagro-dividends "${DATA_PATH}/b3-fiagro-dividends.csv"
 
 echo mercados.b3 fiagro-documents
-python -m mercados.b3 fiagro-documents "${DATA_PATH}/fiagro-documents.csv" # TODO: funciona parcialmente
+python -m mercados.b3 fiagro-documents "${DATA_PATH}/b3-fiagro-documents.csv" # TODO: funciona parcialmente
 
 echo mercados.b3 fiagro-subscriptions
-python -m mercados.b3 fiagro-subscriptions "${DATA_PATH}/fiagro-subscriptions.csv" # TODO: não funciona!
+python -m mercados.b3 fiagro-subscriptions "${DATA_PATH}/b3-fiagro-subscriptions.csv" # TODO: não funciona!
 
 echo mercados.b3 fii-dividends
-python -m mercados.b3 fii-dividends "${DATA_PATH}/fii-dividends.csv"
+python -m mercados.b3 fii-dividends "${DATA_PATH}/b3-fii-dividends.csv"
 
 echo mercados.b3 fii-documents
-python -m mercados.b3 fii-documents "${DATA_PATH}/fii-documents.csv" # TODO: testar
+python -m mercados.b3 fii-documents "${DATA_PATH}/b3-fii-documents.csv" # TODO: testar
 
 echo mercados.b3 fii-subscriptions
-python -m mercados.b3 fii-subscriptions "${DATA_PATH}/fii-subscriptions.csv"
+python -m mercados.b3 fii-subscriptions "${DATA_PATH}/b3-fii-subscriptions.csv"
 
 echo mercados.b3 fiinfra-dividends
-python -m mercados.b3 fiinfra-dividends "${DATA_PATH}/fiinfra-dividends.csv"
+python -m mercados.b3 fiinfra-dividends "${DATA_PATH}/b3-fiinfra-dividends.csv"
 
 echo mercados.b3 fiinfra-documents
-python -m mercados.b3 fiinfra-documents "${DATA_PATH}/fiinfra-documents.csv" # TODO: testar
+python -m mercados.b3 fiinfra-documents "${DATA_PATH}/b3-fiinfra-documents.csv" # TODO: testar
 
 echo mercados.b3 fiinfra-subscriptions
-python -m mercados.b3 fiinfra-subscriptions "${DATA_PATH}/fiinfra-subscriptions.csv"
+python -m mercados.b3 fiinfra-subscriptions "${DATA_PATH}/b3-fiinfra-subscriptions.csv"
 
 echo mercados.b3 fip-dividends
-python -m mercados.b3 fip-dividends "${DATA_PATH}/fip-dividends.csv"
+python -m mercados.b3 fip-dividends "${DATA_PATH}/b3-fip-dividends.csv"
 
 echo mercados.b3 fip-documents
-python -m mercados.b3 fip-documents "${DATA_PATH}/fip-documents.csv" # TODO: testar
+python -m mercados.b3 fip-documents "${DATA_PATH}/b3-fip-documents.csv" # TODO: testar
 
 echo mercados.b3 fip-subscriptions
-python -m mercados.b3 fip-subscriptions "${DATA_PATH}/fip-subscriptions.csv"
+python -m mercados.b3 fip-subscriptions "${DATA_PATH}/b3-fip-subscriptions.csv"
 
 
 # B3 - Clearing
@@ -134,37 +134,37 @@ TICKER="ABEV3"
 rm -f $DATA_PATH/clearing-*.csv
 
 echo mercados.b3 clearing-acoes-custodiadas
-python -m mercados.b3 clearing-acoes-custodiadas "$DATA_INICIAL" $DATA_PATH/clearing-acoes-custodiadas.csv
+python -m mercados.b3 clearing-acoes-custodiadas "$DATA_INICIAL" "$DATA_PATH/b3-clearing-acoes-custodiadas.csv"
 
 echo mercados.b3 clearing-creditos-de-proventos
-python -m mercados.b3 clearing-creditos-de-proventos "$DATA_INICIAL" $DATA_PATH/clearing-creditos-de-proventos.csv
+python -m mercados.b3 clearing-creditos-de-proventos "$DATA_INICIAL" "$DATA_PATH/b3-clearing-creditos-de-proventos.csv"
 
 echo mercados.b3 clearing-custodia-fungivel
-python -m mercados.b3 clearing-custodia-fungivel "$DATA_INICIAL" $DATA_PATH/clearing-custodia-fungivel.csv
+python -m mercados.b3 clearing-custodia-fungivel "$DATA_INICIAL" "$DATA_PATH/b3-clearing-custodia-fungivel.csv"
 
 echo mercados.b3 clearing-emprestimos-registrados
-python -m mercados.b3 clearing-emprestimos-registrados --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-registrados.csv
+python -m mercados.b3 clearing-emprestimos-registrados --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-registrados.csv"
 
 echo mercados.b3 clearing-emprestimos-negociados
-python -m mercados.b3 clearing-emprestimos-negociados --ticker "$TICKER" --doador 'BTG PACTUAL CTVM S/A' "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-negociados.csv
+python -m mercados.b3 clearing-emprestimos-negociados --ticker "$TICKER" --doador 'BTG PACTUAL CTVM S/A' "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-negociados.csv"
 
 echo mercados.b3 clearing-emprestimos-em-aberto
-python -m mercados.b3 clearing-emprestimos-em-aberto --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" $DATA_PATH/clearing-emprestimos-em-aberto.csv
+python -m mercados.b3 clearing-emprestimos-em-aberto --ticker "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-em-aberto.csv"
 
 echo mercados.b3 clearing-opcoes-flexiveis
-python -m mercados.b3 clearing-opcoes-flexiveis "$DATA_INICIAL" $DATA_PATH/clearing-opcoes-flexiveis.csv
+python -m mercados.b3 clearing-opcoes-flexiveis "$DATA_INICIAL" "$DATA_PATH/b3-clearing-opcoes-flexiveis.csv"
 
 echo mercados.b3 clearing-prazo-deposito-titulos
-python -m mercados.b3 clearing-prazo-deposito-titulos "$DATA_INICIAL" $DATA_PATH/clearing-prazo-deposito-titulos.csv
+python -m mercados.b3 clearing-prazo-deposito-titulos "$DATA_INICIAL" "$DATA_PATH/b3-clearing-prazo-deposito-titulos.csv"
 
 echo mercados.b3 clearing-posicoes-em-aberto
-python -m mercados.b3 clearing-posicoes-em-aberto "$DATA_INICIAL" $DATA_PATH/clearing-posicoes-em-aberto.csv
+python -m mercados.b3 clearing-posicoes-em-aberto "$DATA_INICIAL" "$DATA_PATH/b3-clearing-posicoes-em-aberto.csv"
 
 echo mercados.b3 clearing-swap
-python -m mercados.b3 clearing-swap "$DATA_INICIAL" $DATA_PATH/clearing-swap.csv
+python -m mercados.b3 clearing-swap "$DATA_INICIAL" "$DATA_PATH/b3-clearing-swap.csv"
 
 echo mercados.b3 clearing-termo-eletronico
-python -m mercados.b3 clearing-termo-eletronico "$DATA_INICIAL" $DATA_PATH/clearing-termo-eletronico.csv
+python -m mercados.b3 clearing-termo-eletronico "$DATA_INICIAL" "$DATA_PATH/b3-clearing-termo-eletronico.csv"
 
 # TODO: implementar para mercados.cota_fundo (caso o arquivo continue na biblioteca)
 # TODO: implementar para mercados.rad (caso o arquivo continue na biblioteca)
