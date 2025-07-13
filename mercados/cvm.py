@@ -101,7 +101,9 @@ class ItemBalanceteFundo:
         if not row["CD_CONTA_BALCTE"] and not row["VL_SALDO_BALCTE"]:
             return None
         row_copy = {key.lower(): value for key, value in row.items()}
-        classe = row_copy.pop("tp_fundo_classe", None) or row_copy.pop("tp_fundo")  # 2013 não tem, estruturado é tp_fundo
+        classe = row_copy.pop("tp_fundo_classe", None) or row_copy.pop(
+            "tp_fundo"
+        )  # 2013 não tem, estruturado é tp_fundo
         cnpj = row_copy.pop("cnpj_fundo_classe", None) or row_copy.pop("cnpj_fundo")  # 2013 não tem "_classe"
         obj = cls(
             fundo_tipo_classe=classe,
@@ -236,7 +238,9 @@ class CVM:
     def url_balancete_fundo_estruturado(self, data: datetime.date):
         # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
         if data >= datetime.date(2024, 1, 1):
-            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{data.year}{data.month:02d}.zip"
+            return (
+                f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{data.year}{data.month:02d}.zip"
+            )
         else:
             return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/HIST/balancete_fie_{data.year}.zip"
 
@@ -598,13 +602,17 @@ if __name__ == "__main__":
     parser_balancete_fundo_investimento = subparsers.add_parser(
         "balancete-fundo-investimento", help="Baixa balancetes dos fundos de investimento para um determinado mês"
     )
-    parser_balancete_fundo_investimento.add_argument("data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)")
+    parser_balancete_fundo_investimento.add_argument(
+        "data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)"
+    )
     parser_balancete_fundo_investimento.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
     parser_balancete_fundo_estruturado = subparsers.add_parser(
         "balancete-fundo-estruturado", help="Baixa balancetes dos fundos estruturados para um determinado mês"
     )
-    parser_balancete_fundo_estruturado.add_argument("data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)")
+    parser_balancete_fundo_estruturado.add_argument(
+        "data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)"
+    )
     parser_balancete_fundo_estruturado.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
     parser_rad_empresas = subparsers.add_parser("rad-empresas", help="Baixa lista de empresas disponíveis no RAD")
@@ -734,3 +742,8 @@ if __name__ == "__main__":
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
+
+
+# TODO: carteira dos fundos (CDA - Composição e Diversificação das Aplicações)
+#       <https://dados.cvm.gov.br/dataset/fi-doc-cda>
+#       <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLCDANetV4.aspx>

@@ -1,4 +1,5 @@
 import datetime
+
 from mercados.bcb import BancoCentral
 
 hoje = datetime.datetime.now().date()

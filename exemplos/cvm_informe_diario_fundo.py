@@ -1,6 +1,7 @@
 import csv
 import datetime
 from pathlib import Path
+
 from mercados.cvm import CVM
 
 cnpj_fundo = "18302338000163"  # Ártica Long Term FIA

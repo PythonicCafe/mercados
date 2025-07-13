@@ -1,4 +1,5 @@
 import datetime
+
 from mercados.b3 import B3
 
 b3 = B3()
