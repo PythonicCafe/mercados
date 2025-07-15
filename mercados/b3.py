@@ -1027,6 +1027,7 @@ class B3:
                     yield response
 
     def _funds_by_type(self, type_name):
+        # TODO: adicionar opção para pegar ou não detalhes
         objs = self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListFunds/"),
             url_params={"language": "pt-br", "typeFund": type_name},
@@ -1122,11 +1123,13 @@ class B3:
 
     def etfs(self):
         """Devolve os ETFs listados na B3 (incluindo os de renda fixa)"""
+        # TODO: adicionar opção para pegar ou não detalhes
         yield from self._funds_by_type("ETF")
         yield from self._funds_by_type("ETF-RF")
 
     def fiis(self):
-        """Devolve os FIIs listados na B3 (incluindo os de renda fixa)"""
+        """Devolve os FIIs listados na B3"""
+        # TODO: adicionar opção para pegar ou não detalhes
         yield from self._funds_by_type("FII")
 
     def fii_detail(self, fundo_id, identificador):
@@ -1149,6 +1152,7 @@ class B3:
 
     def fiinfras(self):
         """Devolve os FI-Infras listados na B3"""
+        # TODO: adicionar opção para pegar ou não detalhes
         yield from self._funds_by_type("FI-Infra")
 
     def fiinfra_detail(self, fundo_id, identificador):
@@ -1172,6 +1176,7 @@ class B3:
 
     def fips(self):
         """Devolve os FIPs listados na B3"""
+        # TODO: adicionar opção para pegar ou não detalhes
         yield from self._funds_by_type("FIP")
 
     def fip_detail(self, fundo_id, identificador):
@@ -1193,6 +1198,7 @@ class B3:
 
     def fiagros(self):
         """Devolve os FI-Agros listados na B3"""
+        # TODO: adicionar opção para pegar ou não detalhes
         yield from self._funds_by_type("FIAGRO-FII")
 
     def fiagro_detail(self, fundo_id, identificador):
@@ -1213,6 +1219,14 @@ class B3:
         if data_final is None:
             data_final = today.date()
         yield from self._fund_documents(34, cnpj, identificador, data_inicial, data_final)
+
+    def fidcs(self):
+        """Devolve os FIDCs listados na B3"""
+        # TODO: adicionar opção para pegar ou não detalhes
+        yield from self._funds_by_type("FIDC")
+
+    def fidc_detail(self, fundo_id, identificador):
+        return self._fund_detail("FIDC", fundo_id, identificador)
 
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
@@ -1803,6 +1817,7 @@ if __name__ == "__main__":
             (b3.fiinfras(), "FI-Infra"),
             (b3.fips(), "FIP"),
             (b3.fiagros(), "FI-Agro"),
+            (b3.fidcs(), "FIDC"),
             (b3.etfs(), "ETF"),
         )
         with csv_filename.open(mode="w") as csv_fobj:
@@ -1812,7 +1827,7 @@ if __name__ == "__main__":
                     print(f"\r{type_name:10}: ..." + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
                 for counter, obj in enumerate(iterator, start=1):
                     if not quiet:
-                        print(f"\r{type_name:10}: {counter:3}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+                        print(f"\r{type_name:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
                     row = obj.serialize()
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
