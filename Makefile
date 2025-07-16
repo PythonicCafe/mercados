@@ -1,3 +1,5 @@
+TAGS_FILE = .tags
+
 bash: 					# Run bash inside `main` container
 	docker compose run --rm -it main bash
 
@@ -26,6 +28,9 @@ release:				# Build and release the package to PyPI
 	docker compose run --rm -it main twine check dist/*
 	docker compose run --rm -it main twine upload dist/*
 
+tags:					# Generate tags file for the entire project (requires universal-ctags)
+	@git ls-files | ctags -L - --tag-relative=yes --quiet --append -f "$(TAGS_FILE)"
+
 test-release:			# Build and test-release the package (to test.pypi.org)
 	rm -rf build dist
 	docker compose run --rm -it main python setup.py sdist bdist_wheel
@@ -33,10 +38,6 @@ test-release:			# Build and test-release the package (to test.pypi.org)
 	docker compose run --rm -it main twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 test:					# Execute `pytest` inside `main` container
-	docker compose run --rm -it main pytest --doctest-modules mercados/ tests/
+	docker compose run --rm -it main pytest --doctest-modules $(TEST_ARGS) mercados/ tests/
 
-test-v:					# Execute `pytest` with verbose option inside `main` container
-	docker compose run --rm -it main pytest --doctest-modules -vvv mercados/ tests/
-
-
-.PHONY:	bash bash-root build container-clean help kill lint release test-release test test-v
+.PHONY:	bash bash-root build container-clean help kill lint release tags test-release test

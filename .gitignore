@@ -16,6 +16,7 @@
 .psql_history
 .python_history
 .sass-cache
+.tags
 .vscode/
 .wget-hsts
 collected-static/

@@ -18,6 +18,7 @@ Algumas premissas para o desenvolvimento:
   sensíveis que possam existir, que devem ser salvos no próprio repositório
 - Mensagens de commit devem ser claras e, caso aplicável, deve conter um dos seguintes prefixos:
   - `[doc] `, para alterações em documentação
+  - `[dev] `, para alterações referentes ao desenvolvimento (`Makefile`, linter etc.)
   - `[pkg] `, para alterações relacionadas ao empacotamento
   - `[util] `, para alterações em funções/métodos utilitários (módulo `utils.py`)
   - `[BCB] `, para alterações em funcionalidades relacionadas ao Banco Central do Brasil
