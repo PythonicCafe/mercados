@@ -5,8 +5,9 @@ mercado financeiro brasileiro de diversas organizações, como Comissão de Valo
 Balcão (B3) e Banco Central do Brasil (BCB). A biblioteca foi desenvolvida ao longo dos últimos anos, já é utilizada em
 sistemas que estão em produção e tem como objetivo ser a melhor, mais robusta e fácil opção para acessar dados do
 mercado financeiro e macroeconômicos de maneira programática. O foco da biblioteca é coletar e tratar as informações
-nas fontes oficiais e apenas de dados que sejam abertos/gratuitos. Por isso, não possui dados que são vendidos (como os
-que são em tempo real).
+nas fontes originais/oficiais e apenas de dados que sejam abertos/gratuitos. Por isso, não possui dados que são
+vendidos (como os que são em tempo real). Ela é implementada de maneira a usar o mínimo de dependências possível (sem
+`pandas`, por exemplo) e da maneira mais Pythônica (idiomática) possível, em Português.
 
 A biblioteca é desenvolvida e testada em sistema Debian GNU/Linux com Python 3.11. É possível que funcione em versões
 mais recentes e em algumas anteriores sem problemas; como ela é feita totalmente em Python, também deve funcionar sem
@@ -110,3 +111,41 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 ### Anbima
 
 - [Debêntures](http://www.debentures.com.br/)
+
+
+### Outras bibliotecas
+
+Aqui listamos outras bibliotecas concorrentes e/ou que complementam os dados e funcionalidades disponíveis na
+`mercados` e que podem ser úteis em análises.
+
+#### Captura de dados
+
+Existem diversas bibliotecas Python que capturam dados do mercado financeiro brasileiro. Alguns projetos estão
+abandonados, já outros não são aderentes ao objetivo da `mercados`, mas talvez possam ser úteis em casos específicos:
+
+- [`brFinance`](https://github.com/eudesrodrigo/brFinance)
+- [`pycvm`](https://github.com/glourencoffee/pycvm/), [`pybov`](https://github.com/glourencoffee/pybov/) e
+  [`pyibr`](https://github.com/glourencoffee/pyibr/)
+- [`FinLogic`](https://github.com/crdcj/FinLogic) e [`PYield`](https://github.com/crdcj/PYield)
+- [`stpstone`](https://github.com/guilhermegor/stpstone)
+- [`cvmpy`](https://github.com/drsansao/cvmpy)
+- [`py_financas`](https://github.com/jfrfonseca/py_financas)
+- [`cvm-sqlite`](https://github.com/eduresser/cvm-sqlite)
+- [`getDataCVM`](https://github.com/mandicneves/getDataCVM)
+- [`pydemonstrativos`](https://github.com/andremsilveira/pydemonstrativos)
+- [`fundosbr`](https://github.com/thobiast/fundosbr)
+- [`fundspy`](https://github.com/joaopm33/fundspy)
+- [`anbima_calendar`](https://github.com/izidorome/anbima_calendar)
+- [`pyettj`](https://github.com/rafa-rod/pyettj), [`tesouro_direto_br`](https://github.com/rafa-rod/tesouro_direto_br)
+  e [`comparar_fundos_br`](https://github.com/rafa-rod/comparar_fundos_br)
+- [`tradingcomdados`](https://pypi.org/project/tradingcomdados/) (sem repositório Git?)
+
+#### Análise de dados
+
+- [`magicformulabr`](https://github.com/thobiast/magicformulabr)
+- [`stocks-52week-rank`](https://github.com/thobiast/stocks-52week-rank)
+- [`pytrendseries`](https://github.com/rafa-rod/pytrendseries)
+- [`ta-lib`](https://ta-lib.org/)
+- [`quantstats`](https://github.com/ranaroussi/quantstats)
+- [`backtesting.py`](https://kernc.github.io/backtesting.py/)
+- [`VectorBT`](https://vectorbt.dev/)
