@@ -1,11 +1,11 @@
 import csv
 import datetime
-import decimal
 import io
 import re
 import socket
 import subprocess
 from dataclasses import fields as dataclass_fields
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from unicodedata import normalize
@@ -203,10 +203,41 @@ def parse_bool(value):
 
 
 def parse_br_decimal(value):
+    """
+    from decimal import Decimal
+    >>> parse_br_decimal("1")
+    Decimal('1')
+    >>> parse_br_decimal("1.234,56")
+    Decimal('1234.56')
+    >>> print(parse_br_decimal(""))
+    None
+    """
     value = str(value or "").strip()
     if not value:
         return None
-    return decimal.Decimal(value.replace(".", "").replace(",", "."))
+    # TODO: melhorar mensagem de erro quando não consegue converter decimal (o valor original não é mostrado, o que
+    # dificulta a depuração)
+    return Decimal(value.replace(".", "").replace(",", "."))
+
+
+def parse_decimal(value):
+    """
+    from decimal import Decimal
+    >>> parse_decimal("1")
+    Decimal('1')
+    >>> parse_decimal("1.23456")
+    Decimal('1.23456')
+    >>> parse_decimal("1,234.56")
+    Decimal('1234.56')
+    >>> print(parse_br_decimal(""))
+    None
+    """
+    value = str(value or "").strip()
+    if not value:
+        return None
+    # TODO: melhorar mensagem de erro quando não consegue converter decimal (o valor original não é mostrado, o que
+    # dificulta a depuração)
+    return Decimal(value.replace(",", ""))
 
 
 def parse_date(fmt, value, full=False):

@@ -9,7 +9,16 @@ from typing import List, Optional
 
 import xmltodict
 
-from .utils import camel_to_snake, clean_xml_dict, parse_bool, parse_br_decimal, parse_date, parse_int, slug
+from .utils import (
+    camel_to_snake,
+    clean_xml_dict,
+    parse_bool,
+    parse_br_decimal,
+    parse_date,
+    parse_decimal,
+    parse_int,
+    slug,
+)
 
 REGEXP_NUMBERS = re.compile("[^0-9]+")
 
@@ -602,7 +611,7 @@ class InformeFII:
             "data_funcionamento": parse_date("iso-date", fix_date(gerais.pop("DataFuncionamento"))),
             "publico_alvo": gerais.pop("PublicoAlvo"),
             "codigo_isin": gerais.pop("CodigoISIN", None),
-            "cotas_emitidas": parse_br_decimal(gerais.pop("QtdCotasEmitidas")),
+            "cotas_emitidas": parse_decimal(gerais.pop("QtdCotasEmitidas")),
             "exclusivo": parse_bool(gerais.pop("FundoExclusivo")),
             "vinculo_familiar_cotistas": parse_bool(gerais.pop("VinculoFamiliarCotistas")),
             "mandato": fix_mandato(autorregulacao.pop("Mandato", None)),
