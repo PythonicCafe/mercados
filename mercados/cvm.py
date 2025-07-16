@@ -743,7 +743,10 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-
-# TODO: carteira dos fundos (CDA - Composição e Diversificação das Aplicações)
+# TODO: adicionar ITR (Informe Trimestral de Resultados)
+# TODO: adicionar Carteira dos fundos (CDA - Composição e Diversificação das Aplicações)
 #       <https://dados.cvm.gov.br/dataset/fi-doc-cda>
 #       <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLCDANetV4.aspx>
+# TODO: adicionar Valores Mobiliários Negociados e Detidos
+#       Pegar de <https://dados.cvm.gov.br/dataset/cia_aberta-doc-vlmo> /
+#       <https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/VLMO/DADOS/> ou RAD?
