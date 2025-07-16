@@ -31,19 +31,105 @@ class Taxa:
 class BancoCentral:
     """Acessa séries temporais e sistema "novoselic" do Banco Central"""
 
+    # TODO: adicionar unidade de medida
+    # TODO: talvez já converter (/ 100) as que são variação percentual
     series = {
-        "Selic diária": 11,
-        "Selic meta diária": 432,
-        "CDI": 12,
-        "IPCA mensal": 433,  # Fonte: IBGE
-        "IGP-M mensal": 189,  # Fonte: FGV
-        "IGP-DI mensal": 190,  # Fonte: ANBIMA
+        # Juros
+        "Selic": 11,  # Frequência: diária. Fonte: BCB-Demab
+        "Selic meta": 432,  # Frequência: diária. Fonte: Copom
+        "CDI": 12,  # Frequência: diária. Fonte: Cetip
+        "Taxa Referencial": 226,  # Frequência: diária. Fonte: BCB-Demab
+        "TR": 226,  # Frequência: diária. Fonte: BCB-Demab
+        "Taxa básica financeira": 253,  # Frequência: diária. Fonte: BCB-Demab
+        "TBF": 253,  # Frequência: diária. Fonte: BCB-Demab
+        # Inflação
+        "IPCA": 433,  # Frequência: mensal. Fonte: IBGE
+        "Fator IPCA": 29542,  # Frequência: mensal. Fonte: BCB-Demab
+        "IPCA-15": 7478,  # Frequência: mensal. Fonte: IBGE
+        "IPCA-E": 10764,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Alimentação e bebidas": 1635,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Habitação": 1636,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Artigos de residência": 1637,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Vestuário": 1638,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Transportes": 1639,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Comunicação": 1640,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Saúde e cuidados pessoais": 1641,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Despesas pessoais": 1642,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Educação": 1643,  # Frequência: mensal. Fonte: IBGE
+        "IPCA - Comercializáveis": 4447,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Não comercializáveis": 4448,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Administrados": 4449,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo médias aparadas com suavização": 4466,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Bens não-duráveis": 10841,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Bens semi-duráveis": 10842,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Duráveis": 10843,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Serviços": 10844,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo médias aparadas sem suavização": 11426,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo por exclusão - EX0": 11427,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Itens livres": 11428,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Alimentação no domicílio": 27864,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Industriais": 27863,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo Ex-alimentação e energia (EXFE)": 28751,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo Percentil 55": 28750,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo de dupla ponderação": 16122,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo por exclusão - EX1": 16121,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo por exclusão - EX2": 27838,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Núcleo por exclusão - EX3": 27839,  # Frequência: mensal. Fonte: BCB-Depec
+        "IPCA - Índice de difusão": 21379,  # Frequência: mensal. Fonte: BCB-Depec
+        "IGP-M": 189,  # Frequência: mensal. Fonte: FGV
+        "IGP-DI": 190,  # Frequência: mensal. Fonte: ANBIMA
+        # Moedas
+        "Dólar venda": 1,  # Frequência: diária. Fonte: Sisbacen PTAX800
+        "Dólar compra": 10813,  # Frequência: diária. Fonte: Sisbacen PTAX800
+        "USD venda": 1,  # Frequência: diária. Fonte: Sisbacen PTAX800
+        "USD compra": 10813,  # Frequência: diária. Fonte: Sisbacen PTAX800
+        "Euro venda": 21619,  # Frequência: diária. Fonte: PTAX
+        "Euro compra": 21620,  # Frequência: diária. Fonte: PTAX
+        "EUR venda": 21619,  # Frequência: diária. Fonte: PTAX
+        "EUR compra": 21620,  # Frequência: diária. Fonte: PTAX
+        "Iene venda": 21621,  # Frequência: diária. Fonte: PTAX
+        "Iene compra": 21622,  # Frequência: diária. Fonte: PTAX
+        "JPY venda": 21621,  # Frequência: diária. Fonte: PTAX
+        "JPY compra": 21622,  # Frequência: diária. Fonte: PTAX
+        "Libra Esterlina venda": 21623,  # Frequência: diária. Fonte: PTAX
+        "Libra Esterlina compra": 21624,  # Frequência: diária. Fonte: PTAX
+        "GBP venda": 21623,  # Frequência: diária. Fonte: PTAX
+        "GBP compra": 21624,  # Frequência: diária. Fonte: PTAX
+        "Franco Suíço venda": 21625,  # Frequência: diária. Fonte: PTAX
+        "Franco Suíço compra": 21626,  # Frequência: diária. Fonte: PTAX
+        "CHF venda": 21625,  # Frequência: diária. Fonte: PTAX
+        "CHF compra": 21626,  # Frequência: diária. Fonte: PTAX
+        "Coroa Dinamarquesa venda": 21627,  # Frequência: diária. Fonte: PTAX
+        "Coroa Dinamarquesa compra": 21628,  # Frequência: diária. Fonte: PTAX
+        "DKK venda": 21627,  # Frequência: diária. Fonte: PTAX
+        "DKK compra": 21628,  # Frequência: diária. Fonte: PTAX
+        "Coroa Norueguesa venda": 21629,  # Frequência: diária. Fonte: PTAX
+        "Coroa Norueguesa compra": 21630,  # Frequência: diária. Fonte: PTAX
+        "NOK venda": 21629,  # Frequência: diária. Fonte: PTAX
+        "NOK compra": 21630,  # Frequência: diária. Fonte: PTAX
+        "Coroa Sueca venda": 21631,  # Frequência: diária. Fonte: PTAX
+        "Coroa Sueca compra": 21632,  # Frequência: diária. Fonte: PTAX
+        "SEK venda": 21631,  # Frequência: diária. Fonte: PTAX
+        "SEK compra": 21632,  # Frequência: diária. Fonte: PTAX
+        "Dólar Australiano venda": 21633,  # Frequência: diária. Fonte: PTAX
+        "Dólar Australiano compra": 21634,  # Frequência: diária. Fonte: PTAX
+        "AUD venda": 21633,  # Frequência: diária. Fonte: PTAX
+        "AUD compra": 21634,  # Frequência: diária. Fonte: PTAX
+        "Dólar Canadense venda": 21635,  # Frequência: diária. Fonte: PTAX
+        "Dólar Canadense compra": 21636,  # Frequência: diária. Fonte: PTAX
+        "CAD venda": 21635,  # Frequência: diária. Fonte: PTAX
+        "CAD compra": 21636,  # Frequência: diária. Fonte: PTAX
+        # Outras
+        "Saldo de depósitos de poupança": 239,  # Frequência: diário. Fonte: Sisbacen PESP300
+        "Reservas internacionais": 13621,  # Frequência: diária. Fonte: BCB-DSTAT
     }
-    # TODO: pegar outros IPCAs
-    # TODO: IMA-B (12466?) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
-    # TODO: IMA-B 5 (12467?) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
-    # TODO: IMA-B 5+ (12468?) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
-    # TODO: IMA-S (12462?) - a fonte oficial é a ANBIMA, não seria melhor pegar diretamente de lá?
+    # XXX: algumas séries pararam de ser atualizadas e por isso não foram adicionadas, como:
+    #      "Bovespa - índice" (código 7)
+    #      "Dow Jones NYSE - índice" (código 7809)
+    #      "Nasdaq - índice" (código 7810)
+    #      "IPCA - Transportes e comunicação" (código 1655)
+
+    # TODO: pegar índices IMA-X diretamente da Anbima (não estão mais sendo atualizados no SGS)
     # TODO: pegar URV (parou) de https://api.bcb.gov.br/dados/serie/bcdata.sgs.XX/dados?formato=json
     # TODO: pegar UFIR (parou) de https://www3.bcb.gov.br/sgspub/consultarmetadados/consultarMetadadosSeries.do?method=consultarMetadadosSeriesInternet&hdOidSerieSelecionada=22
     # TODO: pegar outras das principais séries
@@ -53,18 +139,24 @@ class BancoCentral:
         # Por algum motivo, o serviço REST "novoselic" não retorna resultados caso o cabeçalho `Accept` seja passado
         del self.session.headers["Accept"]
 
-    def serie_temporal(self, nome: str, inicio: datetime.date = None, fim: datetime.date = None) -> list[Taxa]:
+    def serie_temporal(
+        self, nome_ou_codigo: str | int, inicio: datetime.date = None, fim: datetime.date = None
+    ) -> list[Taxa]:
         """
         Acessa API de séries temporais do Banco Central
 
-        :param str nome: nome da série temporal a ser usada (ver lista na variável `series`)
+        :param str | int nome_ou_codigo: nome da série temporal a ser usada (ver lista na variável `series`) ou código
+        usado pelo SGS.
         :param datetime.date inicio: (opcional) Data de início dos dados. Se não especificado, pegará desde o início da
         série (pode ser demorado).
         :param datetime.date fim: (opcional) Data de fim dos dados. Se não especificado, pegará até o final da série.
         """
-        codigo = self.series.get(nome)
-        if codigo is None:
-            raise ValueError(f"Nome de série não encontrado: {repr(nome)}")
+        if isinstance(nome_ou_codigo, str):
+            codigo = self.series.get(nome_ou_codigo)
+            if codigo is None:
+                raise ValueError(f"Nome de série não encontrado: {repr(nome_ou_codigo)}")
+        else:
+            codigo = nome_ou_codigo
         url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados"
         params = {"formato": "json"}
         if inicio is not None:
