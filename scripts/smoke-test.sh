@@ -31,14 +31,23 @@ python -m mercados.cvm rad-busca -e 'MARCOPOLO S.A. (REGISTRO ATIVO)' -e 'VULCAB
 echo mercados.cvm contas-fundos
 python -m mercados.cvm contas-fundos "${DATA_PATH}/cvm-contas-fundos.csv"
 
-echo mercados.cvm informe-diario-fundo
-python -m mercados.cvm informe-diario-fundo 2024-12-06 "${DATA_PATH}/cvm-informe-diario-fundo-2024-12-06.csv"
+echo "mercados.cvm informe-diario-fundo [1]"
+python -m mercados.cvm informe-diario-fundo 2024-12-06 "${DATA_PATH}/cvm-informe-diario-fundo-2024-12_1.csv"
 
-echo mercados.cvm balancete-fundo-investimento
-python -m mercados.cvm balancete-fundo-investimento 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-investimento-2025-06.csv"
+echo "mercados.cvm informe-diario-fundo [2]"
+python -m mercados.cvm informe-diario-fundo 2024-12 "${DATA_PATH}/cvm-informe-diario-fundo-2024-12_2.csv"
 
-echo mercados.cvm balancete-fundo-estruturado
-python -m mercados.cvm balancete-fundo-estruturado 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-estruturado-2025-06.csv"
+echo "mercados.cvm balancete-fundo-investimento [1]"
+python -m mercados.cvm balancete-fundo-investimento 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-investimento-2025-06_1.csv"
+
+echo "mercados.cvm balancete-fundo-investimento [2]"
+python -m mercados.cvm balancete-fundo-investimento 2025-06 "${DATA_PATH}/cvm-balancete-fundo-investimento-2025-06_2.csv"
+
+echo "mercados.cvm balancete-fundo-estruturado [1]"
+python -m mercados.cvm balancete-fundo-estruturado 2025-06-01 "${DATA_PATH}/cvm-balancete-fundo-estruturado-2025-06_1.csv"
+
+echo "mercados.cvm balancete-fundo-estruturado [2]"
+python -m mercados.cvm balancete-fundo-estruturado 2025-06 "${DATA_PATH}/cvm-balancete-fundo-estruturado-2025-06_2.csv"
 
 
 # FundosNET

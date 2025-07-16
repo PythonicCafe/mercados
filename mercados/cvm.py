@@ -20,6 +20,7 @@ from .utils import (
     download_files,
     parse_date,
     parse_iso_date,
+    parse_iso_month,
     slug,
 )
 
@@ -159,14 +160,13 @@ class CVM:
             params["b_start:int"] += 60
             finished = len(items) != params["b_size"]
 
-    def url_informe_diario_fundo(self, data: datetime.date):
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        if (data.year, data.month) >= (2021, 1):
-            return (
-                f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{data.year}{data.month:02d}.zip"
-            )
+    def url_informe_diario_fundo(self, ano_mes: datetime.date | str):
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        if (ano_mes.year, ano_mes.month) >= (2021, 1):
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{ano_mes.year}{ano_mes.month:02d}.zip"
         else:
-            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{data.year}.zip"
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{ano_mes.year}.zip"
 
     def _le_zip_informe_diario(self, zip_filename, data):
         zf = zipfile.ZipFile(zip_filename)
@@ -186,19 +186,20 @@ class CVM:
             for row in csv.DictReader(fobj, delimiter=";"):
                 yield InformeDiarioFundo.from_dict({key.lower(): value for key, value in row.items()})
 
-    def informe_diario_fundo(self, data: datetime.date):
+    def informe_diario_fundo(self, ano_mes: datetime.date | str):
         """
         Baixa e converte o arquivo ZIP de informe diário para todos os fundos de um determinado mês
 
-        Nota: o que importa no objeto `data` é apenas o ano e o mês (o dia é ignorado, dado que o arquivo baixado será
-        referente a um mês inteiro).
+        Nota: `ano_mes` pode ser uma string nos formatos YYYY-MM ou YYYY-MM-DD ou um `datetime.date`. Nos casos em que
+        o dia é especificado, ele é ignorado.
         """
         # TODO: guardar em cache esse arquivo!
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        url = self.url_informe_diario_fundo(data)
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        url = self.url_informe_diario_fundo(ano_mes)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
-        yield from self._le_zip_informe_diario(zip_fobj, data)
+        yield from self._le_zip_informe_diario(zip_fobj, ano_mes)
 
     def contas_fundos(self):
         response = self.session.get("https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx")
@@ -228,21 +229,21 @@ class CVM:
             )
         return result
 
-    def url_balancete_fundo_investimento(self, data: datetime.date):
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        if data >= datetime.date(2015, 1, 1):
-            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/balancete_fi_{data.year}{data.month:02d}.zip"
+    def url_balancete_fundo_investimento(self, ano_mes: datetime.date | str):
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        if ano_mes >= datetime.date(2015, 1, 1):
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/balancete_fi_{ano_mes.year}{ano_mes.month:02d}.zip"
         else:
-            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/HIST/balancete_fi_{data.year}{data.month:02d}.zip"
+            return f"https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/HIST/balancete_fi_{ano_mes.year}{ano_mes.month:02d}.zip"
 
-    def url_balancete_fundo_estruturado(self, data: datetime.date):
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        if data >= datetime.date(2024, 1, 1):
-            return (
-                f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{data.year}{data.month:02d}.zip"
-            )
+    def url_balancete_fundo_estruturado(self, ano_mes: datetime.date | str):
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        if ano_mes >= datetime.date(2024, 1, 1):
+            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/balancete_fie_{ano_mes.year}{ano_mes.month:02d}.zip"
         else:
-            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/HIST/balancete_fie_{data.year}.zip"
+            return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/HIST/balancete_fie_{ano_mes.year}.zip"
 
     def _le_zip_balancete(self, zip_filename):
         zf = zipfile.ZipFile(zip_filename)
@@ -256,18 +257,20 @@ class CVM:
                     if obj is not None:
                         yield obj
 
-    def balancete_fundo_investimento(self, data: datetime.date):
+    def balancete_fundo_investimento(self, ano_mes: datetime.date | str):
         # TODO: guardar em cache esse arquivo!
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        url = self.url_balancete_fundo_investimento(data)
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        url = self.url_balancete_fundo_investimento(ano_mes)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_balancete(zip_fobj)
 
-    def balancete_fundo_estruturado(self, data: datetime.date):
+    def balancete_fundo_estruturado(self, ano_mes: datetime.date | str):
         # TODO: guardar em cache esse arquivo!
-        # TODO: talvez usar `ano` e `mes` em vez de `data`, dado que pode confundir (o dia é ignorado)
-        url = self.url_balancete_fundo_estruturado(data)
+        if isinstance(ano_mes, str):
+            ano_mes = parse_iso_month(ano_mes)
+        url = self.url_balancete_fundo_estruturado(ano_mes)
         response = self.session.get(url)
         zip_fobj = io.BytesIO(response.content)
         # TODO: deveria extrair de maneira diferente o ZIP anual e o mensal?
@@ -590,7 +593,9 @@ if __name__ == "__main__":
         "informe-diario-fundo", help="Baixa informes diários dos fundos para um determinado mês"
     )
     parser_informe_diario_fundo.add_argument(
-        "data", type=parse_iso_date, help="Mês de referência do informe (YYYY-MM-DD)"
+        "ano_mes",
+        type=parse_iso_month,
+        help="Mês de referência do informe no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_informe_diario_fundo.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
@@ -603,7 +608,9 @@ if __name__ == "__main__":
         "balancete-fundo-investimento", help="Baixa balancetes dos fundos de investimento para um determinado mês"
     )
     parser_balancete_fundo_investimento.add_argument(
-        "data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)"
+        "ano_mes",
+        type=parse_iso_month,
+        help="Mês de referência do balancete no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_balancete_fundo_investimento.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
@@ -611,7 +618,9 @@ if __name__ == "__main__":
         "balancete-fundo-estruturado", help="Baixa balancetes dos fundos estruturados para um determinado mês"
     )
     parser_balancete_fundo_estruturado.add_argument(
-        "data", type=parse_iso_date, help="Mês de referência do balancete (YYYY-MM-DD)"
+        "ano_mes",
+        type=parse_iso_month,
+        help="Mês de referência do balancete no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_balancete_fundo_estruturado.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
@@ -685,14 +694,14 @@ if __name__ == "__main__":
                 writer.writerow(row)
 
     elif args.command == "informe-diario-fundo":
-        data = args.data
+        ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
         cvm = CVM()
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for informe in cvm.informe_diario_fundo(data):
+            for informe in cvm.informe_diario_fundo(ano_mes):
                 row = asdict(informe)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -714,14 +723,14 @@ if __name__ == "__main__":
                 writer.writerow(row)
 
     elif args.command == "balancete-fundo-investimento":
-        data = args.data
+        ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
         cvm = CVM()
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in cvm.balancete_fundo_investimento(data):
+            for item in cvm.balancete_fundo_investimento(ano_mes):
                 row = asdict(item)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
@@ -729,14 +738,14 @@ if __name__ == "__main__":
                 writer.writerow(row)
 
     elif args.command == "balancete-fundo-estruturado":
-        data = args.data
+        ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
         cvm = CVM()
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in cvm.balancete_fundo_estruturado(data):
+            for item in cvm.balancete_fundo_estruturado(ano_mes):
                 row = asdict(item)
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))

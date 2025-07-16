@@ -247,6 +247,26 @@ def parse_iso_date(value):
     return parse_date("iso-date", value)
 
 
+def parse_iso_month(value):
+    """
+    >>> import datetime
+    >>> parse_iso_month("2025-07")
+    datetime.date(2025, 7, 1)
+    >>> parse_iso_month("2025-07-02")
+    datetime.date(2025, 7, 1)
+    """
+    value = str(value or "").strip()
+    if not value or value == "0001-01-01":
+        return None
+    if len(value) not in (7, 10):
+        raise ValueError(f"Invalid format for year/month: got {repr(value)} (expected YYYY-MM)")
+    elif len(value) == 7:  # YYYY-MM
+        value += "-01"
+    else:
+        value = value[:-2] + "01"
+    return parse_date("iso-date", value)
+
+
 def parse_datetime_force_timezone(value):
     return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
 
@@ -265,7 +285,9 @@ def parse_br_date(value):
 
 def parse_time(value):
     """
+    >>> import datetime
     >>> parse_time('165443336')  # 16 h 54 min 43 s 336 ms
+    datetime.time(16, 54, 43, 336000)
     """
     assert value.isdigit() and len(value) == 9, f"Esperada string no formato HHMMSSNNN, recebida: {repr(value)}"
     return datetime.time(
