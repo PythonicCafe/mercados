@@ -1199,7 +1199,10 @@ class B3:
     def fiagros(self):
         """Devolve os FI-Agros listados na B3"""
         # TODO: adicionar opção para pegar ou não detalhes
+        yield from self._funds_by_type("FIAGRO")
         yield from self._funds_by_type("FIAGRO-FII")
+        yield from self._funds_by_type("FIAGRO-FIDC")
+        yield from self._funds_by_type("FIAGRO-FIP")
 
     def fiagro_detail(self, fundo_id, identificador):
         return self._fund_detail("FIAGRO-FII", fundo_id, identificador)
