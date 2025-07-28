@@ -590,7 +590,7 @@ class NegociacaoIntradiaria:
 @dataclass
 class EmprestimoAtivo:
     data: datetime.date
-    ticker: str
+    codigo_negociacao: str
     codigo_isin: str
     nome: str
     mercado: str
@@ -611,7 +611,7 @@ class EmprestimoAtivo:
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
             data=row.pop("Data"),
-            ticker=row.pop("Ticker"),
+            codigo_negociacao=row.pop("Ticker"),
             codigo_isin=row.pop("ISIN"),
             nome=row.pop("Empresa ou Fundo"),
             mercado=row.pop("Mercado"),
@@ -634,7 +634,7 @@ class EmprestimoAtivo:
 @dataclass
 class EmprestimoNegociado:
     data_referencia: datetime.date
-    ticker: str
+    codigo_negociacao: str
     quantidade: int
     taxa_remuneracao: float
     numero_negocio: int
@@ -656,7 +656,7 @@ class EmprestimoNegociado:
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
             data_referencia=row.pop("Data de referência"),
-            ticker=row.pop("Papel"),
+            codigo_negociacao=row.pop("Papel"),
             quantidade=int(row.pop("Quantidade")),
             codigo=int(row.pop("Código")),
             taxa_remuneracao=parse_float(row.pop("Taxa % Remuneração")),
@@ -680,7 +680,7 @@ class EmprestimoNegociado:
 @dataclass
 class EmprestimoEmAberto:
     data: datetime.date
-    ticker: str
+    codigo_negociacao: str
     codigo_isin: str
     empresa: str
     tipo: str
@@ -697,7 +697,7 @@ class EmprestimoEmAberto:
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
             data=row.pop("Data"),
-            ticker=row.pop("Ticker"),
+            codigo_negociacao=row.pop("Ticker"),
             codigo_isin=row.pop("ISIN"),
             empresa=row.pop("Empresa ou Fundo"),
             tipo=row.pop("Tipo"),
@@ -715,7 +715,7 @@ class EmprestimoEmAberto:
 
 @dataclass
 class OpcaoFlexivel:
-    ticker: str
+    codigo_negociacao: str
     operacao: str
     descricao: str
     vencimento: datetime.date
@@ -731,7 +731,7 @@ class OpcaoFlexivel:
             assert row[key].endswith("T00:00:00"), f"Data para coluna {key} em formato inválido: {repr(row[key])}"
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
-            ticker=row.pop("Código"),
+            codigo_negociacao=row.pop("Código"),
             operacao=row.pop("Tipo de opção"),
             descricao=row.pop("Opção"),
             vencimento=row.pop("Vencimento"),
@@ -1518,12 +1518,12 @@ class B3:
         )
 
     def clearing_emprestimos_registrados(
-        self, data_inicial: datetime.date, data_final: datetime.date, filtro_ticker=None
+        self, data_inicial: datetime.date, data_final: datetime.date, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
         query_params = {"sort": "TckrSymb"}
-        if filtro_ticker is not None:
-            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        if codigo_negociacao is not None:
+            query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/BTBLoanBalance/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_final.isoformat()},
@@ -1532,7 +1532,7 @@ class B3:
         )
 
     def clearing_emprestimos_negociados(
-        self, data: datetime.date, filtro_tomador=None, filtro_doador=None, filtro_mercado=None, filtro_ticker=None
+        self, data: datetime.date, filtro_tomador=None, filtro_doador=None, filtro_mercado=None, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Negócios"""
         query_params = {"sort": "TckrSymb"}
@@ -1543,8 +1543,8 @@ class B3:
             json_data["EntrySellerNm"] = filtro_doador
         if filtro_mercado is not None:
             json_data["MarketBTB"] = filtro_mercado
-        if filtro_ticker is not None:
-            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        if codigo_negociacao is not None:
+            query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/BTBTrade/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1559,12 +1559,12 @@ class B3:
         return self.request(f"https://arquivos.b3.com.br/bdi/table/BTBTrade/{data}/{data}/filters")
 
     def clearing_emprestimos_em_aberto(
-        self, data_inicial: datetime.date, data_final: datetime.date, filtro_mercado=None, filtro_ticker=None
+        self, data_inicial: datetime.date, data_final: datetime.date, filtro_mercado=None, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Posições em Aberto"""
         query_params = {"sort": "TckrSymb"}
-        if filtro_ticker is not None:
-            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        if codigo_negociacao is not None:
+            query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
         json_data = {}
         if filtro_mercado is not None:
             json_data["Market"] = filtro_mercado
@@ -1584,11 +1584,11 @@ class B3:
             f"https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/filters"
         )
 
-    def clearing_opcoes_flexiveis(self, data: datetime.date, filtro_ticker=None):
+    def clearing_opcoes_flexiveis(self, data: datetime.date, codigo_negociacao=None):
         """Clearing - Opções Flexíveis"""
         query_params = {"sort": "TckrSymb"}
-        if filtro_ticker is not None:
-            query_params["filter"] = base64.b64encode(filtro_ticker.encode("utf-8")).decode("ascii")
+        if codigo_negociacao is not None:
+            query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/FlexibleOptions/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1740,7 +1740,7 @@ if __name__ == "__main__":
         "clearing-emprestimos-registrados",
         help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados",
     )
-    subparser_clearing_emprestimos_registrados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_registrados.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
     subparser_clearing_emprestimos_registrados.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1755,7 +1755,7 @@ if __name__ == "__main__":
     subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
     subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
     subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
-    subparser_clearing_emprestimos_negociados.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_negociados.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
     subparser_clearing_emprestimos_negociados.add_argument(
         "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1765,7 +1765,7 @@ if __name__ == "__main__":
         "clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto"
     )
     subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
-    subparser_clearing_emprestimos_em_aberto.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_emprestimos_em_aberto.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
     subparser_clearing_emprestimos_em_aberto.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1777,7 +1777,7 @@ if __name__ == "__main__":
     subparser_clearing_opcoes_flexiveis = subparsers.add_parser(
         "clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis"
     )
-    subparser_clearing_opcoes_flexiveis.add_argument("--ticker", type=str, help="Filtra por ticker")
+    subparser_clearing_opcoes_flexiveis.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
     subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
@@ -2152,7 +2152,7 @@ if __name__ == "__main__":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in b3.clearing_emprestimos_registrados(
-                data_inicial=args.data_inicial, data_final=args.data_final, filtro_ticker=args.ticker
+                data_inicial=args.data_inicial, data_final=args.data_final, codigo_negociacao=args.codigo_negociacao
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2168,7 +2168,7 @@ if __name__ == "__main__":
                 filtro_tomador=args.tomador,
                 filtro_doador=args.doador,
                 filtro_mercado=args.mercado,
-                filtro_ticker=args.ticker,
+                codigo_negociacao=args.codigo_negociacao,
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2183,7 +2183,7 @@ if __name__ == "__main__":
                 data_inicial=args.data_inicial,
                 data_final=args.data_final,
                 filtro_mercado=args.mercado,
-                filtro_ticker=args.ticker,
+                codigo_negociacao=args.codigo_negociacao,
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2194,7 +2194,7 @@ if __name__ == "__main__":
     elif command == "clearing-opcoes-flexiveis":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_opcoes_flexiveis(data=args.data, filtro_ticker=args.ticker):
+            for item in b3.clearing_opcoes_flexiveis(data=args.data, codigo_negociacao=args.codigo_negociacao):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))

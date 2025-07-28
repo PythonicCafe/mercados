@@ -156,6 +156,54 @@ CPTI11 80.43 81.48
 PETRX8 0.20 0.20
 ```
 
+### Exemplo: Aluguel de Ativos
+
+No exemplo abaixo, pegamos os dados para aluguel do ativo XPML11 para os últimos 30 dias (os dados só ficam disponíveis
+para esse período). Para termos um resultado com maior granularidade, coletamos os dados dia a dia, mas é possível
+passar um período (data inicial e final diferentes) para evitar muitas requisições. Para cada dia e ativo é possível
+que mais de um registro apareça, dado que podem existir valores distintos para o campo "mercado" ("Registro" ou "Neg.
+Eletrônica D+1").
+
+```python
+import csv
+import datetime
+
+from mercados.b3 import B3
+
+ativo = "XPML11"
+csv_filename = f"b3-aluguel-{ativo}.csv"
+b3 = B3()
+data_final = datetime.datetime.now().date()  # Hoje
+data_inicial = data_final - datetime.timedelta(days=30)  # 1 mês atrás
+data = data_final
+with open(csv_filename, mode="w") as fobj:
+    writer = None
+    print(f"Capturando dados de aluguel para {ativo}")
+    while data >= data_inicial:
+        dados = b3.clearing_emprestimos_registrados(data_inicial=data, data_final=data, codigo_negociacao=ativo)
+        resultado = sorted(dados, key=lambda item: item.data, reverse=True)  # Ordena dados pela data (decrescente)
+        if resultado:
+            item = resultado[0]
+            print(f"  {item}")
+            row = item.serialize()  # Transforma `item` (que é uma dataclass) em um dicionário
+            if writer is None:
+                writer = csv.DictWriter(fobj, fieldnames=list(row.keys()))
+                writer.writeheader()
+            writer.writerow(row)
+        data -= datetime.timedelta(days=1)
+```
+
+O arquivo `b3-aluguel-XPML11.csv` deve ser criado e o programa mostrará na tela algo como:
+
+```
+Capturando dados de aluguel para XPML11
+  EmprestimoAtivo(data=datetime.date(2025, 7, 25), codigo_negociacao='XPML11', codigo_isin='BRXPMLCTF000', nome='XP MALLS FDO INV IMOB FII RESP LIM', mercado='Registro', contratos=43, quantidade=9692, minima=0.0012, media_ponderada=0.0012, maxima=0.0012, valor=Decimal('978601.24'), taxa_doador=None, taxa_tomador=None)
+  EmprestimoAtivo(data=datetime.date(2025, 7, 24), codigo_negociacao='XPML11', codigo_isin='BRXPMLCTF000', nome='XP MALLS FDO INV IMOB FII RESP LIM', mercado='Registro', contratos=147, quantidade=103759, minima=0.0012, media_ponderada=0.0012, maxima=0.0012, valor=Decimal('10454756.84'), taxa_doador=None, taxa_tomador=None)
+  [...]
+  EmprestimoAtivo(data=datetime.date(2025, 7, 1), codigo_negociacao='XPML11', codigo_isin='BRXPMLCTF000', nome='XP MALLS FDO INV IMOB FII RESP LIM', mercado='Registro', contratos=54, quantidade=34623, minima=0.0009, media_ponderada=0.0009, maxima=0.0015, valor=Decimal('3585211.65'), taxa_doador=None, taxa_tomador=None)
+  EmprestimoAtivo(data=datetime.date(2025, 6, 30), codigo_negociacao='XPML11', codigo_isin='BRXPMLCTF000', nome='XP MALLS FDO INV IMOB FII RESP LIM', mercado='Registro', contratos=45, quantidade=125078, minima=0.0009, media_ponderada=0.0009, maxima=0.0009, valor=Decimal('12904297.26'), taxa_doador=None, taxa_tomador=None)
+```
+
 
 ## FundosNET
 
