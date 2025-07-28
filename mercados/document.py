@@ -177,7 +177,7 @@ class InformeRendimentos:
         original_data = {
             key: value for key, value in original_data.items() if not key.startswith("@")  # Remove namespace info
         }
-        assert not original_data
+        assert not original_data, f"Valores não extraídos: {original_data=}"
 
         gerais = data.pop("DadosGerais", {}) or {}
         row = {
@@ -192,7 +192,7 @@ class InformeRendimentos:
             "data_informacao": gerais.pop("DataInformacao", ""),
             "ano": gerais.pop("Ano", ""),
         }
-        assert not gerais, f"gerais: {gerais}"
+        assert not gerais, f"Valores não extraídos: {gerais=}"
 
         informe_rendimentos = data.pop("InformeRendimentos", {}) or {}
         rendimentos, amortizacoes = [], []
@@ -223,8 +223,8 @@ class InformeRendimentos:
                         amortizacao = clean_dict(provento.pop("Amortizacao", {}) or {})
                         if amortizacao and list(amortizacao.keys()) != ["@tipo"]:
                             amortizacoes.append({**provento_base, **amortizacao})
-                    assert not provento, f"provento: {provento}"
-        assert not informe_rendimentos, f"informe_rendimentos: {informe_rendimentos}"
+                    assert not provento, f"Valores não extraídos: {provento=}"
+        assert not informe_rendimentos, f"Valores não extraídos: {informe_rendimentos=}"
 
         # TODO: parse periodo_referencia
         for rendimento in rendimentos:
@@ -245,7 +245,7 @@ class InformeRendimentos:
             if not part["ano"]:
                 del part["ano"]
             result.append(make_data_object(cls, {**row, **part}))
-            assert not rendimento, f"rendimento: {rendimento}"
+            assert not rendimento, f"Valores não extraídos: {rendimento=}"
 
         for amortizacao in amortizacoes:
             part = {
@@ -266,7 +266,7 @@ class InformeRendimentos:
             if not part["ano"]:
                 del part["ano"]
             result.append(make_data_object(cls, {**row, **part}))
-            assert not amortizacao, f"amortizacao: {amortizacao}"
+            assert not amortizacao, f"Valores não extraídos: {amortizacao=}"
 
         return result
 
@@ -353,7 +353,7 @@ class OfertaPublica:
         cota = data.pop("DadosCota", {}) or {}
         cota2 = cota.pop("Cota", {}) or {}
         row.update({camel_to_snake(key): value for key, value in cota2.items()})
-        assert not cota, f"cota: {cota}"
+        assert not cota, f"Valores não extraídos: {cota=}"
 
         dp = data.pop("DireitoPreferencia", {}) or {}
         row.update(camel_dict(dp.pop("ExercicioDireitoPreferenciaB3", {}), "dp_b3_"))
@@ -364,7 +364,7 @@ class OfertaPublica:
             )
         )
         row.update({"dp_escriturador_dt_liquidacao": dp.pop("DtLiquidacao", None)})
-        assert not dp, f"dp: {dp}"
+        assert not dp, f"Valores não extraídos: {dp=}"
 
         ndp = data.pop("NegociacaoDireitoPreferencia", {}) or {}
         row.update(camel_dict(ndp.pop("ExercicioNegociacaoDireitoB3", {}), "dp_negociacao_b3_"))
@@ -374,7 +374,7 @@ class OfertaPublica:
                 "dp_negociacao_escriturador_",
             )
         )
-        assert not ndp, f"ndp: {ndp}"
+        assert not ndp, f"Valores não extraídos: {ndp=}"
 
         sobras = data.pop("SobrasSubscricao", {}) or {}
         row.update(camel_dict(sobras.pop("ExercicioSobrasSubscricaoB3", {}), "sobras_b3_"))
@@ -385,7 +385,7 @@ class OfertaPublica:
             )
         )
         row.update({"sobras_dt_liquidacao": sobras.pop("DtLiquidacao", None)})
-        assert not sobras, f"sobras: {sobras}"
+        assert not sobras, f"Valores não extraídos: {sobras=}"
 
         dda = data.pop("SistemaDDA", {}) or {}
         row.update(camel_dict(dda.pop("PeriodoSubscricao", {}), "dda_subscricao_"))
@@ -393,7 +393,7 @@ class OfertaPublica:
         row.update(camel_dict(dda.pop("PeriodoAlocacao", {}), "dda_alocacao_"))
         row.update({"dda_dt_liquidacao": dda.pop("DtLiquidacao", None)})
         row.update({"dda_chamada_capital": dda.pop("ChamadaCapital", None)})
-        assert not dda, f"dda: {dda}"
+        assert not dda, f"Valores não extraídos: {dda=}"
 
         montante_adicional = data.pop("MontanteAdicional", {}) or {}
         row.update(
@@ -409,7 +409,7 @@ class OfertaPublica:
             )
         )
         row.update({"montante_adicional_dt_liquidacao": montante_adicional.pop("DtLiquidacao", None)})
-        assert not montante_adicional, f"montante_adicional: {montante_adicional}"
+        assert not montante_adicional, f"Valores não extraídos: {montante_adicional=}"
 
         for key in list(data):
             value = data[key]
@@ -417,7 +417,7 @@ class OfertaPublica:
                 row[camel_to_snake(key)] = value
                 del data[key]
 
-        assert not data, f"data: {data}"
+        assert not data, f"Valores não extraídos: {data=}"
         return make_data_object(
             cls,
             {
@@ -454,6 +454,14 @@ class DocumentMeta:
 
     @classmethod
     def from_json(cls, row):
+        # XXX: `status` e `situacao` significam a mesma coisa (ativo, cancelado e inativo), mas com escritas
+        # diferentes:
+        # status | situacao | count
+        #--------+----------+--------
+        # AC     | A        | 600154
+        # CC     | C        |   7464
+        # IC     | I        |  87735
+
         # XXX: Os campos abaixo estão sempre em branco e não são coletados:
         #      - arquivoEstruturado
         #      - assuntos
@@ -514,7 +522,7 @@ class DocumentMeta:
             tipo=row["tipo"],
             versao=int(row["versao"]),
         )
-        assert not row
+        assert not row, f"Valores não extraídos: {row=}"
         return obj
 
     def serialize(self):
@@ -589,7 +597,7 @@ class InformeFII:
         informe_mensal = data.pop("InformeMensal", {}) or {}
         informe_trimestral = data.pop("InformeTrimestral", {}) or {}
         informe_anual = data.pop("InformeAnual", {}) or {}
-        assert not data, f"data: {data}"
+        assert not data, f"Valores não extraídos: {data=}"
 
         if informe_mensal:
             tipo = "Informe Mensal"
@@ -643,11 +651,13 @@ class InformeFII:
             "data_encerramento_trimestre": parse_date("iso-date", gerais.pop("DataEncerTrimestre", None)),
             "dados": informe_mensal or informe_trimestral or informe_anual,
         }
+        if gerais == {"#text": ">"}:
+            gerais = None
 
-        assert not gerais, f"gerais: {gerais}"
-        assert not autorregulacao, f"autorregulacao: {autorregulacao}"
-        assert not mercado_negociacao, f"mercado_negociacao: {mercado_negociacao}"
-        assert not entidade_administradora, f"entidade_administradora: {entidade_administradora}"
+        assert not gerais, f"Valores não extraídos: {gerais=}"
+        assert not autorregulacao, f"Valores não extraídos: {autorregulacao=}"
+        assert not mercado_negociacao, f"Valores não extraídos: {mercado_negociacao=}"
+        assert not entidade_administradora, f"Valores não extraídos: {entidade_administradora=}"
 
         return [cls(**row)]
 
