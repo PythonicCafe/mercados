@@ -5,7 +5,6 @@
 
 export PYTHONPATH=.
 export DATA_PATH="data/test"
-rm -rf "${DATA_PATH}"
 ontem=$(date -d "yesterday" +%Y-%m-%d)
 dia_semana=$(date -d "$ontem" +%u)
 if [ "$dia_semana" -eq 7 ]; then  # Domingo
@@ -16,6 +15,8 @@ else
   DATA_INICIAL=$ontem
 fi
 DATA_ANTERIOR=$(date -d "$DATA_INICIAL -15 days" +%Y-%m-%d)
+
+rm -rf "${DATA_PATH}"
 
 
 # CVM
@@ -91,6 +92,9 @@ python -m mercados.b3 bdr "${DATA_PATH}/b3-bdr.csv"
 
 echo mercados.b3 fundo-listado
 python -m mercados.b3 fundo-listado "${DATA_PATH}/b3-fundo-listado.csv"
+
+echo mercados.b3 fundo-listado detalhe
+python -m mercados.b3 fundo-listado --detalhe "${DATA_PATH}/b3-fundo-listado-detalhe.csv"
 
 echo mercados.b3 cra-documents # TODO: não funciona!
 python -m mercados.b3 cra-documents "${DATA_PATH}/b3-cra-documents.csv"

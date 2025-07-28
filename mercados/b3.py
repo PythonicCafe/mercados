@@ -57,9 +57,15 @@ def json_decode(data):
         raise ValueError(f"Cannot decode JSON: {repr(data)}")
 
 
+# TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
 # TODO: Preço teórico de ETFs de renda fixa:
 # https://sistemaswebb3-derivativos.b3.com.br/financialIndicatorsProxy/PriceEtfShare/GetPrices/eyJsYW5ndWFnZSI6InB0LWJyIn0=
 # {"language":"pt-br"}
+
+# TODO: notícias filtradas por empresas:
+#       https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedHeadLines/
+#       b'{"agency":"18","dateInitial":"2025-06-17","dateFinal":"2025-07-17","issuingCompany":"(CSMG"}'
+#       issuingCompany tem um "(" antes?
 
 # TODO: baixar e tratar vários arquivos de <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/>
 #       Descrição: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/descricao-dos-arquivos/
@@ -76,8 +82,6 @@ def json_decode(data):
 # TODO: pegar negociações after market de
 # <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/>
 # ou de lugar parecido com as de balcão?
-
-# TODO: pegar plantão de notícias <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/plantao-de-noticias/>
 
 # TODO: opções - séries autorizadas https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/mercado-a-vista/opcoes/series-autorizadas/
 # TOOD: dados em tempo real (com atraso) -- ver https://pypi.org/project/b3api/
@@ -301,6 +305,37 @@ class FundoDocumento:
 
 
 @dataclass
+class FundoB3Resumido:
+    id_fnet: int
+    tipo: str
+    acronimo: str
+    nome_negociacao: str
+    empresa_razao_social: str
+
+    def serialize(self):
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, obj, tipo, check=True):
+        data = deepcopy(obj)
+
+        id_fnet = data.pop("id")
+        tipo = data.pop("typeName") or tipo
+        acronimo = clean_string(data.pop("acronym"))
+        empresa_razao_social = clean_string(data.pop("fundName"))
+        nome_negociacao = clean_string(data.pop("tradingName"))
+        if check:
+            assert not data, f"Dados do fundo não extraídos: {data=}"
+        return cls(
+            id_fnet=id_fnet,
+            tipo=tipo,
+            acronimo=acronimo,
+            nome_negociacao=nome_negociacao,
+            empresa_razao_social=empresa_razao_social,
+        )
+
+
+@dataclass
 class FundoB3:
     id_fnet: int
     tipo: str
@@ -363,7 +398,7 @@ class FundoB3:
         administrador_responsavel = clean_string(data.pop("managerName"))
         administrador_responsavel_cargo = clean_string(data.pop("positionManager"))
         if check:
-            assert not shareholder, f"Dados de shareholder não extraídos: {shareholder}"
+            assert not shareholder, f"Dados não extraídos: {shareholder=}"
 
         codigo_negociacao = clean_string(data.pop("tradingCode"))
         codigos_negociacao = [codigo_negociacao] if codigo_negociacao else []
@@ -402,9 +437,9 @@ class FundoB3:
         data.pop("type")
         data.pop("classes")
         if check:
-            assert not data, f"Dados do fundo não extraídos: {data}"
+            assert not data, f"Dados do fundo não extraídos: {data=}"
 
-        result = cls(
+        return cls(
             id_fnet=id_fnet,
             tipo=tipo,
             acronimo=acronimo,
@@ -436,7 +471,6 @@ class FundoB3:
             codigos_negociacao=codigos_negociacao,
             segmento=segmento,
         )
-        return result
 
 
 @dataclass
@@ -518,6 +552,7 @@ class NegociacaoIntradiaria:
     Extraído de acordo com o documento "Negócio a negócio - Listados (.PDF, 105KB)", encontrado em:
     <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/glossario/>
     """
+
     datahora: datetime.datetime
     codigo_negocio: int
     codigo_negociacao: str
@@ -1026,27 +1061,29 @@ class B3:
                 else:
                     yield response
 
-    def _funds_by_type(self, type_name):
-        # TODO: adicionar opção para pegar ou não detalhes
+    def _fundos_listados_por_tipo(self, tipo, detalhe=True):
         objs = self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListFunds/"),
-            url_params={"language": "pt-br", "typeFund": type_name},
+            url_params={"language": "pt-br", "typeFund": tipo},
         )
         for obj in objs:
-            yield self._fund_detail(type_name, obj["id"], obj["acronym"])
+            if detalhe:
+                yield self.fundo_listado_detalhe(tipo, obj["id"], obj["acronym"])
+            else:
+                yield FundoB3Resumido.from_dict(obj, tipo=tipo)
 
-    def _fund_detail(self, type_name, obj_id, identifier):
+    def fundo_listado_detalhe(self, tipo, id_fnet, acronimo):
         response_data = self.request(
             method="GET",
             url=urljoin(self.funds_call_url, "GetDetailFund/"),
-            url_params={"language": "pt-br", "idFNET": obj_id, "idCEM": identifier, "typeFund": type_name},
+            url_params={"language": "pt-br", "idFNET": id_fnet, "idCEM": acronimo, "typeFund": tipo},
         )
         return FundoB3.from_dict(response_data)
 
-    def _fund_dividends(self, identifier):
+    def fundo_listado_dividendos(self, acronimo):
         data = self.request(
             url=urljoin(self.funds_call_url, "GetEventsCorporateActions/"),
-            url_params={"language": "pt-br", "idCEM": identifier},
+            url_params={"language": "pt-br", "idCEM": acronimo},
         )
         dividends = data.get("cashDividends") if data else []
         return [Dividendo.from_dict(row) for row in dividends]
@@ -1066,6 +1103,7 @@ class B3:
             url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
         )["subscriptions"]
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def _fundo_comunicados(self, identificador):
         "Comunicados"
         result = self.paginate(
@@ -1075,6 +1113,7 @@ class B3:
         for row in result:
             yield FundoDocumento.from_dict(identificador, row)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def _fundo_demonstrativos(self, identificador):
         "Demonstrativos financeiros e relatórios"
         result = self.paginate(
@@ -1084,6 +1123,7 @@ class B3:
         for row in result:
             yield FundoDocumento.from_dict(identificador, row)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def _fundo_outros_documentos(self, identificador):
         "Demonstrativos financeiros e relatórios"
         result = self.paginate(
@@ -1121,27 +1161,29 @@ class B3:
             url_params={"language": "pt-br"},
         )
 
-    def etfs(self):
+    def etfs(self, detalhe=False):
         """Devolve os ETFs listados na B3 (incluindo os de renda fixa)"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("ETF")
-        yield from self._funds_by_type("ETF-RF")
+        yield from self._fundos_listados_por_tipo("ETF", detalhe=detalhe)
+        yield from self._fundos_listados_por_tipo("ETF-RF", detalhe=detalhe)
 
-    def fiis(self):
+    def fiis(self, detalhe=False):
         """Devolve os FIIs listados na B3"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("FII")
+        yield from self._fundos_listados_por_tipo("FII", detalhe=detalhe)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fii_detail(self, fundo_id, identificador):
-        return self._fund_detail("FII", fundo_id, identificador)
+        return self.fundo_listado_detalhe("FII", fundo_id, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fii_dividends(self, identificador):
-        return self._fund_dividends(identificador)
+        return self.fundo_listado_dividendos(identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fii_subscriptions(self, cnpj, identificador):
         # TODO: Corrigir: `KeyError: 'subscriptions'`
         return self._fund_subscriptions(7, cnpj, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fii_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1150,20 +1192,23 @@ class B3:
             data_final = today.date()
         yield from self._fund_documents(7, cnpj, identificador, data_inicial, data_final)
 
-    def fiinfras(self):
+    def fiinfras(self, detalhe=False):
         """Devolve os FI-Infras listados na B3"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("FI-Infra")
+        yield from self._fundos_listados_por_tipo("FI-Infra", detalhe=detalhe)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_detail(self, fundo_id, identificador):
-        return self._fund_detail("FI-Infra", fundo_id, identificador)
+        return self.fundo_listado_detalhe("FI-Infra", fundo_id, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_dividends(self, identificador):
-        return self._fund_dividends(identificador)
+        return self.fundo_listado_dividendos(identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(27, cnpj, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_documents(
         self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
     ):
@@ -1174,20 +1219,23 @@ class B3:
             data_final = today.date()
         yield from self._fund_documents(27, cnpj, identificador, data_inicial, data_final)
 
-    def fips(self):
+    def fips(self, detalhe=False):
         """Devolve os FIPs listados na B3"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("FIP")
+        yield from self._fundos_listados_por_tipo("FIP", detalhe=detalhe)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_detail(self, fundo_id, identificador):
-        return self._fund_detail("FIP", fundo_id, identificador)
+        return self.fundo_listado_detalhe("FIP", fundo_id, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_dividends(self, identificador):
-        return self._fund_dividends(identificador)
+        return self.fundo_listado_dividendos(identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(21, cnpj, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1196,23 +1244,26 @@ class B3:
             data_final = today.date()
         yield from self._fund_documents(21, cnpj, identificador, data_inicial, data_final)
 
-    def fiagros(self):
+    def fiagros(self, detalhe=False):
         """Devolve os FI-Agros listados na B3"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("FIAGRO")
-        yield from self._funds_by_type("FIAGRO-FII")
-        yield from self._funds_by_type("FIAGRO-FIDC")
-        yield from self._funds_by_type("FIAGRO-FIP")
+        yield from self._fundos_listados_por_tipo("FIAGRO", detalhe=detalhe)
+        yield from self._fundos_listados_por_tipo("FIAGRO-FII", detalhe=detalhe)
+        yield from self._fundos_listados_por_tipo("FIAGRO-FIDC", detalhe=detalhe)
+        yield from self._fundos_listados_por_tipo("FIAGRO-FIP", detalhe=detalhe)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_detail(self, fundo_id, identificador):
-        return self._fund_detail("FIAGRO-FII", fundo_id, identificador)
+        return self.fundo_listado_detalhe("FIAGRO-FII", fundo_id, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_dividends(self, identificador):
-        return self._fund_dividends(identificador)
+        return self.fundo_listado_dividendos(identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_subscriptions(self, cnpj, identificador):
         return self._fund_subscriptions(34, cnpj, identificador)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_documents(
         self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
     ):
@@ -1223,13 +1274,13 @@ class B3:
             data_final = today.date()
         yield from self._fund_documents(34, cnpj, identificador, data_inicial, data_final)
 
-    def fidcs(self):
+    def fidcs(self, detalhe=False):
         """Devolve os FIDCs listados na B3"""
-        # TODO: adicionar opção para pegar ou não detalhes
-        yield from self._funds_by_type("FIDC")
+        yield from self._fundos_listados_por_tipo("FIDC", detalhe=detalhe)
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fidc_detail(self, fundo_id, identificador):
-        return self._fund_detail("FIDC", fundo_id, identificador)
+        return self.fundo_listado_detalhe("FIDC", fundo_id, identificador)
 
     def securitizadoras(self):
         yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
@@ -1246,6 +1297,7 @@ class B3:
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRA"},
         )
 
+    # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def certificate_documents(self, identificador, start_date: datetime.date, end_date: datetime.date):  # CRI or CRA
         yield from self.paginate(
             base_url=urljoin(self.funds_call_url, "GetListedDocumentsTypeHistory/"),
@@ -1314,6 +1366,7 @@ class B3:
         items = []
 
         if periodo == "dia":
+            # TODO: por que não paginar?
             response = self.request(
                 urljoin(self.indexes_call_url, "GetPortfolioDay/"),
                 url_params={"language": "pt-br", "index": indice, "segment": "1", "pageNumber": 1, "pageSize": 120},
@@ -1332,6 +1385,7 @@ class B3:
                 )
 
         elif periodo == "teórica":
+            # TODO: por que não paginar?
             response = self.request(
                 urljoin(self.indexes_call_url, "GetTheoricalPortfolio/"),
                 url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
@@ -1350,6 +1404,7 @@ class B3:
                 )
 
         elif periodo == "próxima":
+            # TODO: por que não paginar?
             response = self.request(
                 urljoin(self.indexes_call_url, "GetQuartelyPreview/"),
                 url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
@@ -1610,6 +1665,8 @@ if __name__ == "__main__":
     for comando in comandos_padrao:
         subparser = subparsers.add_parser(comando)
         subparser.add_argument("--quiet", "-q", action="store_true", help="Não mostra mensagens de status")
+        if comando == "fundo-listado":
+            subparser.add_argument("--detalhe", "-d", action="store_true", help="Baixa informações mais detalhadas dos fundos")
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser = subparsers.add_parser("valor-indice")
@@ -1815,34 +1872,35 @@ if __name__ == "__main__":
 
     elif command == "fundo-listado":
         quiet = args.quiet
+        detalhe = args.detalhe
         data_sources = (
-            (b3.fiis(), "FII"),
-            (b3.fiinfras(), "FI-Infra"),
-            (b3.fips(), "FIP"),
-            (b3.fiagros(), "FI-Agro"),
-            (b3.fidcs(), "FIDC"),
-            (b3.etfs(), "ETF"),
+            (b3.fiis(detalhe=detalhe), "FII"),
+            (b3.fiinfras(detalhe=detalhe), "FI-Infra"),
+            (b3.fips(detalhe=detalhe), "FIP"),
+            (b3.fiagros(detalhe=detalhe), "FI-Agro"),
+            (b3.fidcs(detalhe=detalhe), "FIDC"),
+            (b3.etfs(detalhe=detalhe), "ETF"),
         )
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for iterator, type_name in data_sources:
+            for iterator, tipo in data_sources:
                 if not quiet:
-                    print(f"\r{type_name:10}: ..." + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+                    print(f"\r{tipo:10}: ..." + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
                 for counter, obj in enumerate(iterator, start=1):
                     if not quiet:
-                        print(f"\r{type_name:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
+                        print(f"\r{tipo:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, end="", flush=True)
                     row = obj.serialize()
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                         writer.writeheader()
                     writer.writerow(row)
                 if not quiet:
-                    print(f"\r{type_name:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
+                    print(f"\r{tipo:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
 
     elif command == "fii-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiis():
+            for obj in b3.fiis(detalhe=False):
                 base_fund_data = obj.serialize()
                 for dividend in b3.fii_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
@@ -1855,7 +1913,7 @@ if __name__ == "__main__":
     elif command == "fii-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiis():
+            for obj in b3.fiis(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fii_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
                 for subscription in data:
@@ -1868,7 +1926,7 @@ if __name__ == "__main__":
     elif command == "fii-documents":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiis():
+            for obj in b3.fiis(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fii_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
                 for doc in data:
@@ -1881,7 +1939,7 @@ if __name__ == "__main__":
     elif command == "fiinfra-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiinfras():
+            for obj in b3.fiinfras(detalhe=False):
                 base_fund_data = obj.serialize()
                 for dividend in b3.fiinfra_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
@@ -1894,7 +1952,7 @@ if __name__ == "__main__":
     elif command == "fiinfra-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiinfras():
+            for obj in b3.fiinfras(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fiinfra_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
                 for subscription in data:
@@ -1908,7 +1966,7 @@ if __name__ == "__main__":
         # TODO: o arquivo está ficando em branco, verificar
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiinfras():
+            for obj in b3.fiinfras(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fiinfra_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
                 for doc in data:
@@ -1921,7 +1979,7 @@ if __name__ == "__main__":
     elif command == "fiagro-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiagros():
+            for obj in b3.fiagros(detalhe=False):
                 base_fund_data = obj.serialize()
                 for dividend in b3.fiagro_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
@@ -1934,7 +1992,7 @@ if __name__ == "__main__":
     elif command == "fiagro-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiagros():
+            for obj in b3.fiagros(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fiagro_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo)
                 for subscription in data:
@@ -1947,7 +2005,7 @@ if __name__ == "__main__":
     elif command == "fiagro-documents":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fiagros():
+            for obj in b3.fiagros(detalhe=True):
                 base_fund_data = obj.serialize()
                 data = b3.fiagro_documents(identificador=obj.acronimo, cnpj=obj.cnpj)
                 for doc in data:
@@ -1960,7 +2018,7 @@ if __name__ == "__main__":
     elif command == "fip-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fips():
+            for obj in b3.fips(detalhe=False):
                 base_fund_data = obj.serialize()
                 for dividend in b3.fip_dividends(identificador=obj.acronimo):
                     row = {**base_fund_data, **dividend.serialize()}
@@ -1974,7 +2032,7 @@ if __name__ == "__main__":
         # TODO: o arquivo está ficando em branco, verificar
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fips():
+            for obj in b3.fips(detalhe=True):
                 base_fund_data = obj.serialize()
                 for doc in b3.fip_documents(identificador=obj.acronimo, cnpj=obj.cnpj):
                     row = {**base_fund_data, **doc}
@@ -1986,7 +2044,7 @@ if __name__ == "__main__":
     elif command == "fip-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for obj in b3.fips():
+            for obj in b3.fips(detalhe=True):
                 base_fund_data = obj.serialize()
                 for subscription in b3.fip_subscriptions(cnpj=obj.cnpj, identificador=obj.acronimo):
                     row = {**base_fund_data, **subscription}
