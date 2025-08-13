@@ -113,7 +113,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 - [Debêntures](http://www.debentures.com.br/)
 
 
-### Outras bibliotecas
+### Outras bibliotecas e projetos
 
 Aqui listamos outras bibliotecas concorrentes e/ou que complementam os dados e funcionalidades disponíveis na
 `mercados` e que podem ser úteis em análises.
@@ -149,3 +149,9 @@ abandonados, já outros não são aderentes ao objetivo da `mercados`, mas talve
 - [`quantstats`](https://github.com/ranaroussi/quantstats)
 - [`backtesting.py`](https://kernc.github.io/backtesting.py/)
 - [`VectorBT`](https://vectorbt.dev/)
+
+#### APIs
+
+- [Dados de Mercado](https://www.dadosdemercado.com.br/api/docs)
+- [MFinance](https://mfinance.com.br/swagger/index.html) ([repositórios no Github](https://github.com/mfinancecombr/))
+- [brapi.dev](https://brapi.dev/)
