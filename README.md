@@ -64,6 +64,7 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 - [B3](https://www.b3.com.br/pt_br/para-voce):
   - Valor histórico de diversos índices
   - Cotação diária da negociação em bolsa (um registro por ativo)
+  - Preços a cada 5 minutos do último pregão por ativo (com atraso de 15min)
   - Negociações intradiárias em bolsa (um registro por negociação)
   - Cotação diária da negociação em balcão
   - Cadastro de fundos listados (FII, FI-Infra, FI-Agro, FIP, FIDC e ETF)

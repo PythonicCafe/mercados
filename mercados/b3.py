@@ -244,6 +244,27 @@ class NegociacaoBolsa:
 
 
 @dataclass
+class PrecoAtivo:
+    codigo_negociacao: str
+    valor: Decimal
+    datahora: datetime.datetime
+
+    @classmethod
+    def from_dict(cls, data, codigo_negociacao, row):
+        obj = cls(
+            codigo_negociacao=codigo_negociacao,
+            valor=Decimal(row.pop("closPric")).quantize(UM_CENTAVO),
+            datahora=parse_date("iso-datetime-tz", f"{data}T{row.pop('dtTm')}-0300", full=True),
+        )
+        row.pop("prcFlcn")  # Flutuação - ignorado
+        assert not row, f"Dados de preço não extraídos: {row=}"
+        return obj
+
+    def serialize(self):
+        return asdict(self)
+
+
+@dataclass
 class Dividendo:
     tipo: str
     codigo_isin: str
@@ -1631,6 +1652,36 @@ class B3:
             query_params={"sort": "TckrSymb"},
         )
 
+    def ultimas_cotacoes(self, codigo_negociacao):
+        """Baixa as cotações para o último pregão para um determinado ativo, com atraso de 15min
+
+        Os preços ficam disponíveis a cada intervalo de 5 minutos e são os de fechamento de cada instante de tempo.
+        API acessível pela página <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/cotacoes/outros-ativos.htm>
+        """
+        url = f"https://cotacao.b3.com.br/mds/api/v1/DailyFluctuationHistory/{codigo_negociacao}"
+        response = self.request(url, decode_json=True, verify_ssl=False)
+        data = parse_date("iso-date", response["TradgFlr"]["date"])
+        ticker = response["TradgFlr"]["scty"]["symb"]
+        assert (
+            ticker.lower().strip() == codigo_negociacao.lower().strip()
+        ), f"Código negociação retornado diferente do fornecido: {repr(ticker)} vs {repr(codigo_negociacao)}"
+        return [PrecoAtivo.from_dict(data, ticker, obj) for obj in response["TradgFlr"]["scty"]["lstQtn"]]
+
+    # TODO: implementar valor de mercado das empresas
+    # https://sistemaswebb3-listados.b3.com.br/marketValueProxy/marketValueCall/GetStockExchangeDaily/
+    # {"language": "pt-br", "company": "", "keyword": ""}
+
+    # TODO: lotes de negociação
+    # https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/mercado-a-vista/lotes-de-negociacao/
+
+    # TODO: cadastro de instrumentos listados
+    # https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/boletim-diario/dados-publicos-de-produtos-listados-e-de-balcao/
+
+    # TODO: opções - lista completa de séries autorizadas
+    # https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/mercado-a-vista/opcoes/series-autorizadas/
+
+    # TODO: pegar diversos dados históricos em https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/
+
 
 if __name__ == "__main__":
     import argparse
@@ -1666,7 +1717,9 @@ if __name__ == "__main__":
         subparser = subparsers.add_parser(comando)
         subparser.add_argument("--quiet", "-q", action="store_true", help="Não mostra mensagens de status")
         if comando == "fundo-listado":
-            subparser.add_argument("--detalhe", "-d", action="store_true", help="Baixa informações mais detalhadas dos fundos")
+            subparser.add_argument(
+                "--detalhe", "-d", action="store_true", help="Baixa informações mais detalhadas dos fundos"
+            )
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser = subparsers.add_parser("valor-indice")
@@ -1682,6 +1735,10 @@ if __name__ == "__main__":
     subparser.add_argument(
         "periodo", type=str, help="Período de validade da carteira", choices=B3.carteira_indice_periodos
     )
+    subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
+
+    subparser = subparsers.add_parser("ultimas-cotacoes")
+    subparser.add_argument("codigo_negociacao", type=str, help="Código de negociação do ativo na B3")
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
     subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")
@@ -1740,7 +1797,9 @@ if __name__ == "__main__":
         "clearing-emprestimos-registrados",
         help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados",
     )
-    subparser_clearing_emprestimos_registrados.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
+    subparser_clearing_emprestimos_registrados.add_argument(
+        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+    )
     subparser_clearing_emprestimos_registrados.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1755,7 +1814,9 @@ if __name__ == "__main__":
     subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
     subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
     subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
-    subparser_clearing_emprestimos_negociados.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
+    subparser_clearing_emprestimos_negociados.add_argument(
+        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+    )
     subparser_clearing_emprestimos_negociados.add_argument(
         "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1765,7 +1826,9 @@ if __name__ == "__main__":
         "clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto"
     )
     subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
-    subparser_clearing_emprestimos_em_aberto.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
+    subparser_clearing_emprestimos_em_aberto.add_argument(
+        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+    )
     subparser_clearing_emprestimos_em_aberto.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1777,7 +1840,9 @@ if __name__ == "__main__":
     subparser_clearing_opcoes_flexiveis = subparsers.add_parser(
         "clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis"
     )
-    subparser_clearing_opcoes_flexiveis.add_argument("--codigo_negociacao", type=str, help="Filtra por código de negociação")
+    subparser_clearing_opcoes_flexiveis.add_argument(
+        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+    )
     subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
@@ -2258,6 +2323,17 @@ if __name__ == "__main__":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for row in b3.carteira_indice(indice=indice, periodo=periodo):
+                row = row.serialize()
+                if writer is None:
+                    writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
+                    writer.writeheader()
+                writer.writerow(row)
+
+    elif command == "ultimas-cotacoes":
+        codigo_negociacao = args.codigo_negociacao
+        with csv_filename.open(mode="w") as csv_fobj:
+            writer = None
+            for row in b3.ultimas_cotacoes(codigo_negociacao=codigo_negociacao):
                 row = row.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))

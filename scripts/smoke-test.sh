@@ -75,6 +75,9 @@ python -m mercados.b3 valor-indice IBOVESPA 2025 "${DATA_PATH}/b3-valor-indice-I
 echo mercados.b3 carteira-indice
 python -m mercados.b3 carteira-indice IFIX dia "${DATA_PATH}/b3-carteira-indice-IFIX-dia.csv"
 
+echo mercados.b3 ultimas-cotacoes
+python -m mercados.b3 ultimas-cotacoes POMO4 "${DATA_PATH}/b3-ultimas-cotacoes.csv"
+
 echo mercados.b3 negociacao-bolsa
 python -m mercados.b3 negociacao-bolsa dia 2024-12-06 "${DATA_PATH}/b3-negociacao-bolsa-2024-12-06.csv"
 

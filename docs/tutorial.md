@@ -118,13 +118,16 @@ with csv_filename.open(mode="w") as fobj:
 
 Dados que podem ser baixados da B3:
 - Cotação diária da negociação em bolsa (um registro por ativo)
+- Preços a cada 5 minutos do último pregão por ativo (com atraso de 15min)
 - Negociações intradiárias em bolsa (um registro por negociação)
 - Cotação diária da negociação em balcão
 - Cadastro de fundos listados (FII, FI-Infra, FI-Agro, FIP, FIDC e ETF)
 - Cadastro de debêntures ativas
+- Cadastro de BDRs listados
 - Informações cadastrais sobre CRAs e CRIs
 - Documentos de CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
 - Dividendos de FI-Infras e FI-Agros
+- Clearing (diversas informações)
 
 ### Exemplo: Preços da Negociação em Bolsa
 
@@ -154,6 +157,29 @@ KNCA11 81.80 80.71
 ENDD11 104.57 101.55
 CPTI11 80.43 81.48
 PETRX8 0.20 0.20
+```
+
+### Exemplo: Últimas Cotações
+
+No exemplo abaixo, pegamos as últimas cotações disponíveis para um determinado ativo. Os dados são sempre referentes ao
+último pregão e com atraso de 15 minutos.
+
+```python
+from mercados.b3 import B3
+
+b3 = B3()
+for preco in b3.ultimas_cotacoes("POMO4"):
+    print(f"Cotação de {preco.codigo_negociacao} em {preco.datahora}: {preco.valor}")
+```
+
+Deve retornar algo como:
+
+```
+Cotação de POMO4 em 2025-08-12 10:03:00-03:00: 8.95
+Cotação de POMO4 em 2025-08-12 10:04:00-03:00: 8.93
+[...]
+Cotação de POMO4 em 2025-08-12 17:46:00-03:00: 8.97
+Cotação de POMO4 em 2025-08-12 17:54:00-03:00: 8.93
 ```
 
 ### Exemplo: Aluguel de Ativos
