@@ -240,9 +240,7 @@ já convertidos para tipos nativos (`str`, `int`, `datetime.date`, `decimal.Deci
 ### Exemplo: Baixar e Extrair Informes Diários de ETFs
 
 ```python
-import base64
 import datetime
-import requests
 from mercados.document import InformeDiarioFundo
 from mercados.fundosnet import FundosNet
 from mercados.utils import format_dataclass
@@ -250,7 +248,6 @@ from mercados.utils import format_dataclass
 data_inicial = datetime.date(2025, 7, 1)
 data_final = datetime.date(2025, 7, 11)
 fnet = FundosNet()
-session = requests.Session()
 
 print("Buscando documentos no FundosNET e selecionando informes diários")
 documentos = {}
@@ -265,8 +262,7 @@ print(f"\r{len(documentos):5} encontrados", flush=True)
 print("Baixando XMLs dos informes selecionados")
 xmls = {}
 for doc_id, doc in documentos.items():
-    response = session.get(doc.url)
-    xmls[doc_id] = base64.b64decode(response.content)  # Sim, o contéudo é retornado em base64 :|
+    xmls[doc_id] = fnet.baixa_xml(doc.url)
     if len(xmls) % 10 == 0:
         print(f"\r{len(xmls):5} baixados", end="", flush=True)
 print(f"\r{len(xmls):5} baixados", flush=True)

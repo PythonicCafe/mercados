@@ -14,6 +14,7 @@ REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 REGEXP_CERTIFICADO_DESCRICAO = re.compile(
     r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$"
 )
+REGEXP_XML_ENCODING = re.compile('encoding="([^"]+)"')
 
 
 def parse_certificado_descricao(value):
@@ -78,6 +79,27 @@ class FundosNet:
         self.session = create_session()
         self.session.headers["CSRFToken"] = self.csrf_token
         self.draw = 0
+
+    def baixa_xml(self, url, timeout=10.0, max_tries=5, wait_between_errors=0.5):
+        """Baixa um XML do FundosNet a partir da URL e decodifica-o corretamente
+
+        Serão feitas, no total, `max_tries` tentativas, pois em alguns casos a CloudFlare retorna um erro HTTP 5xx.
+        """
+        tried = 0
+        while tried < max_tries:
+            # Forçar o cabeçalho `Accept` faz com que a resposta não seja enviada em base64
+            response = self.session.get(url, headers={"Accept": "application/xhtml+xml"}, timeout=timeout)
+            tried += 1
+            if response.status_code < 500:
+                break
+            else:
+                time.sleep(wait_between_errors)
+        response.raise_for_status()
+        content = response.content
+        first_line = content.split(b"\n", maxsplit=1)[0].decode("ascii")
+        result = REGEXP_XML_ENCODING.findall(first_line)
+        encoding = result[0] if result else "utf-8"
+        return content.decode(encoding)
 
     def request(self, method, path, headers=None, params=None, data=None, json=None, xhr=False):
         params = params or {}
