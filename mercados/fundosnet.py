@@ -23,6 +23,12 @@ def parse_certificado_descricao(value):
     return {key: value for key, value in zip("nome tipo emissao serie data codigo".split(), result[0])}
 
 
+def assert_in(nome_variavel, valor, valores_possiveis):
+    if valor not in valores_possiveis:
+        valores = ", ".join(valores_possiveis)
+        raise ValueError(f"Valor inválido para `{nome_variavel}`: {repr(valor)} (esperado: {valores})")
+
+
 def format_document_path(pattern: str, doc: DocumentMeta, content_type: str):
     doc_id = int(doc.id)
     doc_id8 = f"{int(doc_id):08d}"
@@ -205,8 +211,9 @@ class FundosNet:
         order="desc",
         items_per_page=200,
     ):
-        assert order in ("asc", "desc")
-        assert ordering_field in (
+        # TODO: traduzir parâmetros e nome do método para Português
+        order_choices = ("asc", "desc")
+        ordering_field_choices = (
             "denominacaoSocial",
             "CategoriaDescricao",
             "tipoDescricao",
@@ -217,11 +224,15 @@ class FundosNet:
             "versao",
             "modalidade",
         )
-        assert category in choices.DOCUMENTO_CATEGORIA_DICT
+        order = str(order or "").strip().lower()
+        assert_in("order", order, order_choices)
+        assert_in("ordering_field", ordering_field, ordering_field_choices)
+        assert_in("category", category, choices.DOCUMENTO_CATEGORIA_DICT)
         category_id = choices.DOCUMENTO_CATEGORIA_DICT[category]
-        assert type_ == "Todos" or type_ in choices.DOCUMENTO_TIPO_DICT
+        if type_ != "Todos":
+            assert_in("type_", type_, choices.DOCUMENTO_TIPO_DICT)
         type_id = choices.DOCUMENTO_TIPO_DICT[type_]
-        assert fund_type in choices.FUNDO_TIPO_DICT
+        assert_in("fund_type", fund_type, choices.FUNDO_TIPO_DICT)
         fund_type_id = choices.FUNDO_TIPO_DICT[fund_type]
         if fund_type_id == 0:
             fund_type_id = ""
