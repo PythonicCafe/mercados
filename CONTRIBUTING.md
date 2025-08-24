@@ -17,11 +17,11 @@ Algumas premissas para o desenvolvimento:
   (*parsing*) para os modelos/dataclasses usados. Os testes devem conter dados reais, obfuscando dados pessoais
   sensíveis que possam existir, que devem ser salvos no próprio repositório
 - Mensagens de commit devem ser claras e, caso aplicável, deve conter um dos seguintes prefixos:
-  - `[doc] `, para alterações em documentação
-  - `[dev] `, para alterações referentes ao desenvolvimento (`Makefile`, linter etc.)
-  - `[pkg] `, para alterações relacionadas ao empacotamento
-  - `[util] `, para alterações em funções/métodos utilitários (módulo `utils.py`)
-  - `[BCB] `, para alterações em funcionalidades relacionadas ao Banco Central do Brasil
-  - `[Fnet] `, para alterações em funcionalidades relacionados ao sistema FundosNET
-  - `[CVM] `, para alterações em funcionalidades relacionados aos sistemas da CVM
-  - `[B3] `, para alterações em funcionalidades relacionados aos sistemas da B3
+  - `doc: `, para alterações em documentação
+  - `dev: `, para alterações referentes ao desenvolvimento (`Makefile`, linter etc.)
+  - `pkg: `, para alterações relacionadas ao empacotamento
+  - `util: `, para alterações em funções/métodos utilitários (módulo `utils.py`)
+  - `bcb: `, para alterações em funcionalidades relacionadas ao Banco Central do Brasil
+  - `fnet: `, para alterações em funcionalidades relacionados ao sistema FundosNET
+  - `cvm: `, para alterações em funcionalidades relacionados aos sistemas da CVM
+  - `b3: `, para alterações em funcionalidades relacionados aos sistemas da B3
