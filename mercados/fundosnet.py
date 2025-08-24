@@ -205,6 +205,8 @@ class FundosNet:
         category="Todos",
         type_="Todos",
         fund_type="Todos",
+        cnpj=None,
+        situacao=None,
         start_date=None,
         end_date=None,
         ordering_field="dataEntrega",
@@ -234,6 +236,10 @@ class FundosNet:
         type_id = choices.DOCUMENTO_TIPO_DICT[type_]
         assert_in("fund_type", fund_type, choices.FUNDO_TIPO_DICT)
         fund_type_id = choices.FUNDO_TIPO_DICT[fund_type]
+        situacao_choices = "AIC"
+        situacao = str(situacao or "").upper().strip()
+        if situacao:
+            assert_in("situacao", situacao, situacao_choices)
         if fund_type_id == 0:
             fund_type_id = ""
         # TODO: filter other fields, like:
@@ -254,6 +260,10 @@ class FundosNet:
             "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
             "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
         }
+        if cnpj is not None:
+            params["cnpj"] = params["cnpjFundo"] = cnpj
+        if situacao:
+            params["situacao"] = situacao
         result = self.paginate(
             path="pesquisarGerenciadorDocumentosDados",
             params=params,
