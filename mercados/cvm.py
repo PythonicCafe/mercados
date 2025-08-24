@@ -8,6 +8,7 @@ import zipfile
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 from pathlib import Path
+from typing import Optional
 from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
@@ -72,10 +73,10 @@ class ContaBalancete:
     codigo: int
     descricao: str
     data_inicio: datetime.date
-    data_fim: datetime.date | None = None
-    normal: bool | None = None
-    retificadora: bool | None = None
-    conta_superior: int | None = None
+    data_fim: Optional[datetime.date] = None
+    normal: Optional[bool] = None
+    retificadora: Optional[bool] = None
+    conta_superior: Optional[int] = None
 
     def serialize(self):
         return asdict(self)

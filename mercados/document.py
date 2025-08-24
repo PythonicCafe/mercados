@@ -732,10 +732,10 @@ class InformeDiarioFundo:
     patrimonio_liquido: Decimal
     captado: Decimal
     resgatado: Decimal
-    saidas_previstas: Decimal
-    ativos_liquidaveis: Decimal
     cotistas_significativos: List[CotistaFundo]
     data_proximo_pl: datetime.date
+    saidas_previstas: Optional[Decimal] = None
+    ativos_liquidaveis: Optional[Decimal] = None
     doc_data_geracao: Optional[datetime.date] = None
     fundo: Optional[str] = None
     administradora: Optional[str] = None
@@ -744,9 +744,10 @@ class InformeDiarioFundo:
     @classmethod
     def from_xml(cls, xml):
         # Extrai dados do XML, como descrito em:
+        # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNetV4.asp>
         # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNetV3.asp>
-        # TODO: deve validar a versão no cabeçalho e se for diferente de "3.0", usar outro método de extração, exemplo:
-        # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNet.asp>
+        # TODO: deve validar a versão no cabeçalho e se for diferente de "3.0" ou "4.0", usar outro método de extração,
+        # exemplo: <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/PadraoXMLInfoDiarioNet.asp>
         data = xmltodict.parse(xml)
         doc = data.pop("DOC_ARQ")
         assert not data, f"Dados sobraram e não foram extraídos para {cls.__name__}: {data}"
@@ -757,7 +758,7 @@ class InformeDiarioFundo:
         assert not doc, f"Dados sobraram e não foram extraídos para {cls.__name__}: {doc}"
 
         doc_versao = header.pop("VERSAO", None)
-        if doc_versao not in (None, "3.0"):
+        if doc_versao not in (None, "3.0", "4.0"):
             warnings.warn(f"Versão de documento diferente de versões conhecidas: {repr(doc_versao)}")
         base_row = {
             "doc_codigo": header.pop("COD_DOC"),
@@ -805,6 +806,7 @@ class InformeDiarioFundo:
                 data_proximo_pl=parse_date("br-date", informe2.pop("DATA_PROX_PL", None)),
             )
             informe2.pop("DIA_COMPT", None)  # Ignora caso possua esse campo (ex: doc id 940533)
+            informe2.pop("COD_SUBCLASSE", None)  # TODO: não ignorar esse campo (V4.0)
             assert (
                 not informe2
             ), f"Dados sobraram e não foram extraídos para {cls.__name__} (versão {doc_versao}): {informe2}"
