@@ -290,3 +290,30 @@ def test_informe_7212():
     ]
 
     assert_informe_rendimentos(7212, expected)
+
+
+def test_informe_974925():  # Rendimento de ETF
+    expected = [
+        InformeRendimentos(
+            fundo="BUENA VISTA NASDAQ-100",
+            fundo_cnpj="54825284000184",
+            administrador="VORTX DTVM LTDA",
+            administrador_cnpj="22610500000188",
+            responsavel="Karen Miyazaki",
+            telefone="(11) 3164-7177",
+            codigo_isin="BRQQQICTF009",
+            codigo_negociacao="QQQI11",
+            tipo="Rendimento",
+            tipo_amortizacao=None,
+            data_aprovacao=None,
+            data_informacao=datetime.date(2025, 8, 19),
+            data_base=datetime.date(2025, 8, 19),
+            data_pagamento=datetime.date(2025, 9, 8),
+            valor_por_cota=decimal.Decimal("1.1922521"),
+            periodo_referencia="08/2025",
+            ano=2025,
+            isento_ir=False,
+        ),
+    ]
+
+    assert_informe_rendimentos(974925, expected)

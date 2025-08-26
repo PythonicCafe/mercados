@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DadosEconomicoFinanceiros>
+	<DadosGerais>
+		<NomeFundo>BUENA VISTA NASDAQ-100</NomeFundo>
+		<CNPJFundo>54825284000184</CNPJFundo>
+		<NomeAdministrador>VORTX DTVM LTDA</NomeAdministrador>
+		<CNPJAdministrador>22610500000188</CNPJAdministrador>
+		<ResponsavelInformacao>Karen Miyazaki</ResponsavelInformacao>
+		<TelefoneContato>(11) 3164-7177</TelefoneContato>
+		<DataInformacao>2025-08-19</DataInformacao>
+		<Ano>2025</Ano>
+	</DadosGerais>
+	<InformeRendimentos>
+		<Provento>
+			<CodISIN>BRQQQICTF009</CodISIN>
+			<CodNegociacao>QQQI11</CodNegociacao>
+			<Rendimento>
+				<AtoSocietarioAprovacao/>
+				<DataBase>2025-08-19</DataBase>
+				<ValorProvento>1.1922521</ValorProvento>
+				<DataPagamento>2025-09-08</DataPagamento>
+				<PeriodoReferencia>08/2025</PeriodoReferencia>
+				<RendimentoIsentoIR>Não</RendimentoIsentoIR>
+			</Rendimento>
+		</Provento>
+	</InformeRendimentos>
+</DadosEconomicoFinanceiros>

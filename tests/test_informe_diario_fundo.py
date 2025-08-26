@@ -5,8 +5,8 @@ from pathlib import Path
 from mercados.document import CotistaFundo, InformeDiarioFundo
 
 
-def test_informe_diario_fundo():
-    filename = Path(__file__).parent / "data" / "informe-diario-fundo-1.xml"
+def test_informe_diario_fundo_1():
+    filename = Path(__file__).parent / "data" / "informe-diario-fundo-1.xml"  # Versão: 3.0
     with filename.open(mode="rb") as fobj:
         xml = fobj.read()
     doc = InformeDiarioFundo.from_xml(xml)
@@ -37,7 +37,7 @@ def test_informe_diario_fundo():
 
 
 def test_informe_diario_fundo_2():
-    filename = Path(__file__).parent / "data" / "informe-diario-fundo-2.xml"
+    filename = Path(__file__).parent / "data" / "informe-diario-fundo-2.xml"  # Versão não especificada
     with filename.open(mode="rb") as fobj:
         xml = fobj.read()
     doc = InformeDiarioFundo.from_xml(xml)
@@ -62,5 +62,32 @@ def test_informe_diario_fundo_2():
             administradora="CAIXA ECONOMICA FEDERAL",
             administradora_cnpj="00360305000104",
         ),
+    ]
+    assert doc == expected
+
+
+def test_informe_diario_fundo_3():
+    filename = Path(__file__).parent / "data" / "informe-diario-fundo-3.xml"  # Versão: 4.0
+    with filename.open(mode="rb") as fobj:
+        xml = fobj.read()
+    doc = InformeDiarioFundo.from_xml(xml)
+    expected = [
+        InformeDiarioFundo(
+            doc_codigo="1",
+            doc_data_geracao=datetime.date(2024, 11, 1),
+            doc_versao="4.0",
+            data_competencia=datetime.date(2024, 10, 31),
+            fundo_cnpj="56176507000155",
+            cotistas=1194,
+            carteira=Decimal("91361101.48"),
+            cota=Decimal("100.000000000000"),
+            patrimonio_liquido=Decimal("91373400.00"),
+            captado=Decimal("91373400.00"),
+            resgatado=Decimal("0.00"),
+            saidas_previstas=Decimal("0.00"),
+            ativos_liquidaveis=Decimal("91373400.00"),
+            cotistas_significativos=[],
+            data_proximo_pl=datetime.date(2024, 11, 1),
+        )
     ]
     assert doc == expected
