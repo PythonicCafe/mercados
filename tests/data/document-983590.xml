@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DadosEconomicoFinanceiros xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<DadosGerais>
+		<NomeFundo> FUNDO DE INVESTIMENTO IMOBILIÁRIO BR HOTÉIS</NomeFundo>
+		<CNPJFundo>15461076000191</CNPJFundo>
+		<DataFuncionamento>2012-08-22</DataFuncionamento>
+		<PublicoAlvo>Investidor Qualificado e Profissional</PublicoAlvo>
+		<CodigoISIN>BRBRHTCTF005</CodigoISIN>
+		<QtdCotasEmitidas>1841677</QtdCotasEmitidas>
+		<FundoExclusivo>false</FundoExclusivo>
+		<VinculoFamiliarCotistas>false</VinculoFamiliarCotistas>
+		<Autorregulacao>
+			<Classificacao>Multiestratégia</Classificacao>
+			<Subclassificacao>Não possui subclassificação</Subclassificacao>
+			<TipoGestao>Ativa</TipoGestao>
+			<SegmentoAtuacao>Multicategoria</SegmentoAtuacao>
+		</Autorregulacao>
+		<PrazoDuracao>Indeterminado</PrazoDuracao>
+		<DataPrazoDuracao xsi:nil="true"/>
+		<EncerramentoExercicio>31/12</EncerramentoExercicio>
+		<MercadoNegociacao>
+			<Bolsa>true</Bolsa>
+			<MBO>false</MBO>
+			<MB>false</MB>
+		</MercadoNegociacao>
+		<EntidadeAdministradora>
+			<BVMF>true</BVMF>
+			<CETIP>false</CETIP>
+		</EntidadeAdministradora>
+		<NomeAdministrador>RJI CTVM LTDA</NomeAdministrador>
+		<CNPJAdministrador>42066258000130</CNPJAdministrador>
+		<Logradouro>AVENIDA RIO BRANCO</Logradouro>
+		<Numero>138</Numero>
+		<Complemento>4º ANDAR - SALA 402</Complemento>
+		<Bairro>CENTRO</Bairro>
+		<Cidade>RIO DE JANERIO</Cidade>
+		<Estado>RJ</Estado>
+		<CEP>20040-002</CEP>
+		<Telefone1>21-3500-4514</Telefone1>
+		<Telefone2>21-3500-4514</Telefone2>
+		<Telefone3 xsi:nil="true"/>
+		<Site>www.rjicv.com.br</Site>
+		<Email>controladoria.fundos@rjicv.com.br</Email>
+		<Competencia>2025-08-01</Competencia>
+	</DadosGerais>
+	<InformeMensal>
+		<Cotistas data_informacao="2025-08-29" total="11">
+			<PessoaFisica xsi:nil="true"/>
+			<PJNaoFinanceira xsi:nil="true"/>
+			<BancoComercial xsi:nil="true"/>
+			<CorretoraDistribuidora xsi:nil="true"/>
+			<OutrasPJFinanceiras xsi:nil="true"/>
+			<InvestidoresNaoResidentes xsi:nil="true"/>
+			<EntidadeAbertaPrevCompl xsi:nil="true"/>
+			<EntidadeFechadaPrevCompl xsi:nil="true"/>
+			<RegimeProprioPrev>11</RegimeProprioPrev>
+			<SociedadeSeguradora xsi:nil="true"/>
+			<SociedadeCapArrendMercantil xsi:nil="true"/>
+			<FundosInvImobiliario xsi:nil="true"/>
+			<OutrosFundosInv xsi:nil="true"/>
+			<CotistasDistFundo xsi:nil="true"/>
+			<OutrosTiposCotistas xsi:nil="true"/>
+		</Cotistas>
+		<Resumo>
+			<Ativo>117415160.51</Ativo>
+			<PatrimonioLiquido>117268646.97</PatrimonioLiquido>
+			<NumCotasEmitidas>1841677</NumCotasEmitidas>
+			<ValorPatrCotas>63.6749261515456</ValorPatrCotas>
+			<DespesasTxAdministracao>0.00100021440539009</DespesasTxAdministracao>
+			<DespesasAgCustodiante>0.0000426371424007229</DespesasAgCustodiante>
+			<RentEfetivaMensal total="-0.000326">
+				<RentPatrimonialMes>-0.000326</RentPatrimonialMes>
+				<DividendYieldMes>0</DividendYieldMes>
+			</RentEfetivaMensal>
+			<AmortizAcoesCotas>0</AmortizAcoesCotas>
+		</Resumo>
+		<InformacoesAtivo>
+			<TotalNecessidadesLiq total="425012.21">
+				<Disponibilidades>654.27</Disponibilidades>
+				<TitulosPublicos>424357.94</TitulosPublicos>
+				<TitulosPrivados>0</TitulosPrivados>
+				<FundosRendaFixa>0</FundosRendaFixa>
+			</TotalNecessidadesLiq>
+			<TotalInvestido total="116990148.3">
+				<DireitosBensImoveis total="105888834.42">
+					<Terrenos>0</Terrenos>
+					<ImoveisRendaAcabados>105888834.42</ImoveisRendaAcabados>
+					<ImoveisRendaConstrucao>0</ImoveisRendaConstrucao>
+					<ImoveisVendaAcabados>0</ImoveisVendaAcabados>
+					<ImoveisVendaConstrucao>0</ImoveisVendaConstrucao>
+					<OutrosDireitosReais>0</OutrosDireitosReais>
+				</DireitosBensImoveis>
+				<Acoes>0</Acoes>
+				<Debentures>0</Debentures>
+				<BonusSubscricao>0</BonusSubscricao>
+				<CertificadosDepositoValMob>0</CertificadosDepositoValMob>
+				<FIA>0</FIA>
+				<FIP>0</FIP>
+				<FII>0</FII>
+				<FDIC>0</FDIC>
+				<OutrasCotasFI>11101313.88</OutrasCotasFI>
+				<NotasPromissorias>0</NotasPromissorias>
+				<NotasComerciais>0</NotasComerciais>
+				<AcoesSociedadesAtivFII>0</AcoesSociedadesAtivFII>
+				<CotasSociedadesAtivFII>0</CotasSociedadesAtivFII>
+				<CEPAC>0</CEPAC>
+				<CriCra>0</CriCra>
+				<LetrasHipotecarias>0</LetrasHipotecarias>
+				<LciLca>0</LciLca>
+				<LIG>0</LIG>
+				<OutrosValoresMobliarios>0</OutrosValoresMobliarios>
+			</TotalInvestido>
+			<ValoresReceber total="0">
+				<Alugueis>0</Alugueis>
+				<VendaImoveis>0</VendaImoveis>
+				<OutrosValores>0</OutrosValores>
+			</ValoresReceber>
+		</InformacoesAtivo>
+		<InformacoesPassivo>
+			<RendimentosDistribuir>0</RendimentosDistribuir>
+			<TxAdministracaoPagar>117293.79</TxAdministracaoPagar>
+			<TxPerformancePagar>0</TxPerformancePagar>
+			<ObrigacoesAquisicaoImov>0</ObrigacoesAquisicaoImov>
+			<AdiantamentoVendaImov>0</AdiantamentoVendaImov>
+			<AdiantamentoAlugueis>0</AdiantamentoAlugueis>
+			<ObrigacoesSecRecebiveis>0</ObrigacoesSecRecebiveis>
+			<InstrumentosFinanceirosDeriv>0</InstrumentosFinanceirosDeriv>
+			<ProvisoesContigencias>0</ProvisoesContigencias>
+			<OutrosValoresPagar>29219.75</OutrosValoresPagar>
+			<ProvisoesGarantias>0</ProvisoesGarantias>
+			<TotalPassivo>146513.54</TotalPassivo>
+			<TotalImoveisOnus>0</TotalImoveisOnus>
+			<TotalGarantiasClasse>0</TotalGarantiasClasse>
+			<TotalGarantiasCotistas>0</TotalGarantiasCotistas>
+		</InformacoesPassivo>
+	</InformeMensal>
+</DadosEconomicoFinanceiros>

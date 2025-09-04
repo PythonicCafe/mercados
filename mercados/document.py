@@ -80,16 +80,18 @@ def fix_segmento(value):
     if not value:
         return value
     return {
+        "escritorios": "Escritórios",
         "hibrido": "Híbrido",
         "hospital": "Hospital",
         "hotel": "Hotel",
         "lajes_corporativas": "Lajes Corporativas",
         "logistica": "Logística",
+        "multicategoria": "Multicategoria",
         "outros": "Outros",
         "residencial": "Residencial",
         "shoppings": "Shoppings",
-        "titulos_e_valores_mobiliarios": "Títulos e Valores Mobiliários",
         "titulos_e_val_mob": "Títulos e Valores Mobiliários",
+        "titulos_e_valores_mobiliarios": "Títulos e Valores Mobiliários",
     }[slug(value)]
 
 
@@ -457,7 +459,7 @@ class DocumentMeta:
         # XXX: `status` e `situacao` significam a mesma coisa (ativo, cancelado e inativo), mas com escritas
         # diferentes:
         # status | situacao | count
-        #--------+----------+--------
+        # --------+----------+--------
         # AC     | A        | 600154
         # CC     | C        |   7464
         # IC     | I        |  87735
@@ -561,6 +563,8 @@ class InformeFII:
     dados: dict
     codigo_isin: str = None
     gestao_tipo: str = None
+    classificacao: str = None
+    subclassificacao: str = None
     segmento: str = None
     mandato: str = None
     complemento: str = None
@@ -625,6 +629,8 @@ class InformeFII:
             "mandato": fix_mandato(autorregulacao.pop("Mandato", None)),
             "segmento": fix_segmento(autorregulacao.pop("SegmentoAtuacao", None)),
             "gestao_tipo": autorregulacao.pop("TipoGestao", None),
+            "classificacao": autorregulacao.pop("Classificacao", None),
+            "subclassificacao": autorregulacao.pop("Subclassificacao", None),
             "prazo_duracao": gerais.pop("PrazoDuracao"),
             "data_prazo": parse_date("iso-date", gerais.pop("DataPrazoDuracao", None)),
             "encerramento_exercicio": gerais.pop("EncerramentoExercicio"),

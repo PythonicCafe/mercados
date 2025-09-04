@@ -1,6 +1,6 @@
 import datetime
-import decimal
 import json
+from decimal import Decimal
 from pathlib import Path
 
 from mercados.document import InformeFII
@@ -34,7 +34,7 @@ def test_informe_mensal_378398():
             codigo_isin="BRXPSFCTF009",
             competencia="2022-10-01",
             complemento="5º e 8º andares",
-            cotas_emitidas=decimal.Decimal("43302140"),
+            cotas_emitidas=Decimal("43302140"),
             data_encerramento_trimestre=None,
             data_funcionamento=datetime.date(2019, 7, 10),
             data_prazo=None,
@@ -81,7 +81,7 @@ def test_informe_trimestral_378495():
             codigo_isin=None,
             competencia="3/2022",
             complemento="Cj 91",
-            cotas_emitidas=decimal.Decimal("29383.77580773"),
+            cotas_emitidas=Decimal("29383.77580773"),
             data_encerramento_trimestre=datetime.date(2022, 9, 30),
             data_funcionamento=datetime.date(2015, 1, 8),
             data_prazo=None,
@@ -128,7 +128,7 @@ def test_informe_anual_226812():
             codigo_isin="BRFAMBCTF018",
             competencia="2020-12-31",
             complemento="6º Andar",
-            cotas_emitidas=decimal.Decimal("104800"),
+            cotas_emitidas=Decimal("104800"),
             data_encerramento_trimestre=None,
             data_funcionamento=datetime.date(2003, 3, 17),
             data_prazo=None,
@@ -161,3 +161,52 @@ def test_informe_anual_226812():
     ]
 
     assert_informe_fii(226812, expected)
+
+
+def test_informe_mensal_983590():
+    expected = [
+        InformeFII(
+            fundo="FUNDO DE INVESTIMENTO IMOBILIÁRIO BR HOTÉIS",
+            fundo_cnpj="15461076000191",
+            administrador="RJI CTVM LTDA",
+            administrador_cnpj="42066258000130",
+            data_funcionamento=datetime.date(2012, 8, 22),
+            cotas_emitidas=Decimal("1841677"),
+            publico_alvo="Investidor Qualificado e Profissional",
+            exclusivo=False,
+            vinculo_familiar_cotistas=False,
+            prazo_duracao="Indeterminado",
+            encerramento_exercicio="31/12",
+            mercado_negociacao_bolsa=True,
+            mercado_negociacao_mbo=False,
+            mercado_negociacao_mb=False,
+            adm_bvmf=True,
+            adm_cetip=False,
+            logradouro="AVENIDA RIO BRANCO",
+            numero="138",
+            bairro="CENTRO",
+            municipio="RIO DE JANERIO",
+            uf="RJ",
+            cep="20040-002",
+            telefone_1="21-3500-4514",
+            site="www.rjicv.com.br",
+            email="controladoria.fundos@rjicv.com.br",
+            competencia="2025-08-01",
+            tipo="Informe Mensal",
+            codigo_isin="BRBRHTCTF005",
+            gestao_tipo="Ativa",
+            classificacao="Multiestratégia",
+            subclassificacao="Não possui subclassificação",
+            segmento="Multicategoria",
+            mandato=None,
+            complemento="4º ANDAR - SALA 402",
+            telefone_2="21-3500-4514",
+            data_prazo=None,
+            telefone_3=None,
+            enquadra_nota_seis=None,
+            data_encerramento_trimestre=None,
+            dados=load_json_data(983590),
+        ),
+    ]
+
+    assert_informe_fii(983590, expected)
