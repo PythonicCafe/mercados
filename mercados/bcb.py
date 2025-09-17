@@ -134,8 +134,8 @@ class BancoCentral:
     # TODO: pegar UFIR (parou) de https://www3.bcb.gov.br/sgspub/consultarmetadados/consultarMetadadosSeries.do?method=consultarMetadadosSeriesInternet&hdOidSerieSelecionada=22
     # TODO: pegar outras das principais séries
 
-    def __init__(self, user_agent=USER_AGENT):
-        self.session = create_session(user_agent=user_agent)
+    def __init__(self, user_agent=USER_AGENT, proxy=None):
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
         # Por algum motivo, o serviço REST "novoselic" não retorna resultados caso o cabeçalho `Accept` seja passado
         del self.session.headers["Accept"]
 

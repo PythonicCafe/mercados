@@ -136,8 +136,8 @@ class Noticia:
 
 
 class CVM:
-    def __init__(self, user_agent=USER_AGENT):
-        self.session = create_session(user_agent=user_agent)
+    def __init__(self, user_agent=USER_AGENT, proxy=None):
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
 
     def noticias(self):
         url = "https://www.gov.br/cvm/pt-br/assuntos/noticias"
@@ -481,8 +481,8 @@ class DocumentoEmpresa:
 
 class RAD:
     # TODO: métodos deveriam ser movidos para classe CVM?
-    def __init__(self, user_agent=USER_AGENT):
-        self.session = create_session(user_agent=user_agent)
+    def __init__(self, user_agent=USER_AGENT, proxy=None):
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
         self._empresas = self._categorias = None
 
     def _extract_rows(self, raw_data):

@@ -64,8 +64,8 @@ class BRMoneyField(rows.fields.DecimalField):
 class CVMFundo:
     base_url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultBuscaPartic.aspx"
 
-    def __init__(self, user_agent=USER_AGENT):
-        self.session = create_session(user_agent=user_agent)
+    def __init__(self, user_agent=USER_AGENT, proxy=None):
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
 
     def _parse_dados_fundo(self, tree):
         dados_fundo = [

@@ -8,6 +8,7 @@ from dataclasses import fields as dataclass_fields
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 from unicodedata import normalize
 
 import requests
@@ -15,6 +16,7 @@ import requests.packages.urllib3.util.connection as urllib3_connection
 from requests.adapters import HTTPAdapter, Retry
 
 urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
+BRT = datetime.timezone(-datetime.timedelta(hours=3))
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
 REGEXP_CAMELCASE_1 = re.compile("(.)([A-Z][a-z]+)")
@@ -31,7 +33,7 @@ REGEXP_YEAR_PART = re.compile(
 REGEXP_SEPARATOR = re.compile("(_+)")
 REGEXP_WORD_BOUNDARY = re.compile(r"(\w\b)")
 REGEXP_ATTACHMENT_FILENAME = re.compile("""^attachment; filename=['"]?(.*?)["']?$""")
-BRT = datetime.timezone(-datetime.timedelta(hours=3))
+USER_AGENT = "Mozilla/5.0 mercados/python"
 
 
 @lru_cache(maxsize=1024)
@@ -179,10 +181,7 @@ def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
     return text.strip(separator)
 
 
-USER_AGENT = "Mozilla/5.0 mercados/python"
-
-
-def create_session(user_agent=USER_AGENT):
+def create_session(user_agent: str = USER_AGENT, proxy: Optional[str] = None):
     import urllib3  # noqa
 
     urllib3.disable_warnings()
@@ -192,6 +191,8 @@ def create_session(user_agent=USER_AGENT):
     session.headers["Accept"] = (
         "application/json,text/html,application/xhtml+xml,application/xml,application/pdf,text/csv,application/zip,application/x-zip-compressed"
     )
+    if proxy is not None:
+        session.proxies.update({"http": proxy, "https": proxy})
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
@@ -510,8 +511,8 @@ def clean_xml_dict(d):
     return result
 
 
-def download_files(urls: list[str], filenames: list[Path], quiet=False):
-    session = create_session()
+def download_files(urls: list[str], filenames: list[Path], quiet=False, user_agent=USER_AGENT, proxy=None):
+    session = create_session(user_agent=user_agent, proxy=proxy)
     for url, filename in zip(urls, filenames):
         filename = Path(filename)
         filename.mkdir(parents=True, exist_ok=True)

@@ -73,8 +73,9 @@ class FundosNet:
 
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
-    def __init__(self, user_agent=USER_AGENT, timeout=5, verify_ssl=False):
+    def __init__(self, user_agent=USER_AGENT, timeout=5, verify_ssl=False, proxy=None):
         self._user_agent = user_agent
+        self._proxy = proxy
         self.timeout = timeout
         self.verify_ssl = verify_ssl
         self._session = None
@@ -83,7 +84,7 @@ class FundosNet:
     @property
     def session(self):
         if self._session is None:
-            self._session = create_session(user_agent=self._user_agent)
+            self._session = create_session(user_agent=self._user_agent, proxy=self._proxy)
             self._session.headers["CSRFToken"] = self.csrf_token
         return self._session
 
