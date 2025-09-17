@@ -179,13 +179,16 @@ def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
     return text.strip(separator)
 
 
-def create_session():
+USER_AGENT = "Mozilla/5.0 mercados/python"
+
+
+def create_session(user_agent=USER_AGENT):
     import urllib3  # noqa
 
     urllib3.disable_warnings()
     session = requests.Session()
     adapter = HTTPAdapter(max_retries=Retry(total=7, backoff_factor=0.1))
-    session.headers["User-Agent"] = "Mozilla/5.0 mercados/python"
+    session.headers["User-Agent"] = user_agent
     session.headers["Accept"] = (
         "application/json,text/html,application/xhtml+xml,application/xml,application/pdf,text/csv,application/zip,application/x-zip-compressed"
     )

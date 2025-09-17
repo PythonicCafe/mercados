@@ -16,6 +16,7 @@ from .bcb import Taxa
 from .utils import (
     BRT,
     REGEXP_CNPJ_SEPARATORS,
+    USER_AGENT,
     clean_string,
     create_session,
     parse_br_date,
@@ -940,8 +941,8 @@ class B3:
     # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
     carteira_indice_periodos = ("dia", "teórica", "próxima")
 
-    def __init__(self):
-        self.session = create_session()
+    def __init__(self, user_agent=USER_AGENT):
+        self.session = create_session(user_agent=user_agent)
         # Requisição para guardar cookies:
         self.request(
             "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm",

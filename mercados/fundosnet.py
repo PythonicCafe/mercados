@@ -8,7 +8,7 @@ from lxml.html import document_fromstring
 
 from . import choices
 from .document import DocumentMeta
-from .utils import BRT, create_session, remove_acentos, remove_espacos
+from .utils import BRT, USER_AGENT, create_session, remove_acentos, remove_espacos
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 REGEXP_CERTIFICADO_DESCRICAO = re.compile(
@@ -73,7 +73,8 @@ class FundosNet:
 
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
-    def __init__(self, timeout=5, verify_ssl=False):
+    def __init__(self, user_agent=USER_AGENT, timeout=5, verify_ssl=False):
+        self._user_agent = user_agent
         self.timeout = timeout
         self.verify_ssl = verify_ssl
         self._session = None
@@ -82,7 +83,7 @@ class FundosNet:
     @property
     def session(self):
         if self._session is None:
-            self._session = create_session()
+            self._session = create_session(user_agent=self._user_agent)
             self._session.headers["CSRFToken"] = self.csrf_token
         return self._session
 

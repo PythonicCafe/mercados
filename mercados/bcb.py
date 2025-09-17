@@ -6,7 +6,7 @@ from calendar import monthrange
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 
-from .utils import create_session, dicts_to_str, parse_br_date
+from .utils import USER_AGENT, create_session, dicts_to_str, parse_br_date, parse_date
 
 
 @dataclass
@@ -134,8 +134,8 @@ class BancoCentral:
     # TODO: pegar UFIR (parou) de https://www3.bcb.gov.br/sgspub/consultarmetadados/consultarMetadadosSeries.do?method=consultarMetadadosSeriesInternet&hdOidSerieSelecionada=22
     # TODO: pegar outras das principais séries
 
-    def __init__(self):
-        self.session = create_session()
+    def __init__(self, user_agent=USER_AGENT):
+        self.session = create_session(user_agent=user_agent)
         # Por algum motivo, o serviço REST "novoselic" não retorna resultados caso o cabeçalho `Accept` seja passado
         del self.session.headers["Accept"]
 

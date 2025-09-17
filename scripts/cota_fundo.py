@@ -9,7 +9,7 @@ from pathlib import Path
 import rows
 from lxml.html import document_fromstring, tostring
 
-from .utils import create_session
+from .utils import USER_AGENT, create_session
 
 
 def clean_cnpj(value):
@@ -64,8 +64,8 @@ class BRMoneyField(rows.fields.DecimalField):
 class CVMFundo:
     base_url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultBuscaPartic.aspx"
 
-    def __init__(self):
-        self.session = create_session()
+    def __init__(self, user_agent=USER_AGENT):
+        self.session = create_session(user_agent=user_agent)
 
     def _parse_dados_fundo(self, tree):
         dados_fundo = [
