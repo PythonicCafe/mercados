@@ -1,10 +1,11 @@
 TAGS_FILE = .tags
+COMPOSE_RUN = docker compose run --rm -it --quiet-build
 
 bash: 					# Run bash inside `main` container
-	docker compose run --rm -it main bash
+	$(COMPOSE_RUN) main bash
 
 bash-root: 				# Run bash as root inside `main` container
-	docker compose run --rm -itu root main bash
+	$(COMPOSE_RUN) -u root main bash
 
 build: 					# Build containers
 	docker compose build
@@ -20,24 +21,27 @@ kill:					# Force stop (kill) and remove containers
 	docker compose rm --force
 
 lint:					# Run linter script inside `main` container
-	docker compose run --rm -it main /app/scripts/lint.sh
+	$(COMPOSE_RUN) main /app/scripts/lint.sh
 
 release:				# Build and release the package to PyPI
 	rm -rf build dist
-	docker compose run --rm -it main python setup.py sdist bdist_wheel
-	docker compose run --rm -it main twine check dist/*
-	docker compose run --rm -it main twine upload dist/*
+	$(COMPOSE_RUN) main python setup.py sdist bdist_wheel
+	$(COMPOSE_RUN) main twine check dist/*
+	$(COMPOSE_RUN) main twine upload dist/*
+
+shell:					# Execute IPython inside `main` container
+	$(COMPOSE_RUN) main ipython
 
 tags:					# Generate tags file for the entire project (requires universal-ctags)
 	@git ls-files | ctags -L - --tag-relative=yes --quiet --append -f "$(TAGS_FILE)"
 
 test-release:			# Build and test-release the package (to test.pypi.org)
 	rm -rf build dist
-	docker compose run --rm -it main python setup.py sdist bdist_wheel
-	docker compose run --rm -it main twine check dist/*
-	docker compose run --rm -it main twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	$(COMPOSE_RUN) main python setup.py sdist bdist_wheel
+	$(COMPOSE_RUN) main twine check dist/*
+	$(COMPOSE_RUN) main twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 test:					# Execute `pytest` inside `main` container
-	docker compose run --rm -it main pytest --doctest-modules $(TEST_ARGS) mercados/ tests/
+	$(COMPOSE_RUN) main pytest --doctest-modules $(TEST_ARGS) mercados/ tests/
 
-.PHONY:	bash bash-root build container-clean help kill lint release tags test-release test
+.PHONY:	bash bash-root build container-clean help kill lint release shell tags test-release test
