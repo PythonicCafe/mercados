@@ -137,6 +137,14 @@ def get_pdf_text(file_contents):
     return text
 
 
+def remove_espacos(text):
+    return REGEXP_SPACES.sub(" ", text).strip()
+
+
+def remove_acentos(text):
+    return normalize("NFKD", text).encode("ascii", errors="ignore").decode("ascii")
+
+
 def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"):
     """Generate a slug for the `text`.
 

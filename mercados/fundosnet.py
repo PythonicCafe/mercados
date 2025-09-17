@@ -8,7 +8,7 @@ from lxml.html import document_fromstring
 
 from . import choices
 from .document import DocumentMeta
-from .utils import create_session
+from .utils import BRT, create_session, remove_acentos, remove_espacos
 
 REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 REGEXP_CERTIFICADO_DESCRICAO = re.compile(
@@ -76,9 +76,15 @@ class FundosNet:
     def __init__(self, timeout=5, verify_ssl=False):
         self.timeout = timeout
         self.verify_ssl = verify_ssl
-        self.session = create_session()
-        self.session.headers["CSRFToken"] = self.csrf_token
+        self._session = None
         self.draw = 0
+
+    @property
+    def session(self):
+        if self._session is None:
+            self._session = create_session()
+            self._session.headers["CSRFToken"] = self.csrf_token
+        return self._session
 
     def baixa_xml(self, url, timeout=10.0, max_tries=5, wait_between_errors=0.5):
         """Baixa um XML do FundosNet a partir da URL e decodifica-o corretamente
@@ -333,6 +339,45 @@ class FundosNet:
         )
         for row in result:
             yield DocumentMeta.from_json(row)
+
+    def _extrai_dados_protocolo(self, content: bytes):
+        tree = document_fromstring(content)
+        tabelas = tree.xpath("//table[caption]")
+        row = {}
+        for tabela in tabelas:
+            titulo = remove_espacos(tabela.xpath("string(./caption)"))
+            if titulo in ("Informações do Documento", "Informações Adicionais"):
+                titulo = "doc"
+            else:
+                titulo = titulo.lower()
+            for tr in tabela.xpath(".//tr"):
+                tds = []
+                for td in tr.xpath(".//td"):
+                    tds.append(td.xpath("string(.)").strip())
+                assert len(tds) == 2, f"Valor incorreto de células na tabela: {len(tds)}"
+                if tds[0].lower() == "nome":
+                    key = titulo
+                else:
+                    key = f"{titulo}_{tds[0]}".lower().replace(" ", "_")
+                key = remove_acentos(key)
+                for item in ("da", "de", "do"):
+                    key = key.replace(f"_{item}_", "_")
+                if key.startswith("doc_"):
+                    key = key[4:]
+                row[key] = remove_espacos(tds[1]) or None
+        for key in ("data_entrega", "data_reapresentacao", "data_cancelamento"):
+            if key not in row:
+                continue
+            row[key] = datetime.datetime.strptime(row[key], "%d/%m/%Y %H:%M").replace(tzinfo=BRT)
+        for key in ("motivo_reapresentacao", "data_reapresentacao", "data_cancelamento", "motivo_cancelamento"):
+            if key not in row:
+                row[key] = None
+        return row
+
+    def dados_protocolo(self, doc_id):
+        """Coleta informações do protocolo de entrega para um determinado documento"""
+        response = self.request("GET", "visualizarProtocoloDocumentoCVM", xhr=False, params={"idDocumento": doc_id})
+        return self._extrai_dados_protocolo(response.content)
 
 
 if __name__ == "__main__":
