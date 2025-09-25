@@ -117,6 +117,7 @@ with csv_filename.open(mode="w") as fobj:
 ## B3
 
 Dados que podem ser baixados da B3:
+- Valor histórico de diversos índices
 - Cotação diária da negociação em bolsa (um registro por ativo)
 - Preços a cada 5 minutos do último pregão por ativo (com atraso de 15min)
 - Negociações intradiárias em bolsa (um registro por negociação)
@@ -181,6 +182,52 @@ Cotação de POMO4 em 2025-08-12 10:04:00-03:00: 8.93
 Cotação de POMO4 em 2025-08-12 17:46:00-03:00: 8.97
 Cotação de POMO4 em 2025-08-12 17:54:00-03:00: 8.93
 ```
+
+
+### Exemplo: Valores dos Índices
+
+No exemplo abaixo, pegamos os valores diários do Índice de Fundos de Investimentos Imobiliários (IFIX) de 2010 ao ano
+atual e salvamos o resultado em um arquivo CSV.
+
+```python
+import csv
+import datetime
+from mercados.b3 import B3
+
+
+indice_escolhido = "IFIX"
+ano_inicial = 2010
+ano_atual = datetime.datetime.now().year
+
+b3 = B3()
+print("Índices disponíveis:")
+for indice in b3.indices:
+    print(f"- {indice}")
+
+with open(f"{indice_escolhido}.csv", mode="w") as fobj:
+    writer = csv.DictWriter(fobj, fieldnames=["data", "valor"])
+    writer.writeheader()
+    for ano in range(ano_inicial, ano_atual + 1):
+        print(f"Coletando dados do {indice_escolhido} para {ano}")
+        for taxa in b3.valor_indice(indice_escolhido, ano):
+            writer.writerow({"data": taxa.data, "valor": taxa.valor})
+```
+
+Deve retornar algo como:
+
+```
+Índices disponíveis:
+- AGFS
+- BDRX
+- GPTW
+[...]
+Coletando dados do IFIX para 2023
+Coletando dados do IFIX para 2024
+Coletando dados do IFIX para 2025
+```
+
+O arquivo `IFIX.csv` será criado com todos os valores do IFIX desde 30/12/2010, quando seu valor inicial era `1000.00`.
+
 
 ### Exemplo: Aluguel de Ativos
 
