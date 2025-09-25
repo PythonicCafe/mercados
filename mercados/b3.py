@@ -930,16 +930,16 @@ class CustodiaFungivel:
 
 
 class B3:
-    funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsListedProxy/Search/"
-    indexes_stats_url = "https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/"
-    indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
-    companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
+    _funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsListedProxy/Search/"
+    _indexes_stats_url = "https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/"
+    _indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
+    _companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
     indices = (
         "AGFS BDRX GPTW IBBC IBBE IBBR IBEE IBEP IBEW IBHB IBLV IBOVESPA IBRA IBSD IBXL IBXX ICO2 ICON IDIV IDVR IEEX "
         "IFIL IFIX IFNC IGCT IGCX IGNM IMAT IMOB INDX ISEE ITAG IVBX MLCX SMLL UTIL".split()
     )
     # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
-    carteira_indice_periodos = ("dia", "teórica", "próxima")
+    _carteira_indice_periodos = ("dia", "teórica", "próxima")
 
     def __init__(self, user_agent=USER_AGENT, proxy=None):
         self.session = create_session(user_agent=user_agent, proxy=proxy)
@@ -1085,7 +1085,7 @@ class B3:
 
     def _fundos_listados_por_tipo(self, tipo, detalhe=True):
         objs = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListFunds/"),
+            base_url=urljoin(self._funds_call_url, "GetListFunds/"),
             url_params={"language": "pt-br", "typeFund": tipo},
         )
         for obj in objs:
@@ -1097,14 +1097,14 @@ class B3:
     def fundo_listado_detalhe(self, tipo, id_fnet, acronimo):
         response_data = self.request(
             method="GET",
-            url=urljoin(self.funds_call_url, "GetDetailFund/"),
+            url=urljoin(self._funds_call_url, "GetDetailFund/"),
             url_params={"language": "pt-br", "idFNET": id_fnet, "idCEM": acronimo, "typeFund": tipo},
         )
         return FundoB3.from_dict(response_data)
 
     def fundo_listado_dividendos(self, acronimo):
         data = self.request(
-            url=urljoin(self.funds_call_url, "GetEventsCorporateActions/"),
+            url=urljoin(self._funds_call_url, "GetEventsCorporateActions/"),
             url_params={"language": "pt-br", "idCEM": acronimo},
         )
         dividends = data.get("cashDividends") if data else []
@@ -1121,7 +1121,7 @@ class B3:
         # BRALZCCTF016	128,40431952130	100,51000000000	31/12/9999 a 27/05/2024	31/05/2024	10/05/2024	BRALZCCTF016	SUBSCRICAO	15/05/2024
 
         return self.request(
-            url=urljoin(self.funds_call_url, "GetListedSupplementFunds/"),
+            url=urljoin(self._funds_call_url, "GetListedSupplementFunds/"),
             url_params={"cnpj": cnpj, "identifierFund": identifier, "typeFund": type_id},
         )["subscriptions"]
 
@@ -1129,7 +1129,7 @@ class B3:
     def _fundo_comunicados(self, identificador):
         "Comunicados"
         result = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            base_url=urljoin(self._funds_call_url, "GetListedPreviousDocuments/"),
             url_params={"identifierFund": identificador, "type": 1},
         )
         for row in result:
@@ -1139,7 +1139,7 @@ class B3:
     def _fundo_demonstrativos(self, identificador):
         "Demonstrativos financeiros e relatórios"
         result = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            base_url=urljoin(self._funds_call_url, "GetListedPreviousDocuments/"),
             url_params={"identifierFund": identificador, "type": 2},
         )
         for row in result:
@@ -1149,7 +1149,7 @@ class B3:
     def _fundo_outros_documentos(self, identificador):
         "Demonstrativos financeiros e relatórios"
         result = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedPreviousDocuments/"),
+            base_url=urljoin(self._funds_call_url, "GetListedPreviousDocuments/"),
             url_params={"identifierFund": identificador, "type": 3},
         )
         for row in result:
@@ -1158,7 +1158,7 @@ class B3:
     def _fund_documents(self, type_id, cnpj, identifier, start_date: datetime.date, end_date: datetime.date):
         # TODO: parse/convert to dataclass:
         iterator = self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedDocuments/"),
+            base_url=urljoin(self._funds_call_url, "GetListedDocuments/"),
             url_params={
                 "identifierFund": identifier,
                 "typeFund": type_id,
@@ -1179,7 +1179,7 @@ class B3:
         """Devolve os BDRs listados na B3"""
         # TODO: retornar dataclass
         return self.paginate(
-            base_url=urljoin(self.companies_call_url, "GetCompaniesBDR/"),
+            base_url=urljoin(self._companies_call_url, "GetCompaniesBDR/"),
             url_params={"language": "pt-br"},
         )
 
@@ -1305,24 +1305,24 @@ class B3:
         return self.fundo_listado_detalhe("FIDC", fundo_id, identificador)
 
     def securitizadoras(self):
-        yield from self.paginate(urljoin(self.funds_call_url, "GetListedSecuritization/"))
+        yield from self.paginate(urljoin(self._funds_call_url, "GetListedSecuritization/"))
 
     def cris(self, cnpj_securitizadora):
         yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedCertified/"),
+            base_url=urljoin(self._funds_call_url, "GetListedCertified/"),
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRI"},
         )
 
     def cras(self, cnpj_securitizadora):
         yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedCertified/"),
+            base_url=urljoin(self._funds_call_url, "GetListedCertified/"),
             url_params={"dateInitial": "", "cnpj": cnpj_securitizadora, "type": "CRA"},
         )
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def certificate_documents(self, identificador, start_date: datetime.date, end_date: datetime.date):  # CRI or CRA
         yield from self.paginate(
-            base_url=urljoin(self.funds_call_url, "GetListedDocumentsTypeHistory/"),
+            base_url=urljoin(self._funds_call_url, "GetListedDocumentsTypeHistory/"),
             url_params={
                 "cnpj": identificador,
                 "dateInitial": start_date.strftime("%Y-%m-%d"),
@@ -1361,7 +1361,7 @@ class B3:
             # TODO: testar IDAP5 e ICBIO
             raise ValueError(f"Índice desconhecido: {repr(indice)}")
         response = self.request(
-            urljoin(self.indexes_stats_url, "GetPortfolioDay/"),
+            urljoin(self._indexes_stats_url, "GetPortfolioDay/"),
             url_params={"index": indice, "language": "pt-br", "year": ano},
             decode_json=True,
         )
@@ -1382,15 +1382,15 @@ class B3:
         # exemplo: IBOV (carteira_indice) é IBOVESPA (valor_indice). Obrigado B3 mais uma vez pela consistência. :|
         # XXX: a carteira "próxima" muitas vezes é igual à teórica (provavelmente somente pouco antes do
         # rebalanceamento é que ela é atualizada).
-        if periodo not in self.carteira_indice_periodos:
-            raise ValueError(f"Período {repr(periodo)} inválido. Use: {', '.join(self.carteira_indice_periodos)}")
+        if periodo not in self._carteira_indice_periodos:
+            raise ValueError(f"Período {repr(periodo)} inválido. Use: {', '.join(self._carteira_indice_periodos)}")
 
         items = []
 
         if periodo == "dia":
             # TODO: por que não paginar?
             response = self.request(
-                urljoin(self.indexes_call_url, "GetPortfolioDay/"),
+                urljoin(self._indexes_call_url, "GetPortfolioDay/"),
                 url_params={"language": "pt-br", "index": indice, "segment": "1", "pageNumber": 1, "pageSize": 120},
                 decode_json=True,
             )
@@ -1409,7 +1409,7 @@ class B3:
         elif periodo == "teórica":
             # TODO: por que não paginar?
             response = self.request(
-                urljoin(self.indexes_call_url, "GetTheoricalPortfolio/"),
+                urljoin(self._indexes_call_url, "GetTheoricalPortfolio/"),
                 url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
                 decode_json=True,
             )
@@ -1428,7 +1428,7 @@ class B3:
         elif periodo == "próxima":
             # TODO: por que não paginar?
             response = self.request(
-                urljoin(self.indexes_call_url, "GetQuartelyPreview/"),
+                urljoin(self._indexes_call_url, "GetQuartelyPreview/"),
                 url_params={"language": "pt-br", "index": indice, "pageNumber": 1, "pageSize": 120},
                 decode_json=True,
             )
@@ -1468,7 +1468,7 @@ class B3:
     # def carteira_indice_historica(self, indice, ano: int):
     #     # TODO: ano não funciona!
     #     response = self.request(
-    #         url=urljoin(self.indexes_call_url, "GetDownloadPortfolioDay/"),
+    #         url=urljoin(self._indexes_call_url, "GetDownloadPortfolioDay/"),
     #         url_params={"language": "pt-br", "index": indice, "year": ano},
     #         decode_json=False
     #     )
@@ -1734,7 +1734,7 @@ if __name__ == "__main__":
     indices_carteira.sort()
     subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=indices_carteira)
     subparser.add_argument(
-        "periodo", type=str, help="Período de validade da carteira", choices=B3.carteira_indice_periodos
+        "periodo", type=str, help="Período de validade da carteira", choices=B3._carteira_indice_periodos
     )
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
