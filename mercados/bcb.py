@@ -151,6 +151,8 @@ class BancoCentral:
         série (pode ser demorado).
         :param datetime.date fim: (opcional) Data de fim dos dados. Se não especificado, pegará até o final da série.
         """
+        # TODO: guardar metadados de periodicidade de séires e, para séries diárias, a data de início deve ser
+        # obrigatória.
         if isinstance(nome_ou_codigo, str):
             codigo = self.series.get(nome_ou_codigo)
             if codigo is None:
@@ -164,6 +166,15 @@ class BancoCentral:
         if fim is not None:
             params["dataFinal"] = fim.strftime("%d/%m/%Y")
         response = self.session.get(url, params=params)
+        if not response.ok:
+            from json import JSONDecodeError
+
+            try:
+                args = response.json()
+            except JSONDecodeError:
+                args = response.content.decode(response.apparent_encoding)
+            raise RuntimeError("Erro ao coletar dados de série temporal", args)
+        response.raise_for_status()
         return [Taxa(data=parse_br_date(row["data"]), valor=Decimal(row["valor"])) for row in response.json()]
 
     def _novoselic_csv_request(self, filtro: dict, ordenacao: list[dict]):
