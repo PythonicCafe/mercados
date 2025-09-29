@@ -5,6 +5,7 @@ import json
 from calendar import monthrange
 from dataclasses import asdict, dataclass
 from decimal import Decimal
+from typing import Optional
 
 from .utils import USER_AGENT, create_session, dicts_to_file, parse_br_date, parse_date
 
@@ -140,7 +141,10 @@ class BancoCentral:
         del self.session.headers["Accept"]
 
     def serie_temporal(
-        self, nome_ou_codigo: str | int, inicio: datetime.date = None, fim: datetime.date = None
+        self,
+        nome_ou_codigo: str | int,
+        inicio: Optional[datetime.date | str] = None,
+        fim: Optional[datetime.date | str] = None,
     ) -> list[Taxa]:
         """
         Acessa API de séries temporais do Banco Central
@@ -159,6 +163,10 @@ class BancoCentral:
                 raise ValueError(f"Nome de série não encontrado: {repr(nome_ou_codigo)}")
         else:
             codigo = nome_ou_codigo
+        if isinstance(inicio, str):
+            inicio = parse_date("iso-date", inicio)
+        if isinstance(fim, str):
+            fim = parse_date("iso-date", fim)
         url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados"
         params = {"formato": "json"}
         if inicio is not None:
