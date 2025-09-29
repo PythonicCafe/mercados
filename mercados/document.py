@@ -92,6 +92,8 @@ def fix_segmento(value):
         "shoppings": "Shoppings",
         "titulos_e_val_mob": "Títulos e Valores Mobiliários",
         "titulos_e_valores_mobiliarios": "Títulos e Valores Mobiliários",
+        "varejo": "Varejo",
+        "educacional": "Educacional",
     }[slug(value)]
 
 
