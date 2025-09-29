@@ -65,6 +65,7 @@ python -m mercados.bcb ajustar-selic mês 2024-01-01 2024-11-30 1000.00
 
 echo mercados.bcb serie-temporal
 python -m mercados.bcb serie-temporal -i 2024-10-01 -f 2024-12-31 -F md CDI
+python -m mercados.bcb serie-temporal -i 2025-01-01 'Dólar compra' "${DATA_PATH}/bcb-serie-temporal-Dólar-compra.md"
 
 
 # B3

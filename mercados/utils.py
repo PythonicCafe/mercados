@@ -1,6 +1,5 @@
 import csv
 import datetime
-import io
 import re
 import socket
 import subprocess
@@ -8,7 +7,7 @@ from dataclasses import fields as dataclass_fields
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TextIO
 from unicodedata import normalize
 
 import requests
@@ -16,6 +15,7 @@ import requests.packages.urllib3.util.connection as urllib3_connection
 from requests.adapters import HTTPAdapter, Retry
 
 urllib3_connection.allowed_gai_family = lambda: socket.AF_INET  # Force requests to use IPv4
+EXPORT_FORMATS = ("markdown", "md", "csv", "tsv", "txt")
 BRT = datetime.timezone(-datetime.timedelta(hours=3))
 MONTHS = "janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro".split()
 MONTHS_3 = [item[:3] for item in MONTHS]
@@ -68,8 +68,41 @@ def day_range(start, stop):
         current += one_day
 
 
-def dicts_to_str(data: list[dict], fmt: str):
-    """Convert a list of dictionaries to a string representation in a specific format.
+def formato_por_extensao(arquivo: Path):
+    return arquivo.suffix[1:].lower().strip()
+
+
+def extrai_nome_arquivo(valor: str):
+    from argparse import ArgumentTypeError
+
+    arquivo = Path(valor)
+    fmt = formato_por_extensao(arquivo)
+    if fmt not in EXPORT_FORMATS:
+        raise ArgumentTypeError(
+            f"Formato de arquivo {repr(fmt)} não suportado. Opções: {', '.join(sorted(EXPORT_FORMATS))}"
+        )
+    return arquivo
+
+
+def define_formato(fmt: Optional[str], arquivo: Path):
+    """
+    Define formato final de arquivo com base no formato (caso disponível) e extensão do arquivo
+
+    >>> from pathlib import Path
+    >>> define_formato('csv', Path('data/teste.txt'))
+    'csv'
+    >>> define_formato(None, Path('data/teste.txt'))
+    'txt'
+    """
+    if fmt is not None:
+        return fmt
+    if arquivo is None:
+        return "txt"
+    return formato_por_extensao(arquivo)
+
+
+def dicts_to_file(data: list[dict], fmt: str, fobj: TextIO):
+    """Convert a list of dictionaries to a string representation in a specific format and write it to the file-object.
 
     Values are not expected to have new-line (\n) and if the markdown format is used, it won't escape special chars,
     like `|`, `*` etc.
@@ -78,9 +111,12 @@ def dicts_to_str(data: list[dict], fmt: str):
     them is used to create the table header)
     :param fmt: one of: markdown (or md), csv, tsv or txt
     """
-    assert fmt in ("markdown", "md", "csv", "tsv", "txt")
+    import os
+
+    if fmt not in EXPORT_FORMATS:
+        raise ValueError(f"Invalid format: {repr(fmt)}. Available: {', '.join(EXPORT_FORMATS)}")
     if not data:
-        return ""
+        return
     header = []
     for row in data:
         for key in row.keys():
@@ -88,12 +124,9 @@ def dicts_to_str(data: list[dict], fmt: str):
                 header.append(key)
     if fmt in ("csv", "tsv"):
         delimiter = "\t" if fmt == "tsv" else ","
-        with io.StringIO() as fobj:
-            writer = csv.DictWriter(fobj, fieldnames=header, delimiter=delimiter)
-            writer.writeheader()
-            writer.writerows(data)
-            fobj.seek(0)
-            return fobj.read()
+        writer = csv.DictWriter(fobj, fieldnames=header, delimiter=delimiter)
+        writer.writeheader()
+        writer.writerows(data)
     elif fmt in ("markdown", "md", "txt"):
         # TODO: won't work if `\n` exists in a value
         # TODO: for markdown, needs to replace "|" with "&#124;" in values
@@ -128,7 +161,8 @@ def dicts_to_str(data: list[dict], fmt: str):
         elif fmt in ("markdown", "md"):
             values = [header, ["-" * max_length[index] for index, _ in enumerate(header)]] + values
             lines = [values_as_str(row_values, separator="|", space=" ") for row_values in values]
-        return "\n".join(lines)
+        line_separator = os.linesep
+        fobj.write(line_separator.join(lines) + line_separator)
 
 
 def get_pdf_text(file_contents):

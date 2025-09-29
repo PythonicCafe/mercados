@@ -6,7 +6,7 @@ from calendar import monthrange
 from dataclasses import asdict, dataclass
 from decimal import Decimal
 
-from .utils import USER_AGENT, create_session, dicts_to_str, parse_br_date, parse_date
+from .utils import USER_AGENT, create_session, dicts_to_file, parse_br_date, parse_date
 
 
 @dataclass
@@ -249,8 +249,9 @@ class BancoCentral:
 
 if __name__ == "__main__":
     import argparse
+    import sys
 
-    from .utils import parse_iso_date
+    from .utils import EXPORT_FORMATS, define_formato, extrai_nome_arquivo, parse_iso_date
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -268,14 +269,20 @@ if __name__ == "__main__":
         "--formato",
         "-F",
         type=str,
-        choices=["csv", "tsv", "md", "markdown", "txt"],
-        default="txt",
+        choices=EXPORT_FORMATS,
+        default=None,
         help="Formato de saída",
     )
     subparser_serie_temporal.add_argument(
         "serie",
         choices=list(BancoCentral.series.keys()),
         help="Nome da série temporal",
+    )
+    subparser_serie_temporal.add_argument(
+        "arquivo",
+        nargs="?",
+        type=extrai_nome_arquivo,
+        help="Nome do arquivo a ser salvo",
     )
 
     args = parser.parse_args()
@@ -297,6 +304,12 @@ if __name__ == "__main__":
         inicio = args.data_inicial
         fim = args.data_final
         nome_serie = args.serie
-        fmt = args.formato
-        data = [asdict(tx) for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim)]
-        print(dicts_to_str(data, fmt))
+        arquivo = args.arquivo
+        fmt = define_formato(args.formato, arquivo)
+        data = [tx.serialize() for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim)]
+        if arquivo is None:
+            dicts_to_file(data, fmt, sys.stdout)
+        else:
+            arquivo.parent.mkdir(exist_ok=True, parents=True)
+            with arquivo.open(mode="w") as fobj:
+                dicts_to_file(data, fmt, fobj)

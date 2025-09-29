@@ -1,8 +1,9 @@
 from datetime import date
 from decimal import Decimal
+from io import StringIO
 from textwrap import dedent
 
-from mercados.utils import dicts_to_str
+from mercados.utils import dicts_to_file
 
 data = [
     {"data": date(2024, 11, 2)},
@@ -12,7 +13,17 @@ data = [
 ]
 
 
-def test_dicts_to_str_csv():
+def assert_dicts_to_file(data, fmt, esperado):
+    with StringIO() as fobj:
+        dicts_to_file(data, fmt, fobj)
+        fobj.seek(0)
+        resultado = fobj.read()
+
+    # Chamar .splitlines evita \r\n vs \n
+    assert resultado.strip().splitlines() == esperado.strip().splitlines()
+
+
+def test_dicts_to_file_csv():
     esperado = dedent(
         """
         data,valor
@@ -22,12 +33,10 @@ def test_dicts_to_str_csv():
         2024-11-05,0.040168
     """
     )
-    resultado = dicts_to_str(data, "csv")
-    # Chamar .splitlines evita \r\n vs \n
-    assert resultado.strip().splitlines() == esperado.strip().splitlines()
+    assert_dicts_to_file(data, "csv", esperado)
 
 
-def test_dicts_to_str_tsv():
+def test_dicts_to_file_tsv():
     esperado = dedent(
         """
         data\tvalor
@@ -37,12 +46,10 @@ def test_dicts_to_str_tsv():
         2024-11-05\t0.040168
     """
     )
-    resultado = dicts_to_str(data, "tsv")
-    # Chamar .splitlines evita \r\n vs \n
-    assert resultado.strip().splitlines() == esperado.strip().splitlines()
+    assert_dicts_to_file(data, "tsv", esperado)
 
 
-def test_dicts_to_str_txt():
+def test_dicts_to_file_txt():
     esperado = dedent(
         """
         +------------+----------+
@@ -55,11 +62,10 @@ def test_dicts_to_str_txt():
         +------------+----------+
     """
     )
-    resultado = dicts_to_str(data, "txt")
-    assert resultado.strip() == esperado.strip()
+    assert_dicts_to_file(data, "txt", esperado)
 
 
-def test_dicts_to_str_md():
+def test_dicts_to_file_md():
     esperado = dedent(
         """
         |       data |    valor |
@@ -70,5 +76,5 @@ def test_dicts_to_str_md():
         | 2024-11-05 | 0.040168 |
     """
     )
-    resultado = dicts_to_str(data, "md")
-    assert resultado.strip() == esperado.strip()
+    assert_dicts_to_file(data, "md", esperado)
+    assert_dicts_to_file(data, "markdown", esperado)
