@@ -21,7 +21,8 @@ Algumas premissas para o desenvolvimento:
   - `dev: `, para alterações referentes ao desenvolvimento (`Makefile`, linter etc.)
   - `pkg: `, para alterações relacionadas ao empacotamento
   - `util: `, para alterações em funções/métodos utilitários (módulo `utils.py`)
-  - `bcb: `, para alterações em funcionalidades relacionadas ao Banco Central do Brasil
-  - `fnet: `, para alterações em funcionalidades relacionados ao sistema FundosNET
-  - `cvm: `, para alterações em funcionalidades relacionados aos sistemas da CVM
-  - `b3: `, para alterações em funcionalidades relacionados aos sistemas da B3
+  - `b3: `, para alterações em funcionalidades relacionados aos dados coletados da B3
+  - `bcb: `, para alterações em funcionalidades relacionadas aos dados coletados do Banco Central do Brasil
+  - `cvm: `, para alterações em funcionalidades relacionados aos dados coletados da CVM
+  - `fnet: `, para alterações em funcionalidades relacionados aos dados coletados do sistema FundosNET
+  - `ibge: `, para alterações em funcionalidades relacionados aos dados coletados do IBGE

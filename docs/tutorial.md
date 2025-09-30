@@ -33,6 +33,59 @@ Para exemplos de uso da interface de linha de comando, veja o script
 [`scripts/smoke-tests.sh`](https://github.com/PythonicCafe/mercados/blob/develop/scripts/smoke-test.sh).
 
 
+## IBGE
+
+Dados que podem ser baixados do [IBGE](https://ibge.gov.br/):
+
+- [Séries históricas de
+  Índices](https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?=&t=series-historicas)
+  (IPCA, IPCA-15 e INPC)
+
+
+### Exemplo: IPCA dos últimos 12 meses
+
+O módulo `ibge` consegue baixar as séries históricas do IPCA, IPCA-15 e INPC. Os valores estão disponíveis desde
+dezembro de 1993, quando o "número série" tinha o valor `100.00`. O valor é corrigido pelos índices mensalmente.
+
+```python
+import datetime
+
+from mercados.ibge import IBGE
+
+
+ibge = IBGE()
+indice = "IPCA"  # Teste com "IPCA-15" e "INPC"
+hoje = datetime.datetime.now().date()
+ultimo = None
+for taxa in ibge.historico(indice):
+    if (hoje - taxa.data).days > 365:
+        continue
+    atual = taxa.valor
+    if ultimo is None:
+        variacao_str = "N/A"
+    else:
+        variacao = 100 * (atual / ultimo - 1)
+        variacao_str = f"{variacao:.2f}%"
+    print(f"{indice} em {taxa.data}: {atual:.2f} (variação: {variacao_str})")
+    ultimo = taxa.valor
+```
+
+O retorno será algo como:
+
+```
+IPCA em 2024-10-15: 7036.33 (variação: N/A)
+IPCA em 2024-11-15: 7063.77 (variação: 0.39%)
+IPCA em 2024-12-15: 7100.50 (variação: 0.52%)
+IPCA em 2025-01-15: 7111.86 (variação: 0.16%)
+IPCA em 2025-02-15: 7205.03 (variação: 1.31%)
+IPCA em 2025-03-15: 7245.38 (variação: 0.56%)
+IPCA em 2025-04-15: 7276.54 (variação: 0.43%)
+IPCA em 2025-05-15: 7295.46 (variação: 0.26%)
+IPCA em 2025-06-15: 7312.97 (variação: 0.24%)
+IPCA em 2025-07-15: 7331.98 (variação: 0.26%)
+IPCA em 2025-08-15: 7323.91 (variação: -0.11%)
+```
+
 ## Banco Central
 
 Dados que podem ser baixados do Banco Central do Brasil:

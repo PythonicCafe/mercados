@@ -17,6 +17,11 @@ problemas em outros sistemas, como Windows e Mac OS X. Instale-a executando:
 pip install mercados
 ```
 
+Para acessar dados do IBGE, é necessário instalar mais dependências. Instale-as com:
+```shell
+pip install mercados[ibge]
+```
+
 O código da `mercados` está licenciado sob [LGPL versão 3](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Você só
 deve utilizá-la se aceitar os termos da licença (veja mais detalhes na seção abaixo).
 
@@ -47,6 +52,10 @@ v3)](https://www.gnu.org/licenses/lgpl-3.0.pt-br.html). Em resumo:
 
 ## Dados disponíveis
 
+- [IBGE](https://ibge.gov.br/):
+  - [Séries históricas de
+    Índices](https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?=&t=series-historicas)
+    (IPCA, IPCA-15 e INPC)
 - [CVM](https://www.gov.br/cvm/pt-br):
   - [Notícias](https://www.gov.br/cvm/pt-br/assuntos/noticias)
   - [FundosNET](https://fnet.bmfbovespa.com.br/fnet/publico/abrirGerenciadorDocumentosCVM): documentos publicados,
