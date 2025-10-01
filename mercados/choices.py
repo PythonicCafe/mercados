@@ -385,6 +385,7 @@ FUNDO_TIPO = (
     (4, "ETF RF"),
     (7, "Fundo Setorial"),
     (10, "FIP"),
+    (11, "FIAGRO"),
 )
 
 RENDA_FIXA_TIPO = (
