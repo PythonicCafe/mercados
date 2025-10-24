@@ -5,7 +5,7 @@ import re
 import tempfile
 import uuid
 import zipfile
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Optional
@@ -67,7 +67,17 @@ class InformeDiarioFundo:
         )
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "fundo_cnpj": self.fundo_cnpj,
+            "data_competencia": self.data_competencia,
+            "valor_captado": self.valor_captado,
+            "valor_resgatado": self.valor_resgatado,
+            "patrimonio_liquido": self.patrimonio_liquido,
+            "valor_cota": self.valor_cota,
+            "valor_carteira": self.valor_carteira,
+            "fundo_tipo": self.fundo_tipo,
+            "cotistas": self.cotistas,
+        }
 
 
 @dataclass
@@ -81,7 +91,15 @@ class ContaBalancete:
     conta_superior: Optional[int] = None
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "codigo": self.codigo,
+            "descricao": self.descricao,
+            "data_inicio": self.data_inicio,
+            "data_fim": self.data_fim,
+            "normal": self.normal,
+            "retificadora": self.retificadora,
+            "conta_superior": self.conta_superior,
+        }
 
 
 @dataclass
@@ -122,7 +140,14 @@ class ItemBalanceteFundo:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "fundo_tipo_classe": self.fundo_tipo_classe,
+            "fundo_cnpj": self.fundo_cnpj,
+            "data_competencia": self.data_competencia,
+            "plano_conta": self.plano_conta,
+            "codigo_conta": self.codigo_conta,
+            "saldo": self.saldo,
+        }
 
 
 @dataclass
@@ -133,7 +158,12 @@ class Noticia:
     descricao: str
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "titulo": self.titulo,
+            "link": self.link,
+            "data": self.data,
+            "descricao": self.descricao,
+        }
 
 
 class CVM:
@@ -372,7 +402,26 @@ class DocumentoEmpresa:
     detalhe_publicacao: str = None
 
     def serialize(self):
-        return {"uuid": self.uuid, **asdict(self)}
+        return {
+            "uuid": self.uuid,
+            "codigo_empresa": self.codigo_empresa,
+            "empresa": self.empresa,
+            "categoria": self.categoria,
+            "datahora_entrega": self.datahora_entrega,
+            "situacao": self.situacao,
+            "modalidade": self.modalidade,
+            "url_download": self.url_download,
+            "id": self.id,
+            "protocolo": self.protocolo,
+            "url_visualizacao": self.url_visualizacao,
+            "versao": self.versao,
+            "subcategoria": self.subcategoria,
+            "assunto": self.assunto,
+            "datahora_referencia": self.datahora_referencia,
+            "especie": self.especie,
+            "tipo": self.tipo,
+            "detalhe_publicacao": self.detalhe_publicacao,
+        }
 
     @property
     def uuid(self):
@@ -681,7 +730,7 @@ def main(args):
             for noticia in cvm.noticias():
                 if noticia.data < data_inicial:
                     break
-                row = asdict(noticia)
+                row = noticia.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
@@ -727,7 +776,7 @@ def main(args):
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for informe in cvm.informe_diario_fundo(ano_mes):
-                row = asdict(informe)
+                row = informe.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
@@ -741,7 +790,7 @@ def main(args):
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in cvm.contas_fundos():
-                row = asdict(item)
+                row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
@@ -756,7 +805,7 @@ def main(args):
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in cvm.balancete_fundo_investimento(ano_mes):
-                row = asdict(item)
+                row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
@@ -771,7 +820,7 @@ def main(args):
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in cvm.balancete_fundo_estruturado(ano_mes):
-                row = asdict(item)
+                row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()

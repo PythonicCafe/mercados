@@ -3,7 +3,7 @@ import datetime
 import io
 import json
 from calendar import monthrange
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Optional
 
@@ -19,7 +19,11 @@ class TaxaIntervalo:
     valor: Decimal
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data_inicial": self.data_inicial,
+            "data_final": self.data_final,
+            "valor": self.valor,
+        }
 
 
 @dataclass
@@ -28,7 +32,10 @@ class Taxa:
     valor: Decimal
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data": self.data,
+            "valor": self.valor,
+        }
 
 
 class BancoCentral:

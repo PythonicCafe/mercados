@@ -450,7 +450,6 @@ def _configura_parser_cli(parser):
 
 def main(args):
     import csv
-    from dataclasses import asdict
     from pathlib import Path
 
     from mercados.utils import day_range
@@ -486,7 +485,7 @@ def main(args):
             filters["end_date"] = fim  # TODO: renomear parâmetro para Português
             resultado = fnet.search(**filters)
             for documento in resultado:
-                row = asdict(documento)
+                row = documento.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()

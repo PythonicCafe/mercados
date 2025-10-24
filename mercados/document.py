@@ -2,7 +2,7 @@ import copy
 import datetime
 import re
 import warnings
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from dataclasses import fields as class_fields
 from decimal import Decimal
 from typing import List, Optional
@@ -275,8 +275,27 @@ class InformeRendimentos:
         return result
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "tipo": self.tipo,
+            "fundo": self.fundo,
+            "fundo_cnpj": self.fundo_cnpj,
+            "administrador": self.administrador,
+            "administrador_cnpj": self.administrador_cnpj,
+            "responsavel": self.responsavel,
+            "telefone": self.telefone,
+            "codigo_isin": self.codigo_isin,
+            "valor_por_cota": self.valor_por_cota,
+            "data_informacao": self.data_informacao,
+            "codigo_negociacao": self.codigo_negociacao,
+            "data_aprovacao": self.data_aprovacao,
+            "data_base": self.data_base,
+            "data_pagamento": self.data_pagamento,
+            "periodo_referencia": self.periodo_referencia,
+            "ano": self.ano,
+            "ato_societario_aprovacao": self.ato_societario_aprovacao,
+            "isento_ir": self.isento_ir,
+            "tipo_amortizacao": self.tipo_amortizacao,
+        }
 
 @dataclass
 class OfertaPublica:
@@ -431,7 +450,59 @@ class OfertaPublica:
         )
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "nome_fundo": self.nome_fundo,
+            "cnpj_fundo": self.cnpj_fundo,
+            "nome_administrador": self.nome_administrador,
+            "cnpj_administrador": self.cnpj_administrador,
+            "responsavel_informacao": self.responsavel_informacao,
+            "telefone_contato": self.telefone_contato,
+            "email": self.email,
+            "ato_aprovacao": self.ato_aprovacao,
+            "data_aprovacao": self.data_aprovacao,
+            "tipo_oferta": self.tipo_oferta,
+            "data_corte": self.data_corte,
+            "numero_emissao": self.numero_emissao,
+            "qtd_cotas_divide_pl_fundo": self.qtd_cotas_divide_pl_fundo,
+            "qtd_max_cotas_serem_emitidas": self.qtd_max_cotas_serem_emitidas,
+            "percentual_subscricao": self.percentual_subscricao,
+            "preco_emissao": self.preco_emissao,
+            "custo_distribuicao": self.custo_distribuicao,
+            "preco_subscricao": self.preco_subscricao,
+            "montante_total": self.montante_total,
+            "codigo_isin": self.codigo_isin,
+            "codigo_negociacao": self.codigo_negociacao,
+            "dp_b3_data_inicio": self.dp_b3_data_inicio,
+            "dp_b3_data_fim": self.dp_b3_data_fim,
+            "dp_escriturador_data_inicio": self.dp_escriturador_data_inicio,
+            "dp_escriturador_data_fim": self.dp_escriturador_data_fim,
+            "dp_escriturador_data_liquidacao": self.dp_escriturador_data_liquidacao,
+            "dp_negociacao_b3_data_inicio": self.dp_negociacao_b3_data_inicio,
+            "dp_negociacao_b3_data_fim": self.dp_negociacao_b3_data_fim,
+            "dp_negociacao_escriturador_data_inicio": self.dp_negociacao_escriturador_data_inicio,
+            "dp_negociacao_escriturador_data_fim": self.dp_negociacao_escriturador_data_fim,
+            "dda_subscricao_data_inicio": self.dda_subscricao_data_inicio,
+            "dda_subscricao_data_fim": self.dda_subscricao_data_fim,
+            "dda_alocacao_data_inicio": self.dda_alocacao_data_inicio,
+            "dda_alocacao_data_fim": self.dda_alocacao_data_fim,
+            "dda_data_liquidacao": self.dda_data_liquidacao,
+            "dda_chamada_capital": self.dda_chamada_capital,
+            "possui_negociacao_direito_preferencia": self.possui_negociacao_direito_preferencia,
+            "possui_sobras_subscricao": self.possui_sobras_subscricao,
+            "possui_montante_adicional": self.possui_montante_adicional,
+            "montante_adicional": self.montante_adicional,
+            "utiliza_sistema_dda": self.utiliza_sistema_dda,
+            "sobras_data_liquidacao": self.sobras_data_liquidacao,
+            "sobras_b3_data_fim": self.sobras_b3_data_fim,
+            "sobras_b3_data_inicio": self.sobras_b3_data_inicio,
+            "sobras_escriturador_data_fim": self.sobras_escriturador_data_fim,
+            "sobras_escriturador_data_inicio": self.sobras_escriturador_data_inicio,
+            "montante_adicional_exercicio_b3_data_inicio": self.montante_adicional_exercicio_b3_data_inicio,
+            "montante_adicional_exercicio_b3_data_fim": self.montante_adicional_exercicio_b3_data_fim,
+            "montante_adicional_exercicio_escriturador_data_inicio": self.montante_adicional_exercicio_escriturador_data_inicio,
+            "montante_adicional_exercicio_escriturador_data_fim": self.montante_adicional_exercicio_escriturador_data_fim,
+            "montante_adicional_data_liquidacao": self.montante_adicional_data_liquidacao,
+        }
 
 
 @dataclass
@@ -530,7 +601,23 @@ class DocumentMeta:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "id": self.id,
+            "alta_prioridade": self.alta_prioridade,
+            "analisado": self.analisado,
+            "categoria": self.categoria,
+            "datahora_entrega": self.datahora_entrega,
+            "datahora_referencia": self.datahora_referencia,
+            "fundo": self.fundo,
+            "fundo_pregao": self.fundo_pregao,
+            "modalidade": self.modalidade,
+            "status": self.status,
+            "tipo": self.tipo,
+            "versao": self.versao,
+            "situacao": self.situacao,
+            "especie": self.especie,
+            "informacoes_adicionais": self.informacoes_adicionais,
+        }
 
 
 @dataclass
@@ -686,7 +773,48 @@ class InformeFII:
         )
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "fundo": self.fundo,
+            "fundo_cnpj": self.fundo_cnpj,
+            "administrador": self.administrador,
+            "administrador_cnpj": self.administrador_cnpj,
+            "data_funcionamento": self.data_funcionamento,
+            "cotas_emitidas": self.cotas_emitidas,
+            "publico_alvo": self.publico_alvo,
+            "exclusivo": self.exclusivo,
+            "vinculo_familiar_cotistas": self.vinculo_familiar_cotistas,
+            "prazo_duracao": self.prazo_duracao,
+            "encerramento_exercicio": self.encerramento_exercicio,
+            "mercado_negociacao_bolsa": self.mercado_negociacao_bolsa,
+            "mercado_negociacao_mbo": self.mercado_negociacao_mbo,
+            "mercado_negociacao_mb": self.mercado_negociacao_mb,
+            "adm_bvmf": self.adm_bvmf,
+            "adm_cetip": self.adm_cetip,
+            "logradouro": self.logradouro,
+            "numero": self.numero,
+            "bairro": self.bairro,
+            "municipio": self.municipio,
+            "uf": self.uf,
+            "cep": self.cep,
+            "telefone_1": self.telefone_1,
+            "site": self.site,
+            "email": self.email,
+            "competencia": self.competencia,
+            "tipo": self.tipo,
+            "dados": self.dados,
+            "codigo_isin": self.codigo_isin,
+            "gestao_tipo": self.gestao_tipo,
+            "classificacao": self.classificacao,
+            "subclassificacao": self.subclassificacao,
+            "segmento": self.segmento,
+            "mandato": self.mandato,
+            "complemento": self.complemento,
+            "telefone_2": self.telefone_2,
+            "data_prazo": self.data_prazo,
+            "telefone_3": self.telefone_3,
+            "enquadra_nota_seis": self.enquadra_nota_seis,
+            "data_encerramento_trimestre": self.data_encerramento_trimestre,
+        }
 
 
 @dataclass
@@ -699,7 +827,14 @@ class InformeMensalFII:
     cotistas_pessoa_fisica: int = None
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "ativo": self.ativo,
+            "cotas_emitidas": self.cotas_emitidas,
+            "patrimonio_liquido": self.patrimonio_liquido,
+            "patrimonio_por_cota": self.patrimonio_por_cota,
+            "cotistas": self.cotistas,
+            "cotistas_pessoa_fisica": self.cotistas_pessoa_fisica,
+        }
 
 
 @dataclass
@@ -719,7 +854,11 @@ class CotistaFundo:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "tipo": self.tipo,
+            "documento": self.documento,
+            "participacao": self.participacao,
+        }
 
 
 @dataclass
@@ -822,4 +961,23 @@ class InformeDiarioFundo:
         return resultado
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "doc_codigo": self.doc_codigo,
+            "doc_versao": self.doc_versao,
+            "data_competencia": self.data_competencia,
+            "cotistas": self.cotistas,
+            "fundo_cnpj": self.fundo_cnpj,
+            "carteira": self.carteira,
+            "cota": self.cota,
+            "patrimonio_liquido": self.patrimonio_liquido,
+            "captado": self.captado,
+            "resgatado": self.resgatado,
+            "cotistas_significativos": self.cotistas_significativos,
+            "data_proximo_pl": self.data_proximo_pl,
+            "saidas_previstas": self.saidas_previstas,
+            "ativos_liquidaveis": self.ativos_liquidaveis,
+            "doc_data_geracao": self.doc_data_geracao,
+            "fundo": self.fundo,
+            "administradora": self.administradora,
+            "administradora_cnpj": self.administradora_cnpj,
+        }

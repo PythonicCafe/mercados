@@ -2,7 +2,7 @@
 
 import datetime
 import io
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
@@ -47,7 +47,20 @@ class CotaFundo:
     data_proxima_informacao: datetime.date
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "fundo": self.fundo,
+            "fundo_cnpj": self.fundo_cnpj,
+            "administrador": self.administrador,
+            "administrador_cnpj": self.administrador_cnpj,
+            "data": self.data,
+            "cota": self.cota,
+            "captacao": self.captacao,
+            "resgate": self.resgate,
+            "patrimonio_liquido": self.patrimonio_liquido,
+            "total_carteira": self.total_carteira,
+            "cotistas": self.cotistas,
+            "data_proxima_informacao": self.data_proxima_informacao,
+        }
 
 
 class BRDateField(rows.fields.DateField):
@@ -172,5 +185,5 @@ if __name__ == "__main__":
     writer = CsvLazyDictWriter(filename)
     for data in tqdm(datas):
         for row in cvm.dados(cnpj, data):
-            writer.writerow(asdict(row))
+            writer.writerow(row.serialize())
     writer.close()

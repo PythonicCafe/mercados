@@ -5,7 +5,7 @@ import io
 import json
 import time
 from copy import deepcopy
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
 from typing import Dict, List, Optional
@@ -146,8 +146,13 @@ class AtivoIndice:
     participacao: Decimal
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "codigo_negociacao": self.codigo_negociacao,
+            "ativo": self.ativo,
+            "tipo": self.tipo,
+            "qtd_teorica": self.qtd_teorica,
+            "participacao": self.participacao,
+        }
 
 @dataclass
 class NegociacaoBolsa:
@@ -242,8 +247,33 @@ class NegociacaoBolsa:
         )
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "quantidade": self.quantidade,
+            "pontos_strike": self.pontos_strike,
+            "data": self.data,
+            "data_vencimento": self.data_vencimento,
+            "negociacoes": self.negociacoes,
+            "lote": self.lote,
+            "indice_correcao": self.indice_correcao,
+            "distribuicao": self.distribuicao,
+            "codigo_bdi": self.codigo_bdi,
+            "codigo_tipo_mercado": self.codigo_tipo_mercado,
+            "prazo_termo": self.prazo_termo,
+            "codigo_isin": self.codigo_isin,
+            "codigo_negociacao": self.codigo_negociacao,
+            "moeda": self.moeda,
+            "nome_pregao": self.nome_pregao,
+            "tipo_papel": self.tipo_papel,
+            "preco_abertura": self.preco_abertura,
+            "preco_maximo": self.preco_maximo,
+            "preco_minimo": self.preco_minimo,
+            "preco_medio": self.preco_medio,
+            "preco_ultimo": self.preco_ultimo,
+            "preco_melhor_oferta_compra": self.preco_melhor_oferta_compra,
+            "preco_melhor_oferta_venda": self.preco_melhor_oferta_venda,
+            "volume": self.volume,
+            "preco_execucao": self.preco_execucao,
+        }
 
 @dataclass
 class PrecoAtivo:
@@ -263,8 +293,11 @@ class PrecoAtivo:
         return obj
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "codigo_negociacao": self.codigo_negociacao,
+            "valor": self.valor,
+            "datahora": self.datahora,
+        }
 
 @dataclass
 class Dividendo:
@@ -294,8 +327,15 @@ class Dividendo:
         )
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "tipo": self.tipo,
+            "codigo_isin": self.codigo_isin,
+            "data_aprovacao": self.data_aprovacao,
+            "data_base": self.data_base,
+            "data_pagamento": self.data_pagamento,
+            "valor_por_cota": self.valor_por_cota,
+            "periodo_referencia": self.periodo_referencia,
+        }
 
 @dataclass
 class FundoDocumento:
@@ -324,8 +364,15 @@ class FundoDocumento:
         )
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "acronimo": self.acronimo,
+            "fundo": self.fundo,
+            "tipo": self.tipo,
+            "datahora_entrega": self.datahora_entrega,
+            "url": self.url,
+            "data_referencia": self.data_referencia,
+            "data_ordem": self.data_ordem,
+        }
 
 @dataclass
 class FundoB3Resumido:
@@ -336,7 +383,13 @@ class FundoB3Resumido:
     empresa_razao_social: str
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "id_fnet": self.id_fnet,
+            "tipo": self.tipo,
+            "acronimo": self.acronimo,
+            "nome_negociacao": self.nome_negociacao,
+            "empresa_razao_social": self.empresa_razao_social,
+        }
 
     @classmethod
     def from_dict(cls, obj, tipo, check=True):
@@ -395,11 +448,39 @@ class FundoB3:
     def codigo_negociacao(self):
         return self.codigos_negociacao[0] if self.codigos_negociacao else f"{self.acronimo}11"
 
-    def to_dict(self):
-        return {"codigo_negociacao": self.codigo_negociacao, **asdict(self)}
-
     def serialize(self):
-        obj = self.to_dict()
+        obj = {
+            "id_fnet": self.id_fnet,
+            "tipo": self.tipo,
+            "acronimo": self.acronimo,
+            "nome_negociacao": self.nome_negociacao,
+            "cnpj": self.cnpj,
+            "classificacao": self.classificacao,
+            "endereco": self.endereco,
+            "ddd": self.ddd,
+            "telefone": self.telefone,
+            "fax": self.fax,
+            "empresa_endereco": self.empresa_endereco,
+            "empresa_ddd": self.empresa_ddd,
+            "empresa_telefone": self.empresa_telefone,
+            "empresa_fax": self.empresa_fax,
+            "empresa_email": self.empresa_email,
+            "empresa_razao_social": self.empresa_razao_social,
+            "cotas": self.cotas,
+            "data_aprovacao_cotas": self.data_aprovacao_cotas,
+            "administrador_responsavel": self.administrador_responsavel,
+            "administrador_responsavel_cargo": self.administrador_responsavel_cargo,
+            "administrador": self.administrador,
+            "administrador_endereco": self.administrador_endereco,
+            "administrador_ddd": self.administrador_ddd,
+            "administrador_telefone": self.administrador_telefone,
+            "administrador_fax": self.administrador_fax,
+            "administrador_email": self.administrador_email,
+            "website": self.website,
+            "tipo_fnet": self.tipo_fnet,
+            "codigos_negociacao": self.codigos_negociacao,
+            "segmento": self.segmento,
+        }
         if obj["data_aprovacao_cotas"]:
             obj["data_aprovacao_cotas"] = obj["data_aprovacao_cotas"].isoformat()
         if obj["codigos_negociacao"]:
@@ -564,8 +645,21 @@ class NegociacaoBalcao:
         return obj
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "codigo": self.codigo,
+            "codigo_if": self.codigo_if,
+            "instrumento": self.instrumento,
+            "datahora": self.datahora,
+            "quantidade": self.quantidade,
+            "preco": self.preco,
+            "volume": self.volume,
+            "origem": self.origem,
+            "codigo_isin": self.codigo_isin,
+            "data_liquidacao": self.data_liquidacao,
+            "emissor": self.emissor,
+            "situacao": self.situacao,
+            "taxa": self.taxa,
+        }
 
 @dataclass
 class NegociacaoIntradiaria:
@@ -607,8 +701,17 @@ class NegociacaoIntradiaria:
         return obj
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "datahora": self.datahora,
+            "codigo_negocio": self.codigo_negocio,
+            "codigo_negociacao": self.codigo_negociacao,
+            "acao_atualizacao": self.acao_atualizacao,
+            "preco": self.preco,
+            "quantidade": self.quantidade,
+            "pregao_tipo": self.pregao_tipo,
+            "comprador_codigo": self.comprador_codigo,
+            "vendedor_codigo": self.vendedor_codigo,
+        }
 
 @dataclass
 class EmprestimoAtivo:
@@ -651,7 +754,21 @@ class EmprestimoAtivo:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data": self.data,
+            "codigo_negociacao": self.codigo_negociacao,
+            "codigo_isin": self.codigo_isin,
+            "nome": self.nome,
+            "mercado": self.mercado,
+            "contratos": self.contratos,
+            "quantidade": self.quantidade,
+            "minima": self.minima,
+            "media_ponderada": self.media_ponderada,
+            "maxima": self.maxima,
+            "valor": self.valor,
+            "taxa_doador": self.taxa_doador,
+            "taxa_tomador": self.taxa_tomador,
+        }
 
 
 @dataclass
@@ -697,8 +814,22 @@ class EmprestimoNegociado:
         return obj
 
     def serialize(self):
-        return asdict(self)
-
+        return {
+            "data_referencia": self.data_referencia,
+            "codigo_negociacao": self.codigo_negociacao,
+            "quantidade": self.quantidade,
+            "taxa_remuneracao": self.taxa_remuneracao,
+            "numero_negocio": self.numero_negocio,
+            "mercado": self.mercado,
+            "data_hora": self.data_hora,
+            "codigo": self.codigo,
+            "doador": self.doador,
+            "tomador": self.tomador,
+            "acao_atualizacao": self.acao_atualizacao,
+            "tipo_sessao_pregao": self.tipo_sessao_pregao,
+            "participante_doador": self.participante_doador,
+            "participante_tomador": self.participante_tomador,
+        }
 
 @dataclass
 class EmprestimoEmAberto:
@@ -733,7 +864,17 @@ class EmprestimoEmAberto:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data": self.data,
+            "codigo_negociacao": self.codigo_negociacao,
+            "codigo_isin": self.codigo_isin,
+            "empresa": self.empresa,
+            "tipo": self.tipo,
+            "mercado": self.mercado,
+            "saldo_quantidade": self.saldo_quantidade,
+            "saldo": self.saldo,
+            "preco_medio": self.preco_medio,
+        }
 
 
 @dataclass
@@ -767,7 +908,16 @@ class OpcaoFlexivel:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "codigo_negociacao": self.codigo_negociacao,
+            "operacao": self.operacao,
+            "descricao": self.descricao,
+            "vencimento": self.vencimento,
+            "negocios": self.negocios,
+            "volume": self.volume,
+            "premio_medio": self.premio_medio,
+            "preco_exercicio_medio": self.preco_exercicio_medio,
+        }
 
 
 @dataclass
@@ -793,7 +943,12 @@ class PrazoDeposito:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data": self.data,
+            "empresa": self.empresa,
+            "codigo": self.codigo,
+            "tipo": self.tipo,
+        }
 
 
 @dataclass
@@ -821,7 +976,13 @@ class PosicaoEmAberto:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "data": self.data,
+            "mercado": self.mercado,
+            "contratos": self.contratos,
+            "valor_milhares": self.valor_milhares,
+            "ordenacao": self.ordenacao,
+        }
 
 
 @dataclass
@@ -849,7 +1010,13 @@ class Swap:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "codigo": self.codigo,
+            "vencimento": self.vencimento,
+            "negocios": self.negocios,
+            "volume": self.volume,
+            "taxa_media_diaria": self.taxa_media_diaria,
+        }
 
 
 @dataclass
@@ -869,7 +1036,11 @@ class AcaoCustodiada:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "empresa": self.empresa,
+            "tipo": self.tipo,
+            "quantidade": self.quantidade,
+        }
 
 
 @dataclass
@@ -898,7 +1069,14 @@ class CreditoProvento:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "emissor": self.emissor,
+            "codigo_isin": self.codigo_isin,
+            "tipo": self.tipo,
+            "data_aprovacao": self.data_aprovacao,
+            "valor": self.valor,
+            "data_credito": self.data_credito,
+        }
 
 
 @dataclass
@@ -927,7 +1105,14 @@ class CustodiaFungivel:
         return obj
 
     def serialize(self):
-        return asdict(self)
+        return {
+            "prazo_final_subscricao": self.prazo_final_subscricao,
+            "prazo_final_cessao": self.prazo_final_cessao,
+            "emissor": self.emissor,
+            "codigo_isin_origem": self.codigo_isin_origem,
+            "codigo_isin_direito": self.codigo_isin_direito,
+            "codigo_isin_subscricao": self.codigo_isin_subscricao,
+        }
 
 
 class B3:
@@ -2184,7 +2369,7 @@ def main(args):
             writer = None
             for date in day_range(start_date, end_date + datetime.timedelta(days=1)):
                 for row in b3.negociacao_balcao(date):
-                    row = asdict(row)
+                    row = row.serialize()
                     if writer is None:
                         writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                         writer.writeheader()
@@ -2196,8 +2381,8 @@ def main(args):
 
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for negociacao in b3.negociacao_bolsa(frequencia, data):
-                row = asdict(negociacao)
+            for row in b3.negociacao_bolsa(frequencia, data):
+                row = row.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
