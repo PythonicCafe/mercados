@@ -167,6 +167,45 @@ with csv_filename.open(mode="w") as fobj:
 ```
 
 
+## Secretaria do Tesouro Nacional
+
+Dados que podem ser baixados da Secretaria do Tesouro Nacional (STN):
+
+- Histórico de preços de títulos
+
+
+### Exemplo: Preços de títulos na última semana
+
+A partir da planilha que tem os preços históricos para todos os títulos do Tesouro, vamos pegar apenas os valores dos
+últimos 7 dias:
+
+```python
+import datetime
+
+from mercados.stn import Tesouro
+
+tesouro = Tesouro()
+hoje = datetime.datetime.now().date()
+semana_passada = hoje - datetime.timedelta(days=7)
+historico = []
+for titulo in tesouro.historico_titulos():
+    if semana_passada <= titulo.data <= hoje:
+        print(f"{titulo.data}\t{titulo.nome} ({titulo.vencimento})\tR$ {titulo.preco:,}")
+```
+
+O retorno será algo como:
+
+```
+2025-10-23	Tesouro Renda+ Aposentadoria Extra (2084-12-15)	R$ 172.94
+2025-10-23	Tesouro Renda+ Aposentadoria Extra (2079-12-15)	R$ 243.07
+2025-10-23	Tesouro Renda+ Aposentadoria Extra (2074-12-15)	R$ 344.03
+[..]
+2025-10-17	Tesouro Prefixado (2026-01-01)	R$ 971.72
+2025-10-17	Tesouro IPCA+ com Juros Semestrais (2026-08-15)	R$ 4,463.44
+2025-10-17	Tesouro IPCA+ (2026-08-15)	R$ 4,208.51
+```
+
+
 ## B3
 
 Dados que podem ser baixados da B3:

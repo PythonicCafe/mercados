@@ -27,4 +27,5 @@ Algumas premissas para o desenvolvimento:
   - `ibge: `, para alterações em funcionalidades relacionados aos dados coletados do IBGE
   - `lib: `, para alterações gerais na biblioteca que não sejam utilitários nem empacotamento
   - `pkg: `, para alterações relacionadas ao empacotamento
+  - `stn: `, para alterações em funcionalidades relacionadas aos dados coletados da Secretaria do Tesouro Nacional
   - `util: `, para alterações em funções/métodos utilitários (módulo `utils.py`)

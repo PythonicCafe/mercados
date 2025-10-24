@@ -1,9 +1,9 @@
 import argparse
 import sys
 
-from mercados import b3, bcb, cvm, fundosnet, ibge
+from mercados import b3, bcb, cvm, fundosnet, ibge, stn
 
-_MODULES = {module.__name__.replace("mercados.", ""): module for module in (b3, bcb, cvm, fundosnet, ibge)}
+_MODULES = {module.__name__.replace("mercados.", ""): module for module in (b3, bcb, cvm, fundosnet, ibge, stn)}
 
 
 def _cria_parser():
