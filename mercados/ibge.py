@@ -1,6 +1,8 @@
 from io import BytesIO
 
 
+_DESCRICAO_CLI = "Coleta valores históricos de índices"
+
 class IBGE:
     _urls = {
         "IPCA": "https://ftp.ibge.gov.br/Precos_Indices_de_Precos_ao_Consumidor/IPCA/Serie_Historica/ipca_SerieHist.zip",
@@ -110,15 +112,11 @@ def _configura_parser_cli(parser):
     )
 
 
-def main():
-    import argparse
+def main(args):
     import sys
 
     from .utils import define_formato, dicts_to_file
 
-    parser = argparse.ArgumentParser()
-    _configura_parser_cli(parser)
-    args = parser.parse_args()
     comando = args.comando
     ibge = IBGE()
 
@@ -148,6 +146,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import argparse
     import sys
 
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
+    _configura_parser_cli(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))

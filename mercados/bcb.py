@@ -10,6 +10,8 @@ from typing import Optional
 from .utils import USER_AGENT, create_session, dicts_to_file, parse_br_date, parse_date
 
 
+_DESCRICAO_CLI = "Coleta séries temporais e faz ajuste de valores"
+
 @dataclass
 class TaxaIntervalo:
     data_inicial: datetime.date
@@ -304,15 +306,11 @@ def _configura_parser_cli(parser):
     )
 
 
-def main():
-    import argparse
+def main(args):
     import sys
 
     from .utils import define_formato
 
-    parser = argparse.ArgumentParser()
-    _configura_parser_cli(parser)
-    args = parser.parse_args()
     comando = args.comando
     bc = BancoCentral()
 
@@ -349,6 +347,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import argparse
     import sys
 
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
+    _configura_parser_cli(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))

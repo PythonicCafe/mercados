@@ -20,7 +20,7 @@ modelos_nomes_arquivos = {
     "id-partes": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
     "data": "{year}/{month}/{day}/{doc_id}",
 }
-
+_DESCRICAO_CLI = "Busca e baixa documentos publicados no FundosNET"
 
 def parse_certificado_descricao(value):
     result = REGEXP_CERTIFICADO_DESCRICAO.findall(value)
@@ -438,17 +438,13 @@ def _configura_parser_cli(parser):
     parser.add_argument("csv_filename", type=Path, help="Arquivo CSV com os documentos encontrados")
 
 
-def main():
-    import argparse
+def main(args):
     import csv
     from dataclasses import asdict
     from pathlib import Path
 
     from .utils import day_range
 
-    parser = argparse.ArgumentParser()
-    _configura_parser_cli(parser)
-    args = parser.parse_args()
     data_inicial = args.inicio
     data_final = args.fim
     tipo = args.tipo
@@ -496,6 +492,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import argparse
     import sys
 
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
+    _configura_parser_cli(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))

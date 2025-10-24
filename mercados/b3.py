@@ -30,7 +30,7 @@ from .utils import (
 UM_CENTAVO = Decimal("0.01")
 UM_MILESIMO = Decimal("0.001")
 UM_PONTO_BASE = Decimal("0.0001")
-
+_DESCRICAO_CLI = "Coleta dados históricos de negociação, dentre outros"
 
 def parse_br_int(value):
     if value is None or value == "":
@@ -1872,16 +1872,13 @@ def _configura_parser_cli(parser):
     subparser_clearing_termo_eletronico.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
-def main():
-    import argparse
+
+def main(args):
     import datetime
 
     from .utils import day_range
 
     TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
-    parser = argparse.ArgumentParser()
-    _configura_parser_cli(parser)
-    args = parser.parse_args()
     b3 = B3()
     comando = args.comando
     csv_filename = getattr(args, "csv_filename", None)
@@ -2379,6 +2376,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import argparse
     import sys
 
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
+    _configura_parser_cli(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))

@@ -35,6 +35,7 @@ REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
 REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
 REGEXP_INFO_FUNCTION = re.compile('''class='fi-info'[^>]*onmouseover="([^>]*)"''', flags=re.DOTALL)
+_DESCRICAO_CLI = "Coleta notícias e faz buscas no RAD/EmpresaNet"
 
 
 @dataclass
@@ -656,12 +657,7 @@ def _configura_parser_cli(parser):
     # TODO: aceitar `-` (para stdout)
 
 
-def main():
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Captura e trata dados da CVM")
-    _configura_parser_cli(parser)
-    args = parser.parse_args()
+def main(args):
     comando = args.comando
 
     if comando == "noticias":
@@ -785,6 +781,10 @@ def main():
 
 
 if __name__ == "__main__":
+    import argparse
     import sys
 
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
+    _configura_parser_cli(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))
