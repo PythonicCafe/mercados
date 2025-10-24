@@ -215,6 +215,27 @@ def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
     return text.strip(separator)
 
 
+class BaseClient:
+
+    def __init__(
+        self, timeout: int = 30, wait_time: float = 1.0, max_tries: int = 5, user_agent=USER_AGENT, proxy=None
+    ):
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
+        self.wait_time = wait_time
+        self.max_tries = max_tries
+
+    def request(self, *args, **kwargs):
+        tries = 0
+        while tries < self.max_tries:
+            response = self.session.request(*args, **kwargs)
+            if response.status_code < 500:
+                return response
+            tries += 1
+            if tries == self.max_tries:
+                response.raise_for_status()
+
+
 def create_session(user_agent: str = USER_AGENT, proxy: Optional[str] = None):
     import urllib3  # noqa
 
