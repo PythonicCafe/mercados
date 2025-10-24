@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from decimal import Decimal
 from typing import Optional
 
-from .utils import USER_AGENT, create_session, dicts_to_file, parse_br_date, parse_date
+from mercados.utils import USER_AGENT, create_session, parse_br_date, parse_date
 
 _DESCRICAO_CLI = "Coleta séries temporais e faz ajuste de valores"
 
@@ -271,7 +271,7 @@ class BancoCentral:
 
 
 def _configura_parser_cli(parser):
-    from .utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
+    from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
@@ -333,7 +333,7 @@ def _configura_parser_cli(parser):
 def main(args):
     import sys
 
-    from .utils import define_formato
+    from mercados.utils import define_formato, dicts_to_file
 
     comando = args.comando
     bc = BancoCentral()

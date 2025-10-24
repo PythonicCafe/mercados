@@ -6,9 +6,9 @@ from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
 
-from . import choices
-from .document import DocumentMeta
-from .utils import BRT, USER_AGENT, create_session, remove_acentos, remove_espacos
+from mercados import choices
+from mercados.document import DocumentMeta
+from mercados.utils import BRT, USER_AGENT, create_session, remove_acentos, remove_espacos
 
 _REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 _REGEXP_CERTIFICADO_DESCRICAO = re.compile(
@@ -391,7 +391,7 @@ class FundosNet:
 def _configura_parser_cli(parser):
     from pathlib import Path
 
-    from .utils import parse_iso_date
+    from mercados.utils import parse_iso_date
 
     # TODO: dividir em vários subcomandos
     modelos_str = "; ".join(f"{key}: {value}" for key, value in _MODELOS_NOMES_ARQUIVOS.items())
@@ -453,7 +453,7 @@ def main(args):
     from dataclasses import asdict
     from pathlib import Path
 
-    from .utils import day_range
+    from mercados.utils import day_range
 
     data_inicial = args.inicio
     data_final = args.fim

@@ -11,7 +11,7 @@ class IBGE:
     }
 
     def __init__(self, timeout=10):
-        from .utils import create_session
+        from mercados.utils import create_session
 
         self.timeout = timeout
         self.session = create_session()
@@ -29,7 +29,7 @@ class IBGE:
 
         import xlrd
 
-        from .bcb import Taxa
+        from mercados.bcb import Taxa
 
         # TODO: adicionar cache
         # TODO: adicionar variação na taxa
@@ -77,7 +77,7 @@ class IBGE:
 
 
 def _configura_parser_cli(parser):
-    from .utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
+    from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
@@ -124,7 +124,7 @@ def _configura_parser_cli(parser):
 def main(args):
     import sys
 
-    from .utils import define_formato, dicts_to_file
+    from mercados.utils import define_formato, dicts_to_file
 
     comando = args.comando
     ibge = IBGE()

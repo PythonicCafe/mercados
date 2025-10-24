@@ -12,8 +12,8 @@ from typing import Dict, List, Optional
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
-from .bcb import Taxa
-from .utils import (
+from mercados.bcb import Taxa
+from mercados.utils import (
     BRT,
     REGEXP_CNPJ_SEPARATORS,
     USER_AGENT,
@@ -1917,7 +1917,7 @@ def _configura_parser_cli(parser):
 def main(args):
     import datetime
 
-    from .utils import day_range
+    from mercados.utils import day_range
 
     TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
     b3 = B3()

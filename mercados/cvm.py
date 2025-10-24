@@ -13,7 +13,7 @@ from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
 
-from .utils import (
+from mercados.utils import (
     BRT,
     REGEXP_CNPJ_SEPARATORS,
     REGEXP_SPACES,

@@ -9,7 +9,7 @@ from typing import List, Optional
 
 import xmltodict
 
-from .utils import (
+from mercados.utils import (
     camel_to_snake,
     clean_xml_dict,
     parse_bool,

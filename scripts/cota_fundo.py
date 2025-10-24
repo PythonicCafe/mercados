@@ -1,4 +1,4 @@
-"""Raspador para pegar a cota de fundos na CVM -- prefira usar `InformeDiario` de `mercados.cvm`"""
+"""(EVITE USAR) Raspador para pegar a cota de fundos na CVM -- prefira `mercados.cvm.CVM.informe_diario_fundo`"""
 
 import datetime
 import io
@@ -9,7 +9,7 @@ from pathlib import Path
 import rows
 from lxml.html import document_fromstring, tostring
 
-from .utils import USER_AGENT, create_session
+from mercados.utils import USER_AGENT, create_session
 
 
 def clean_cnpj(value):
