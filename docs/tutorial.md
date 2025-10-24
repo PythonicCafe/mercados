@@ -413,3 +413,55 @@ for doc_id, xml in xmls.items():
         print(f"#{rank}: {format_dataclass(informe)}")
     print()
 ```
+
+
+## B3 + FundosNET
+
+Podemos combinar informações disponíveis na B3 para filtrar dados publicados no FundosNET.
+
+### Exemplo: Cota de ETFs da B3
+
+Vamos listar os ETFs da B3 e, a partir do CNPJ, coletaremos do FundosNET os informes diários publicados por esses ETFs
+nos últimos 7 dias (que estejam ativos). A partir da URL de cada informe, baixaremos o XML, faremos a extração e
+mostraremos o CNPJ, código de negociação, data e valor da cota:
+
+```python
+import datetime
+
+from mercados.b3 import B3
+from mercados.document import InformeDiarioFundo
+from mercados.fundosnet import FundosNet
+
+fim = datetime.datetime.now().date()
+inicio = fim - datetime.timedelta(days=7)
+b3 = B3()
+fnet = FundosNet()
+print("Baixando lista de ETFs da B3")
+etfs = list(b3.etfs(detalhe=True))
+print(f"Encontrados {len(etfs)} ETFs")
+etfs.sort(key=lambda etf: etf.codigo_negociacao)
+for etf in etfs:
+    etf_cnpj = etf.cnpj
+    for doc in fnet.search(cnpj=etf_cnpj, situacao="A", category="Informes Periódicos", type_="Informe Diário",
+                           start_date=inicio, end_date=fim):
+        xml = fnet.baixa_xml(doc.url)
+        informes = InformeDiarioFundo.from_xml(xml)
+        for informe in informes:
+            if informe.fundo_cnpj != etf_cnpj:  # O XML pode conter informes de diversos fundos
+                continue
+            print(f"{etf_cnpj}\t{etf.codigo_negociacao}\t{informe.data_competencia}\t{informe.cota}")
+```
+
+O resultado será algo como:
+
+```
+Baixando lista de ETFs da B3
+Encontrados 133 ETFs
+38542889000101	ACWI11	2025-10-22	15.715211000000
+38542889000101	ACWI11	2025-10-21	15.723275000000
+38542889000101	ACWI11	2025-10-20	15.727208000000
+[...]
+42264597000121	YDRO11	2025-10-17	52.674210700000
+42264597000121	YDRO11	2025-10-16	54.067090100000
+42264597000121	YDRO11	2025-10-08	49.849949900000
+```
