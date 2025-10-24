@@ -23,6 +23,17 @@ kill:					# Force stop (kill) and remove containers
 lint:					# Run linter script inside `main` container
 	$(COMPOSE_RUN) main /app/scripts/lint.sh
 
+man: VERSION := $(shell grep --color=no __version__ mercados/__init__.py | sed 's/.*"\([^"]\+\)"/\1/')
+man:					# Create man page
+	argparse-manpage \
+		--pyfile "mercados/__main__.py" \
+		--function "_cria_parser" \
+		--author "Álvaro Justen <alvaro@pythonic.cafe>" \
+		--project-name "mercados" \
+		--url "https://github.com/PythonicCafe/mercados/" \
+		--output "docs/mercados.1" \
+		--version "$(VERSION)"
+
 release:				# Build and release the package to PyPI
 	rm -rf build dist
 	$(COMPOSE_RUN) main python setup.py sdist bdist_wheel

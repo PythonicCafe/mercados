@@ -1,0 +1,901 @@
+.TH MERCADOS "1" "2025\-10\-24" "mercados 0.2.0" "Generated Python Manual"
+.SH NAME
+mercados
+.SH SYNOPSIS
+.B mercados
+[-h] fonte ...
+.SH DESCRIPTION
+Coleta dados do mercado financeiro brasileiro
+
+.SH
+POSITIONAL ARGUMENTS
+.TP
+\fBmercados\fR \fI\,b3\/\fR
+Coleta dados históricos de negociação, dentre outros
+.TP
+\fBmercados\fR \fI\,bcb\/\fR
+Coleta séries temporais e faz ajuste de valores
+.TP
+\fBmercados\fR \fI\,cvm\/\fR
+Coleta notícias e faz buscas no RAD/EmpresaNet
+.TP
+\fBmercados\fR \fI\,ibge\/\fR
+Coleta valores históricos de índices
+.TP
+\fBmercados\fR \fI\,fundosnet\/\fR
+Busca e baixa documentos publicados no FundosNET
+
+.SH COMMAND \fI\,'mercados b3'\/\fR
+usage: mercados b3 [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados b3'\/\fR
+.TP
+\fBmercados b3\fR \fI\,bdr\/\fR
+Coleta lista de BDRs
+.TP
+\fBmercados b3\fR \fI\,cra\-documents\/\fR
+Coleta documentos publicados por CRAs
+.TP
+\fBmercados b3\fR \fI\,cri\-documents\/\fR
+Coleta documentos publicados por CRIs
+.TP
+\fBmercados b3\fR \fI\,debentures\/\fR
+Coleta lista de debêntures
+.TP
+\fBmercados b3\fR \fI\,fiagro\-dividends\/\fR
+Coleta dividendos de FI\-Agros
+.TP
+\fBmercados b3\fR \fI\,fiagro\-documents\/\fR
+Coleta lista de documentos publicados por FI\-Agros
+.TP
+\fBmercados b3\fR \fI\,fiagro\-subscriptions\/\fR
+Coleta histórico de subscrições de FI\-Agros
+.TP
+\fBmercados b3\fR \fI\,fii\-dividends\/\fR
+Coleta dividendos de FIIs
+.TP
+\fBmercados b3\fR \fI\,fii\-documents\/\fR
+Coleta documentos publicados por FIIs
+.TP
+\fBmercados b3\fR \fI\,fii\-subscriptions\/\fR
+Coleta histórico de subscrições de FIIs
+.TP
+\fBmercados b3\fR \fI\,fiinfra\-dividends\/\fR
+Coleta dividendos de FI\-Infras
+.TP
+\fBmercados b3\fR \fI\,fiinfra\-documents\/\fR
+Coleta documentos publicados por FI\-Infras
+.TP
+\fBmercados b3\fR \fI\,fiinfra\-subscriptions\/\fR
+Coleta histórico de subscrições de FI\-Infras
+.TP
+\fBmercados b3\fR \fI\,fip\-dividends\/\fR
+Coleta dividendos de FIPs
+.TP
+\fBmercados b3\fR \fI\,fip\-documents\/\fR
+Coleta documentos publicados por FIPs
+.TP
+\fBmercados b3\fR \fI\,fip\-subscriptions\/\fR
+Coleta histórico de subscrições de FIPs
+.TP
+\fBmercados b3\fR \fI\,fundo\-listado\/\fR
+Coleta fundos listados
+.TP
+\fBmercados b3\fR \fI\,negociacao\-balcao\/\fR
+Coleta dados históricos de negociação em balcão
+.TP
+\fBmercados b3\fR \fI\,valor\-indice\/\fR
+Coleta valores diários dos índices
+.TP
+\fBmercados b3\fR \fI\,carteira\-indice\/\fR
+Coleta ativos da carteira de um determinado índice
+.TP
+\fBmercados b3\fR \fI\,ultimas\-cotacoes\/\fR
+Coleta cotação do último pregão para determinado ativo, com atraso de 15min
+.TP
+\fBmercados b3\fR \fI\,negociacao\-bolsa\/\fR
+Coleta dados históricos consolidados por dia de negociação
+.TP
+\fBmercados b3\fR \fI\,intradiaria\-baixar\/\fR
+Baixa arquivo ZIP de negociações intradiárias para uma data.
+.TP
+\fBmercados b3\fR \fI\,intradiaria\-converter\/\fR
+Converte arquivo ZIP de negociações intradiárias para CSV.
+.TP
+\fBmercados b3\fR \fI\,clearing\-acoes\-custodiadas\/\fR
+Coleta dados de Clearing \- Ações Custodiadas
+.TP
+\fBmercados b3\fR \fI\,clearing\-creditos\-de\-proventos\/\fR
+Coleta dados de Clearing \- Créditos de Proventos \- Renda Variável
+.TP
+\fBmercados b3\fR \fI\,clearing\-custodia\-fungivel\/\fR
+Coleta dados de Clearing \- Custódia Fungível
+.TP
+\fBmercados b3\fR \fI\,clearing\-emprestimos\-registrados\/\fR
+Coleta dados de Clearing \- Empréstimos de Ativos \- Empréstimos Registrados
+.TP
+\fBmercados b3\fR \fI\,clearing\-emprestimos\-negociados\/\fR
+Coleta dados de Clearing \- Empréstimos de Ativos \- Negócios
+.TP
+\fBmercados b3\fR \fI\,clearing\-emprestimos\-em\-aberto\/\fR
+Coleta dados de Clearing \- Empréstimos de Ativos \- Posições em Aberto
+.TP
+\fBmercados b3\fR \fI\,clearing\-opcoes\-flexiveis\/\fR
+Coleta dados de Clearing \- Opções Flexíveis
+.TP
+\fBmercados b3\fR \fI\,clearing\-prazo\-deposito\-titulos\/\fR
+Coleta dados de Clearing \- Prazo para Depósito de Títulos
+.TP
+\fBmercados b3\fR \fI\,clearing\-posicoes\-em\-aberto\/\fR
+Coleta dados de Clearing \- Quadro Analítico das Posições em Aberto
+.TP
+\fBmercados b3\fR \fI\,clearing\-swap\/\fR
+Coleta dados de Clearing \- Swap
+.TP
+\fBmercados b3\fR \fI\,clearing\-termo\-eletronico\/\fR
+Coleta dados de Clearing \- Termo Eletrônico
+
+.SH COMMAND \fI\,'mercados b3 bdr'\/\fR
+usage: mercados b3 bdr [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 bdr'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 cra\-documents'\/\fR
+usage: mercados b3 cra\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 cra\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 cri\-documents'\/\fR
+usage: mercados b3 cri\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 cri\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 debentures'\/\fR
+usage: mercados b3 debentures [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 debentures'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiagro\-dividends'\/\fR
+usage: mercados b3 fiagro\-dividends [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiagro\-dividends'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiagro\-documents'\/\fR
+usage: mercados b3 fiagro\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiagro\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiagro\-subscriptions'\/\fR
+usage: mercados b3 fiagro\-subscriptions [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiagro\-subscriptions'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fii\-dividends'\/\fR
+usage: mercados b3 fii\-dividends [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fii\-dividends'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fii\-documents'\/\fR
+usage: mercados b3 fii\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fii\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fii\-subscriptions'\/\fR
+usage: mercados b3 fii\-subscriptions [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fii\-subscriptions'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiinfra\-dividends'\/\fR
+usage: mercados b3 fiinfra\-dividends [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiinfra\-dividends'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiinfra\-documents'\/\fR
+usage: mercados b3 fiinfra\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiinfra\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fiinfra\-subscriptions'\/\fR
+usage: mercados b3 fiinfra\-subscriptions [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fiinfra\-subscriptions'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fip\-dividends'\/\fR
+usage: mercados b3 fip\-dividends [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fip\-dividends'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fip\-documents'\/\fR
+usage: mercados b3 fip\-documents [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fip\-documents'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fip\-subscriptions'\/\fR
+usage: mercados b3 fip\-subscriptions [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fip\-subscriptions'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 fundo\-listado'\/\fR
+usage: mercados b3 fundo\-listado [\-h] [\-q] [\-d] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 fundo\-listado'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.TP
+\fB\-d\fR, \fB\-\-detalhe\fR
+Baixa informações mais detalhadas dos fundos
+
+.SH COMMAND \fI\,'mercados b3 negociacao\-balcao'\/\fR
+usage: mercados b3 negociacao\-balcao [\-h] [\-q] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 negociacao\-balcao'\/\fR
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Não mostra mensagens de status
+
+.SH COMMAND \fI\,'mercados b3 valor\-indice'\/\fR
+usage: mercados b3 valor\-indice [\-h] indice ano csv_filename
+
+.TP
+\fBindice\fR
+Código do índice na B3. Opções: AGFS, BDRX, GPTW, IBBC, IBBE, IBBR, IBEE, IBEP, IBEW, IBHB, IBLV, IBOVESPA, IBRA, IBSD, IBXL, IBXX,
+ICO2, ICON, IDIV, IDVR, IEEX, IFIL, IFIX, IFNC, IGCT, IGCX, IGNM, IMAT, IMOB, INDX, ISEE, ITAG, IVBX, MLCX, SMLL, UTIL
+
+.TP
+\fBano\fR
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH COMMAND \fI\,'mercados b3 carteira\-indice'\/\fR
+usage: mercados b3 carteira\-indice [\-h] indice periodo csv_filename
+
+.TP
+\fBindice\fR
+Código do índice na B3. Opções: AGFS, BDRX, GPTW, IBBC, IBBE, IBBR, IBEE, IBEP, IBEW, IBHB, IBLV, IBOV, IBRA, IBSD, IBXL, IBXX, ICO2,
+ICON, IDIV, IDVR, IEEX, IFIL, IFIX, IFNC, IGCT, IGCX, IGNM, IMAT, IMOB, INDX, ISEE, ITAG, IVBX, MLCX, SMLL, UTIL
+
+.TP
+\fBperiodo\fR
+Período de validade da carteira. Opções: dia, próxima, teórica
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH COMMAND \fI\,'mercados b3 ultimas\-cotacoes'\/\fR
+usage: mercados b3 ultimas\-cotacoes [\-h] codigo_negociacao csv_filename
+
+.TP
+\fBcodigo_negociacao\fR
+Código de negociação do ativo na B3
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH COMMAND \fI\,'mercados b3 negociacao\-bolsa'\/\fR
+usage: mercados b3 negociacao\-bolsa [\-h] frequencia data csv_filename
+
+.TP
+\fBfrequencia\fR
+Frequência do arquivo de cotação disponível. Opções: dia, mês, ano
+
+.TP
+\fBdata\fR
+Data a ser baixada no formato YYYY\-MM\-DD (para frequência mensal, use dia = 01, para anual use mês e dia = 01)
+
+.TP
+\fBcsv_filename\fR
+Nome do arquivo CSV a ser salvo
+
+.SH COMMAND \fI\,'mercados b3 intradiaria\-baixar'\/\fR
+usage: mercados b3 intradiaria\-baixar [\-h] [\-c CHUNK_SIZE] data zip_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBzip_filename\fR
+Nome do arquivo ZIP a ser salvo
+
+.SH OPTIONS \fI\,'mercados b3 intradiaria\-baixar'\/\fR
+.TP
+\fB\-c\fR \fI\,CHUNK_SIZE\/\fR, \fB\-\-chunk\-size\fR \fI\,CHUNK_SIZE\/\fR
+Tamanho do chunk no download
+
+.SH COMMAND \fI\,'mercados b3 intradiaria\-converter'\/\fR
+usage: mercados b3 intradiaria\-converter [\-h] [\-c CODIGO_NEGOCIACAO] zip_filename csv_filename
+
+.TP
+\fBzip_filename\fR
+Nome do arquivo ZIP (já baixado) a ser convertido
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 intradiaria\-converter'\/\fR
+.TP
+\fB\-c\fR \fI\,CODIGO_NEGOCIACAO\/\fR, \fB\-\-codigo\-negociacao\fR \fI\,CODIGO_NEGOCIACAO\/\fR
+Filtra pelo código de negociação
+
+.SH COMMAND \fI\,'mercados b3 clearing\-acoes\-custodiadas'\/\fR
+usage: mercados b3 clearing\-acoes\-custodiadas [\-h] data_inicial csv_filename
+
+.TP
+\fBdata_inicial\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados b3 clearing\-creditos\-de\-proventos'\/\fR
+usage: mercados b3 clearing\-creditos\-de\-proventos [\-h] [\-e EMISSOR] data_inicial csv_filename
+
+.TP
+\fBdata_inicial\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 clearing\-creditos\-de\-proventos'\/\fR
+.TP
+\fB\-e\fR \fI\,EMISSOR\/\fR, \fB\-\-emissor\fR \fI\,EMISSOR\/\fR
+Filtra por emissor
+
+.SH COMMAND \fI\,'mercados b3 clearing\-custodia\-fungivel'\/\fR
+usage: mercados b3 clearing\-custodia\-fungivel [\-h] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados b3 clearing\-emprestimos\-registrados'\/\fR
+usage: mercados b3 clearing\-emprestimos\-registrados [\-h] [\-c CODIGO_NEGOCIACAO] data_inicial data_final csv_filename
+
+.TP
+\fBdata_inicial\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBdata_final\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 clearing\-emprestimos\-registrados'\/\fR
+.TP
+\fB\-c\fR \fI\,CODIGO_NEGOCIACAO\/\fR, \fB\-\-codigo\-negociacao\fR \fI\,CODIGO_NEGOCIACAO\/\fR
+Filtra por código de negociação
+
+.SH COMMAND \fI\,'mercados b3 clearing\-emprestimos\-negociados'\/\fR
+usage: mercados b3 clearing\-emprestimos\-negociados [\-h] [\-t TOMADOR] [\-d DOADOR] [\-m MERCADO] [\-c CODIGO_NEGOCIACAO]
+                                                   data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 clearing\-emprestimos\-negociados'\/\fR
+.TP
+\fB\-t\fR \fI\,TOMADOR\/\fR, \fB\-\-tomador\fR \fI\,TOMADOR\/\fR
+Filtra por tomador
+
+.TP
+\fB\-d\fR \fI\,DOADOR\/\fR, \fB\-\-doador\fR \fI\,DOADOR\/\fR
+Filtra por doador
+
+.TP
+\fB\-m\fR \fI\,MERCADO\/\fR, \fB\-\-mercado\fR \fI\,MERCADO\/\fR
+Filtra por mercado
+
+.TP
+\fB\-c\fR \fI\,CODIGO_NEGOCIACAO\/\fR, \fB\-\-codigo\-negociacao\fR \fI\,CODIGO_NEGOCIACAO\/\fR
+Filtra por código de negociação
+
+.SH COMMAND \fI\,'mercados b3 clearing\-emprestimos\-em\-aberto'\/\fR
+usage: mercados b3 clearing\-emprestimos\-em\-aberto [\-h] [\-m MERCADO] [\-c CODIGO_NEGOCIACAO] data_inicial data_final csv_filename
+
+.TP
+\fBdata_inicial\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBdata_final\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 clearing\-emprestimos\-em\-aberto'\/\fR
+.TP
+\fB\-m\fR \fI\,MERCADO\/\fR, \fB\-\-mercado\fR \fI\,MERCADO\/\fR
+Filtra por mercado
+
+.TP
+\fB\-c\fR \fI\,CODIGO_NEGOCIACAO\/\fR, \fB\-\-codigo\-negociacao\fR \fI\,CODIGO_NEGOCIACAO\/\fR
+Filtra por código de negociação
+
+.SH COMMAND \fI\,'mercados b3 clearing\-opcoes\-flexiveis'\/\fR
+usage: mercados b3 clearing\-opcoes\-flexiveis [\-h] [\-c CODIGO_NEGOCIACAO] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH OPTIONS \fI\,'mercados b3 clearing\-opcoes\-flexiveis'\/\fR
+.TP
+\fB\-c\fR \fI\,CODIGO_NEGOCIACAO\/\fR, \fB\-\-codigo\-negociacao\fR \fI\,CODIGO_NEGOCIACAO\/\fR
+Filtra por código de negociação
+
+.SH COMMAND \fI\,'mercados b3 clearing\-prazo\-deposito\-titulos'\/\fR
+usage: mercados b3 clearing\-prazo\-deposito\-titulos [\-h] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados b3 clearing\-posicoes\-em\-aberto'\/\fR
+usage: mercados b3 clearing\-posicoes\-em\-aberto [\-h] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados b3 clearing\-swap'\/\fR
+usage: mercados b3 clearing\-swap [\-h] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados b3 clearing\-termo\-eletronico'\/\fR
+usage: mercados b3 clearing\-termo\-eletronico [\-h] data csv_filename
+
+.TP
+\fBdata\fR
+Data no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV a ser criado
+
+.SH COMMAND \fI\,'mercados bcb'\/\fR
+usage: mercados bcb [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados bcb'\/\fR
+.TP
+\fBmercados bcb\fR \fI\,ajustar\-selic\/\fR
+Ajusta valores pela taxa Selic
+.TP
+\fBmercados bcb\fR \fI\,serie\-temporal\/\fR
+Baixa dados históricos de diversas séries temporais
+
+.SH COMMAND \fI\,'mercados bcb ajustar\-selic'\/\fR
+usage: mercados bcb ajustar\-selic [\-h] tipo_periodo data_inicial data_final valor
+
+.TP
+\fBtipo_periodo\fR
+Tipo de período. Opções: dia, mês.
+
+.TP
+\fBdata_inicial\fR
+Data de início no formato YYYY\-MM\-DD
+
+.TP
+\fBdata_final\fR
+Data de fim no formato YYYY\-MM\-DD
+
+.TP
+\fBvalor\fR
+Valor a ser ajustado (use '.' como separador de casas decimais)
+
+.SH COMMAND \fI\,'mercados bcb serie\-temporal'\/\fR
+usage: mercados bcb serie\-temporal [\-h] [\-i data] [\-f data] [\-F fmt] serie [arquivo]
+
+.TP
+\fBserie\fR
+Nome da série temporal. Opções: AUD compra, AUD venda, CAD compra, CAD venda, CDI, CHF compra, CHF venda, Coroa Dinamarquesa compra,
+Coroa Dinamarquesa venda, Coroa Norueguesa compra, Coroa Norueguesa venda, Coroa Sueca compra, Coroa Sueca venda, DKK compra, DKK
+venda, Dólar Australiano compra, Dólar Australiano venda, Dólar Canadense compra, Dólar Canadense venda, Dólar compra, Dólar venda,
+EUR compra, EUR venda, Euro compra, Euro venda, Fator IPCA, Franco Suíço compra, Franco Suíço venda, GBP compra, GBP venda, IGP\-DI,
+IGP\-M, IPCA, IPCA \- Administrados, IPCA \- Alimentação e bebidas, IPCA \- Alimentação no domicílio, IPCA \- Artigos de residência, IPCA
+\- Bens não\-duráveis, IPCA \- Bens semi\-duráveis, IPCA \- Comercializáveis, IPCA \- Comunicação, IPCA \- Despesas pessoais, IPCA \-
+Duráveis, IPCA \- Educação, IPCA \- Habitação, IPCA \- Industriais, IPCA \- Itens livres, IPCA \- Não comercializáveis, IPCA \- Núcleo Ex\-
+alimentação e energia (EXFE), IPCA \- Núcleo Percentil 55, IPCA \- Núcleo de dupla ponderação, IPCA \- Núcleo médias aparadas com
+suavização, IPCA \- Núcleo médias aparadas sem suavização, IPCA \- Núcleo por exclusão \- EX0, IPCA \- Núcleo por exclusão \- EX1, IPCA \-
+Núcleo por exclusão \- EX2, IPCA \- Núcleo por exclusão \- EX3, IPCA \- Saúde e cuidados pessoais, IPCA \- Serviços, IPCA \- Transportes,
+IPCA \- Vestuário, IPCA \- Índice de difusão, IPCA\-15, IPCA\-E, Iene compra, Iene venda, JPY compra, JPY venda, Libra Esterlina compra,
+Libra Esterlina venda, NOK compra, NOK venda, Reservas internacionais, SEK compra, SEK venda, Saldo de depósitos de poupança, Selic,
+Selic meta, TBF, TR, Taxa Referencial, Taxa básica financeira, USD compra, USD venda
+
+.TP
+\fBarquivo\fR
+Nome do arquivo a ser salvo
+
+.SH OPTIONS \fI\,'mercados bcb serie\-temporal'\/\fR
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data de início no formato YYYY\-MM\-DD (opcional)
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data de fim no formato YYYY\-MM\-DD (opcional)
+
+.TP
+\fB\-F\fR \fI\,fmt\/\fR, \fB\-\-formato\fR \fI\,fmt\/\fR
+Formato de saída. Opções: csv, markdown, md, tsv, txt
+
+.SH COMMAND \fI\,'mercados cvm'\/\fR
+usage: mercados cvm [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados cvm'\/\fR
+.TP
+\fBmercados cvm\fR \fI\,noticias\/\fR
+Baixa notícias do site da CVM a partir de hoje
+.TP
+\fBmercados cvm\fR \fI\,informe\-diario\-fundo\/\fR
+Baixa informes diários dos fundos para um determinado mês
+.TP
+\fBmercados cvm\fR \fI\,contas\-fundos\/\fR
+Baixa descrições das contas usadas nos balancetes de fundos
+.TP
+\fBmercados cvm\fR \fI\,balancete\-fundo\-investimento\/\fR
+Baixa balancetes dos fundos de investimento para um determinado mês
+.TP
+\fBmercados cvm\fR \fI\,balancete\-fundo\-estruturado\/\fR
+Baixa balancetes dos fundos estruturados para um determinado mês
+.TP
+\fBmercados cvm\fR \fI\,rad\-empresas\/\fR
+Baixa lista de empresas disponíveis no RAD
+.TP
+\fBmercados cvm\fR \fI\,rad\-busca\/\fR
+Busca por documentos publicados por empresas
+
+.SH COMMAND \fI\,'mercados cvm noticias'\/\fR
+usage: mercados cvm noticias [\-h] data_inicial csv_filename
+
+.TP
+\fBdata_inicial\fR
+Data de corte inicial no formato YYYY\-MM\-DD
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm informe\-diario\-fundo'\/\fR
+usage: mercados cvm informe\-diario\-fundo [\-h] ano_mes csv_filename
+
+.TP
+\fBano_mes\fR
+Mês de referência do informe no formato YYYY\-MM ou YYYY\-MM\-DD (dia é ignorado)
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm contas\-fundos'\/\fR
+usage: mercados cvm contas\-fundos [\-h] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm balancete\-fundo\-investimento'\/\fR
+usage: mercados cvm balancete\-fundo\-investimento [\-h] ano_mes csv_filename
+
+.TP
+\fBano_mes\fR
+Mês de referência do balancete no formato YYYY\-MM ou YYYY\-MM\-DD (dia é ignorado)
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm balancete\-fundo\-estruturado'\/\fR
+usage: mercados cvm balancete\-fundo\-estruturado [\-h] ano_mes csv_filename
+
+.TP
+\fBano_mes\fR
+Mês de referência do balancete no formato YYYY\-MM ou YYYY\-MM\-DD (dia é ignorado)
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm rad\-empresas'\/\fR
+usage: mercados cvm rad\-empresas [\-h] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH COMMAND \fI\,'mercados cvm rad\-busca'\/\fR
+usage: mercados cvm rad\-busca [\-h] [\-e EMPRESA] [\-i data] [\-f data] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Nome do CSV para salvar os dados
+
+.SH OPTIONS \fI\,'mercados cvm rad\-busca'\/\fR
+.TP
+\fB\-e\fR \fI\,EMPRESA\/\fR, \fB\-\-empresa\fR \fI\,EMPRESA\/\fR
+Nome de empresa para filtrar. Precisa ser o mesmo nome retornado por rad\-empresas
+
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data mínima de publicação do documento no formato YYYY\-MM\-DD
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data máxima de publicação do documento no formato YYYY\-MM\-DD
+
+.SH COMMAND \fI\,'mercados ibge'\/\fR
+usage: mercados ibge [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados ibge'\/\fR
+.TP
+\fBmercados ibge\fR \fI\,historico\/\fR
+Baixa histórico de diversos índices
+
+.SH COMMAND \fI\,'mercados ibge historico'\/\fR
+usage: mercados ibge historico [\-h] [\-i data] [\-f data] [\-F fmt] {INPC,IPCA,IPCA\-15} [arquivo]
+
+.TP
+\fB{INPC,IPCA,IPCA\-15}\fR
+Índice. Opções: INPC, IPCA, IPCA\-15
+
+.TP
+\fBarquivo\fR
+Nome do arquivo a ser salvo
+
+.SH OPTIONS \fI\,'mercados ibge historico'\/\fR
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data de início no formato YYYY\-MM\-DD
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data de fim no formato YYYY\-MM\-DD
+
+.TP
+\fB\-F\fR \fI\,fmt\/\fR, \fB\-\-formato\fR \fI\,fmt\/\fR
+Formato de saída. Opções: csv, markdown, md, tsv, txt
+
+.SH COMMAND \fI\,'mercados fundosnet'\/\fR
+usage: mercados fundosnet [\-h] [\-m campo] [\-p PATH] [\-i data] [\-f data] [\-c categoria] [\-t tipo] csv_filename
+
+.TP
+\fBcsv_filename\fR
+Arquivo CSV com os documentos encontrados
+
+.SH OPTIONS \fI\,'mercados fundosnet'\/\fR
+.TP
+\fB\-m\fR \fI\,campo\/\fR, \fB\-\-modelo\-nome\-arquivo\fR \fI\,campo\/\fR
+Modelo para usar no nome do arquivo a ser baixado. Opções: id: {doc_id}{extension}; id\-partes: {p4}/{p3}/{p2}/{p1}/{doc_id8}; data:
+{year}/{month}/{day}/{doc_id}
+
+.TP
+\fB\-p\fR \fI\,PATH\/\fR, \fB\-\-path\fR \fI\,PATH\/\fR
+Se especificado, baixa os documentos encontrados nessa pasta
+
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data de início (de publicação do documento) para a busca no formato YYYY\-MM\-DD
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data de fim (de publicação do documento) para a busca no formato YYYY\-MM\-DD
+
+.TP
+\fB\-c\fR \fI\,categoria\/\fR, \fB\-\-categoria\fR \fI\,categoria\/\fR
+Filtra pela categoria do documento. Opções: Acordo de Acionista; Aditamento de Termo de Securitização; Aditamentos; Assembleia;
+Assembleia especial de investidores; Ata da Reunião do Conselho de Administração; Atos de Deliberação do Administrador; Averbação ou
+Registro do Termo de Securitização; Aviso aos Cotistas; Aviso aos Cotistas \- Estruturado; Aviso aos Investidores; Comunicado ao
+Mercado; Comunicação de alteração do auditor independente; Dados Econômico Financeiros; Documentos de Oferta de Distribuição Pública;
+Escritura/Instrumento de Emissão; Estatuto Social; Falência; Fato Relevante; Formulário Cadastral; Formulário de Referência;
+Informações da SPE subsidiária integral \- exclusivo para S2; Informações para Registro Provisório de Oferta de CRI; Informações para
+Registro de Oferta de CRA; Informações para Registro de Oferta de CRI; Informe Mensal de Outros Títulos de Securitização; Informe
+Trimestral; Informes Periódicos; Instrumento de Emissão e aditamentos; Laudo de Avaliação (Conclusão de Negócio); Listagem e Admissão
+à Negociação de Cotas; Oferta Pública de Aquisição de Cotas; Oferta Pública de Distribuição de Cotas; Outras Demonstrações
+Financeiras; Outras Informações; Outros Títulos de Securitização; Política de Negociação de Valores Mobiliários; Políticas de
+Governança Corporativa; Recuperação Extrajudicial; Recuperação Judicial; Regulamento; Regulamento de Emissores B3; Relatório de
+agência classificadora de risco; Relatórios; Termo de Securitização; Todos; Valores mobiliários detidos
+
+.TP
+\fB\-t\fR \fI\,tipo\/\fR, \fB\-\-tipo\fR \fI\,tipo\/\fR
+Filtra pelo tipo de documento. Opções: AG \- Especial de Investidores; AGE; AGO; AGO/E; ANEXO "11 \- I" CVM 600/18; Anexo 39\-V (art. 10
+§1º, inciso I da ICVM 472); Anexo I \- ICVM 414/04; Anúncio de Encerramento; Anúncio de Encerramento de Distribuição Pública; Anúncio
+de Início; Anúncio de Início de Distribuição Pública; Assembleias; Aviso ao Mercado; Aviso ao Mercado; Aviso de Modificação de
+Oferta; Balancete; Com Regime Fiduciário; Composição da Carteira (CDA); Comunicado de Encerramento de Oferta com Esforços Restritos;
+Comunicado de Início de Oferta com Esforços Restritos; Comunicados; Comunicação de Modificação de Oferta; Dados Econômico
+Financeiros; Demonstração Financeira de Encerramento; Demonstrações Financeiras; Demonstrações Financeiras \- Encerramento de
+atividades; Demonstrações Financeiras \- Fusão, cisão e incorporação; Demonstrações Financeiras \- Substituição de administrador;
+Demonstrações Financeiras Anuais; Demonstrações Financeiras de Devedores ou Coobrigados; Demonstrações Financeiras de Grandes
+Devedores; Demonstrações Financeiras de Grandes Devedores; Divulgação de Fato Relevante; Edital de Oferta Pública de Aquisição de
+Cotas; Edital de Oferta Pública de Aquisição de Cotas \- Concorrente; Esclarecimentos de consulta B3 / CVM; Formulário Cadastral \-
+Estruturado; Formulário de Liberação para Negociação das Cotas; Formulário de Liberação para Negociação das Cotas; Formulário de
+Referência \- Estruturado; Formulário de Subscrição de Cotas (Estruturado); Informações Trimestrais (ITR); Informe Anual; Informe
+Anual Estruturado; Informe Diário; Informe Mensal; Informe Mensal; Informe Mensal Estruturado; Informe Mensal de CRA; Informe Mensal
+de CRI; Informe Semestral \- DFC e Relatório do Administrador; Informe Trimestral; Informe Trimestral Estruturado; Instrumento
+Particular de Alteração do Regulamento; Instrumento Particular de Constituição/Encerramento do Fundo; Instrumento Particular de
+Emissão de Cotas; Instrumento de Emissão e aditamentos; Investimento; Laudo de Avaliação; Lâmina de Informações Básicas; Lâmina de
+Oferta de FIDC; Lâmina de Oferta de Fundos Fechados; Lâmina de Oferta de Securitização; Manifestação do Administrador / Gestor;
+Material de Divulgação; Mudança de Auditor; Negociação de Cotas; Outras Políticas; Outros Comunicados Não Considerados Fatos
+Relevantes; Outros Documentos; Outros Documentos; Outros Relatórios; Participação em Assembleia; Pedido de Falência; Pedido de
+homologação do Plano de Recuperação Extrajudicial; Perfil do Fundo; Perfil do Fundo (Estruturado); Petição inicial; Plano de
+Recuperação Judicial; Press \- Release; Processo de enforcement; Prospecto; Prospecto de Distribuição Pública; Protocolo Inicial;
+Protocolo para Cumprimento de Exigências; Protocolo para Pedido de Prorrogação/Interrupção; Proventos em dinheiro; Registro CVM;
+Relatório Anual; Relatório Anual; Relatório Gerencial; Relatório de Agente Fiduciário; Relatório de Agência de Rating; Relatório do
+Representante de Cotistas; Relação das demandas judiciais ou extrajudiciais; Rendimentos e Amortizações; Rentabilidade; Restritos \-
+ICVM 476; Sem regime fiduciário; Sentença denegatória ou concessiva; Sentença denegatória ou concessiva; Sentença denegatória ou
+concessiva; Suplemento C; Suplemento D; Todos
+
+.SH AUTHOR
+.nf
+Álvaro Justen <alvaro@pythonic.cafe>
+.fi
+
+.SH DISTRIBUTION
+The latest version of mercados may be downloaded from
+.UR https://github.com/PythonicCafe/mercados/
+.UE
