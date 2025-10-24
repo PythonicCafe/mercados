@@ -137,8 +137,9 @@ class BancoCentral:
     # TODO: pegar UFIR (parou) de https://www3.bcb.gov.br/sgspub/consultarmetadados/consultarMetadadosSeries.do?method=consultarMetadadosSeriesInternet&hdOidSerieSelecionada=22
     # TODO: pegar outras das principais séries
 
-    def __init__(self, user_agent=USER_AGENT, proxy=None):
+    def __init__(self, user_agent=USER_AGENT, proxy=None, timeout=10.0):
         self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
         # Por algum motivo, o serviço REST "novoselic" não retorna resultados caso o cabeçalho `Accept` seja passado
         del self.session.headers["Accept"]
 
@@ -175,7 +176,7 @@ class BancoCentral:
             params["dataInicial"] = inicio.strftime("%d/%m/%Y")
         if fim is not None:
             params["dataFinal"] = fim.strftime("%d/%m/%Y")
-        response = self.session.get(url, params=params)
+        response = self.session.get(url, params=params, timeout=self.timeout)
         if not response.ok:
             from json import JSONDecodeError
 
@@ -191,6 +192,7 @@ class BancoCentral:
         response = self.session.post(
             "https://www3.bcb.gov.br/novoselic/rest/fatoresAcumulados/pub/exportarCsv",
             data={"filtro": json.dumps(filtro), "parametrosOrdenacao": json.dumps(ordenacao)},
+            timeout=self.timeout,
         )
         csv_fobj = io.StringIO(response.content.decode("utf-8-sig"))
         resultado = []
@@ -256,10 +258,12 @@ class BancoCentral:
         if data_inicial.day != 1:
             raise ValueError("Data inicial precisa ser o primeiro dia do mês")
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
+            ultimo_dia = monthrange(data_final.year, data_final.month)
+            data_certa = datetime.date(data_final.year, data_final.month, ultimo_dia)
             raise ValueError(
-                f"Data final precisa ser o último dia do mês: {data_final} vs {monthrange(data_final.year, data_final.month)}"
+                f"Data final precisa ser o último dia do mês: {data_final} vs {data_certa.isoformat()}"
             )
-        fator = 1
+        fator = Decimal(1)
         for ano in range(data_inicial.year, data_final.year + 1):
             for taxa in self.selic_por_mes(ano):
                 if taxa.data_inicial >= data_inicial and taxa.data_final <= data_final:
