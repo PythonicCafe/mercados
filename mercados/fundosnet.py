@@ -156,7 +156,7 @@ class FundosNet:
         }
 
     @cached_property
-    def fund_types(self):
+    def tipos_de_fundo(self):
         # TODO: add `(0, "Todos")`?
         tree = document_fromstring(self.main_page)
         options = tree.xpath("//select[@id = 'tipoFundo']/option")
@@ -172,23 +172,60 @@ class FundosNet:
         return result
 
     @cached_property
-    def types(self):
+    def fund_types(self):
+        # TODO: adicionar DeprecationWarning
+        return self.tipos_de_fundo
+
+    def categorias_de_documento_por_tipo_de_fundo(self, tipo_id):
+        """Categorias de documento para um determinado tipo de fundo"""
+        response = self.request(
+            "GET",
+            "listarTodasCategoriaPorTipoFundo",
+            params={"idTipoFundo": tipo_id},
+            xhr=True,
+        )
         result = {}
-        for category_id in self.categories.values():
-            result[category_id] = []
-            for tipo in choices.FUNDO_TIPO:
-                if tipo[0] == 0:
+        for row in response.json():
+            result[row["id"]] = row["descricao"].strip()
+        return result
+
+    @cached_property
+    def categorias_de_documento(self):
+        """Categorias de documento para todos os tipos de fundo"""
+        result = {}
+        for tipo_id, tipo in choices.FUNDO_TIPO:
+            for categoria_id, categoria in self.categorias_de_documento_por_tipo_de_fundo(tipo_id).items():
+                if categoria_id == 0:
+                    categoria = "Todos"
+                result[categoria] = categoria_id
+        return result
+
+    @cached_property
+    def tipos_de_documento(self):
+        """Tipos de documento para todos os tipos de fundo e para todas as categorias de documentos"""
+        result = {}
+        for tipo_id, tipo in choices.FUNDO_TIPO:
+            print("tipo fundo", tipo_id, tipo)
+            for categoria_id, categoria in self.categorias_de_documento_por_tipo_de_fundo(tipo_id).items():
+                print("  categoria", categoria_id, categoria)
+                if categoria_id == 0:
                     continue
+                result[categoria_id] = []
                 response = self.request(
                     "GET",
                     "listarTodosTiposPorCategoriaETipoFundo",
-                    params={"idTipoFundo": tipo[0], "idCategoria": category_id},
+                    params={"idTipoFundo": tipo_id, "idCategoria": categoria_id},
                     xhr=True,
                 )
                 for row in response.json():
                     row["descricao"] = row["descricao"].strip()
-                    result[category_id].append(row)
+                    result[categoria_id].append(row)
         return result
+
+    @cached_property
+    def types(self):
+        # TODO: adicionar DeprecationWarning
+        return self.tipos_de_documento
 
     def paginate(self, path, params=None, xhr=True, items_per_page=200):
         params = params or {}

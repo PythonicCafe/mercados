@@ -12,12 +12,12 @@ def print_choices(name, values):
 
 fnet = FundosNet()
 
-DOCUMENTO_CATEGORIA = [(value, key) for key, value in fnet.categories.items()]
+DOCUMENTO_CATEGORIA = [(value, key) for key, value in fnet.categorias_de_documento.items()]
 DOCUMENTO_CATEGORIA.sort(key=lambda item: item[1])
 print_choices("DOCUMENTO_CATEGORIA", DOCUMENTO_CATEGORIA)
 
 DOCUMENTO_TIPO = []
-for values in fnet.types.values():
+for values in fnet.tipos_de_documento.values():
     for item in values:
         values = (item["id"], item["descricao"])
         if values not in DOCUMENTO_TIPO:
