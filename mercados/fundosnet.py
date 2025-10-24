@@ -10,12 +10,12 @@ from . import choices
 from .document import DocumentMeta
 from .utils import BRT, USER_AGENT, create_session, remove_acentos, remove_espacos
 
-REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
-REGEXP_CERTIFICADO_DESCRICAO = re.compile(
+_REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
+_REGEXP_CERTIFICADO_DESCRICAO = re.compile(
     r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$"
 )
-REGEXP_XML_ENCODING = re.compile('encoding="([^"]+)"')
-modelos_nomes_arquivos = {
+_REGEXP_XML_ENCODING = re.compile('encoding="([^"]+)"')
+_MODELOS_NOMES_ARQUIVOS = {
     "id": "{doc_id}{extension}",
     "id-partes": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
     "data": "{year}/{month}/{day}/{doc_id}",
@@ -23,7 +23,7 @@ modelos_nomes_arquivos = {
 _DESCRICAO_CLI = "Busca e baixa documentos publicados no FundosNET"
 
 def parse_certificado_descricao(value):
-    result = REGEXP_CERTIFICADO_DESCRICAO.findall(value)
+    result = _REGEXP_CERTIFICADO_DESCRICAO.findall(value)
     if not result:
         raise ValueError(f"Valor informado não segue padrão de descrição de certificado: {repr(value)}")
     return {key: value for key, value in zip("nome tipo emissao serie data codigo".split(), result[0])}
@@ -110,7 +110,7 @@ class FundosNet:
         response.raise_for_status()
         content = response.content
         first_line = content.split(b"\n", maxsplit=1)[0].decode("ascii")
-        result = REGEXP_XML_ENCODING.findall(first_line)
+        result = _REGEXP_XML_ENCODING.findall(first_line)
         encoding = result[0] if result else "utf-8"
         return content.decode(encoding)
 
@@ -140,7 +140,7 @@ class FundosNet:
     @cached_property
     def csrf_token(self):
         # TODO: expires crsf_token after some time
-        matches = REGEXP_CSRF_TOKEN.findall(self.main_page)
+        matches = _REGEXP_CSRF_TOKEN.findall(self.main_page)
         if not matches:
             raise RuntimeError("Cannot find CSRF token")
 
@@ -393,7 +393,7 @@ def _configura_parser_cli(parser):
     from .utils import parse_iso_date
 
     # TODO: dividir em vários subcomandos
-    modelos_str = "; ".join(f"{key}: {value}" for key, value in modelos_nomes_arquivos.items())
+    modelos_str = "; ".join(f"{key}: {value}" for key, value in _MODELOS_NOMES_ARQUIVOS.items())
     categoria_choices = sorted([item[1] for item in choices.DOCUMENTO_CATEGORIA])
     tipo_choices = [item[1] for item in choices.DOCUMENTO_TIPO]
     parser.add_argument(
@@ -457,7 +457,7 @@ def main(args):
         for dia in day_range(data_inicial, data_final + datetime.timedelta(days=1))
         if dia.day == 1 or dia in (data_inicial, data_final)
     ]
-    modelo_nome_arquivo = modelos_nomes_arquivos[modelo_nome]
+    modelo_nome_arquivo = _MODELOS_NOMES_ARQUIVOS[modelo_nome]
     if download_path:
         download_path.mkdir(parents=True, exist_ok=True)
     csv_filename.parent.mkdir(parents=True, exist_ok=True)

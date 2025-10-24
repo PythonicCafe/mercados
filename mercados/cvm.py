@@ -26,15 +26,15 @@ from .utils import (
     slug,
 )
 
-REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
-REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
-REGEXP_DATAHORA = re.compile(
+_REGEXP_ASSUNTO = re.compile("^<spanOrder>(.*)</spanOrder>(.*)$", flags=re.DOTALL)
+_REGEXP_EMPRESAS = re.compile("{ key:'([^']+)', value:'([^']+)'}", flags=re.DOTALL)
+_REGEXP_DATAHORA = re.compile(
     r"^<spanOrder>[0-9]+</spanOrder> ([0-9]+/[0-9]+/[0-9]+)\s?([0-9]+:[0-9]+)?$", flags=re.DOTALL
 )
-REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)
-REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
-REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
-REGEXP_INFO_FUNCTION = re.compile('''class='fi-info'[^>]*onmouseover="([^>]*)"''', flags=re.DOTALL)
+_REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)  # TODO: remover?
+_REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
+_REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
+_REGEXP_INFO_FUNCTION = re.compile('''class='fi-info'[^>]*onmouseover="([^>]*)"''', flags=re.DOTALL)
 _DESCRICAO_CLI = "Coleta notícias e faz buscas no RAD/EmpresaNet"
 
 
@@ -331,7 +331,7 @@ class CVM:
 
 
 def extrai_datahora(valor, timezone=BRT):
-    resultado = REGEXP_DATAHORA.findall(valor)
+    resultado = _REGEXP_DATAHORA.findall(valor)
     if not resultado:
         return None
     data, hora = resultado[0]
@@ -342,12 +342,12 @@ def extrai_datahora(valor, timezone=BRT):
 
 
 def extrai_parametros(valor):
-    result = REGEXP_PARAMETROS.match(valor.replace("\xa0", " "))
+    result = _REGEXP_PARAMETROS.match(valor.replace("\xa0", " "))
     if not result:
         raise ValueError(f"`valor` não está no formato de chamada de função JS: {repr(valor)}")
     function_name = result.group(1)
     params_str = result.group(2)
-    params = REGEXP_PARAMETROS_INTERNA.findall(params_str)
+    params = _REGEXP_PARAMETROS_INTERNA.findall(params_str)
     return function_name, [param[0] if param[0] else param[1] for param in params]
 
 
@@ -413,7 +413,7 @@ class DocumentoEmpresa:
         row["datahora_entrega"] = extrai_datahora(row["datahora_entrega"])
         row["especie"] = None
         if row["assunto"]:
-            row["assunto"], row["especie"] = [item.strip() for item in REGEXP_ASSUNTO.findall(row["assunto"])[0]]
+            row["assunto"], row["especie"] = [item.strip() for item in _REGEXP_ASSUNTO.findall(row["assunto"])[0]]
             row["assunto"] = row["assunto"] if row["assunto"] not in ("", "-") else None
             row["especie"] = row["especie"] if row["especie"] not in ("", "-") else None
         html = row["campo_11"]
@@ -467,7 +467,7 @@ class DocumentoEmpresa:
                 f"/dxw/download.asp?moeda={sMoeda}&tipo={sDescTPDoc}&data={sDataEncerra}&"
                 f"razao={sRazao}&site=C&ccvm={sCodCVM}"
             )
-        info_publicacao = REGEXP_INFO_FUNCTION.findall(html)
+        info_publicacao = _REGEXP_INFO_FUNCTION.findall(html)
         if info_publicacao:
             info_function, info_params = extrai_parametros(info_publicacao[0])
             assert info_function == "mostraLocaisPublicacao", f"Função de info desconhecida: {info_function}"
@@ -499,7 +499,7 @@ class RAD:
         tree = document_fromstring(response.content.decode("utf-8"))
         fake_json_data = tree.xpath("//input[@name = 'hdnEmpresas']/@value")[0]
         result = {}
-        for code, name in REGEXP_EMPRESAS.findall(fake_json_data):
+        for code, name in _REGEXP_EMPRESAS.findall(fake_json_data):
             other_code, real_name = name.split(" - ", maxsplit=1)
             assert code == f"C_{other_code}", f"Codes differs: {code}, {name}"
             result[other_code] = real_name

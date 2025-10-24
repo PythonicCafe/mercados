@@ -27,9 +27,9 @@ from .utils import (
     parse_time,
 )
 
-UM_CENTAVO = Decimal("0.01")
-UM_MILESIMO = Decimal("0.001")
-UM_PONTO_BASE = Decimal("0.0001")
+_UM_CENTAVO = Decimal("0.01")
+_UM_MILESIMO = Decimal("0.001")
+_UM_PONTO_BASE = Decimal("0.0001")
 _DESCRICAO_CLI = "Coleta dados históricos de negociação, dentre outros"
 
 def parse_br_int(value):
@@ -47,7 +47,7 @@ def parse_float(value):
 def parse_decimal(value, places=2):
     if value is None or value == "":
         return None
-    quantization = {2: UM_CENTAVO, 3: UM_MILESIMO, 4: UM_PONTO_BASE}[places]
+    quantization = {2: _UM_CENTAVO, 3: _UM_MILESIMO, 4: _UM_PONTO_BASE}[places]
     return Decimal(value).quantize(quantization)
 
 
@@ -108,7 +108,7 @@ def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
     >>> converte_centavos_para_decimal("12356")
     Decimal('123.56')
     """
-    return (Decimal(valor) / 100).quantize(UM_CENTAVO) if valor else None
+    return (Decimal(valor) / 100).quantize(_UM_CENTAVO) if valor else None
 
 
 @lru_cache(maxsize=16 * 1024)
@@ -132,7 +132,7 @@ def converte_decimal(valor: str) -> Optional[Decimal]:
         return None
     valor = Decimal(valor)
     if len(str(valor - int(valor))) < 4:
-        valor = valor.quantize(UM_CENTAVO)
+        valor = valor.quantize(_UM_CENTAVO)
     return valor
 
 
@@ -254,7 +254,7 @@ class PrecoAtivo:
     def from_dict(cls, data, codigo_negociacao, row):
         obj = cls(
             codigo_negociacao=codigo_negociacao,
-            valor=Decimal(row.pop("closPric")).quantize(UM_CENTAVO),
+            valor=Decimal(row.pop("closPric")).quantize(_UM_CENTAVO),
             datahora=parse_date("iso-datetime-tz", f"{data}T{row.pop('dtTm')}-0300", full=True),
         )
         row.pop("prcFlcn")  # Flutuação - ignorado
@@ -958,6 +958,7 @@ class B3:
         :param data: data desejada (use o dia "01" caso frequência seja "mês" e o dia e mês "01" caso frequência seja
         "ano")
         """
+        # TODO: aceitar datetime.date ou str (iso format)
         if frequencia == "dia":
             date = data.strftime("%d%m%Y")
             return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_D{date}.ZIP"
@@ -981,6 +982,7 @@ class B3:
         - Mensal: 00:20:56 GMT
         - Anual: 23:32:31 GMT
         """
+        # TODO: aceitar datetime.date ou str (iso format)
         assert frequencia in ("dia", "mês", "ano")
 
         url = self.url_negociacao_bolsa(frequencia, data)
@@ -1004,6 +1006,7 @@ class B3:
 
     def url_intradiaria_zip(self, data: datetime.date):
         # <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/cotacoes/cotacoes/>
+        # TODO: aceitar datetime.date ou str (iso format)
         data_str = data.strftime("%Y-%m-%d")
         url = f"https://arquivos.b3.com.br/rapinegocios/tickercsv/{data_str}"
         return url
@@ -1022,6 +1025,7 @@ class B3:
             yield NegociacaoIntradiaria.from_dict(row)
 
     def negociacao_intradiaria(self, data: datetime.date):
+        # TODO: aceitar datetime.date ou str (iso format)
         url = self.url_intradiaria_zip(data)
         # TODO: salvar arquivo em cache
         response = self.session.get(url)
@@ -1156,6 +1160,7 @@ class B3:
             yield FundoDocumento.from_dict(identificador, row)
 
     def _fund_documents(self, type_id, cnpj, identifier, start_date: datetime.date, end_date: datetime.date):
+        # TODO: aceitar datetime.date ou str (iso format)
         # TODO: parse/convert to dataclass:
         iterator = self.paginate(
             base_url=urljoin(self._funds_call_url, "GetListedDocuments/"),
@@ -1207,6 +1212,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fii_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
+        # TODO: aceitar datetime.date ou str (iso format)
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -1259,6 +1265,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
+        # TODO: aceitar datetime.date ou str (iso format)
         today = datetime.datetime.now()
         if data_inicial is None:
             data_inicial = (today - datetime.timedelta(days=365)).date()
@@ -1321,6 +1328,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def certificate_documents(self, identificador, start_date: datetime.date, end_date: datetime.date):  # CRI or CRA
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self.paginate(
             base_url=urljoin(self._funds_call_url, "GetListedDocumentsTypeHistory/"),
             url_params={
@@ -1511,6 +1519,7 @@ class B3:
 
     def clearing_acoes_custodiadas(self, data_inicial: datetime.date):
         """Clearing - Ações Custodiadas"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/Custody/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
@@ -1520,6 +1529,7 @@ class B3:
 
     def clearing_creditos_de_proventos(self, data_inicial: datetime.date, filtro_emissor=None):
         """Clearing - Créditos de Proventos - Renda Variável"""
+        # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
         if filtro_emissor is not None:
             query_params["filter"] = base64.b64encode(filtro_emissor.encode("utf-8")).decode("ascii")
@@ -1532,6 +1542,7 @@ class B3:
 
     def clearing_custodia_fungivel(self, data: datetime.date):
         """Clearing - Custódia Fungível"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/FugibleCustody/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1543,6 +1554,7 @@ class B3:
         self, data_inicial: datetime.date, data_final: datetime.date, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
+        # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
         if codigo_negociacao is not None:
             query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
@@ -1557,6 +1569,7 @@ class B3:
         self, data: datetime.date, filtro_tomador=None, filtro_doador=None, filtro_mercado=None, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Negócios"""
+        # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
         json_data = {}
         if filtro_tomador is not None:
@@ -1577,6 +1590,7 @@ class B3:
 
     def clearing_filtros_emprestimos_negociados(self, data: datetime.date):
         """Lista valores disponíveis para filtros de empréstimos negociados"""
+        # TODO: aceitar datetime.date ou str (iso format)
         data = data.isoformat()
         return self.request(f"https://arquivos.b3.com.br/bdi/table/BTBTrade/{data}/{data}/filters")
 
@@ -1584,6 +1598,7 @@ class B3:
         self, data_inicial: datetime.date, data_final: datetime.date, filtro_mercado=None, codigo_negociacao=None
     ):
         """Clearing - Empréstimos de Ativos - Posições em Aberto"""
+        # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
         if codigo_negociacao is not None:
             query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
@@ -1600,6 +1615,7 @@ class B3:
 
     def clearing_filtros_emprestimos_em_aberto(self, data_inicial: datetime.date, data_final: datetime.date):
         """Lista valores disponíveis para filtros de empréstimos em aberto"""
+        # TODO: aceitar datetime.date ou str (iso format)
         data_inicial = data_inicial.isoformat()
         data_final = data_final.isoformat()
         return self.request(
@@ -1608,6 +1624,7 @@ class B3:
 
     def clearing_opcoes_flexiveis(self, data: datetime.date, codigo_negociacao=None):
         """Clearing - Opções Flexíveis"""
+        # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
         if codigo_negociacao is not None:
             query_params["filter"] = base64.b64encode(codigo_negociacao.encode("utf-8")).decode("ascii")
@@ -1620,6 +1637,7 @@ class B3:
 
     def clearing_prazo_deposito_titulos(self, data: datetime.date):
         """Clearing - Prazo para Depósito de Títulos"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/DeadlineDepositSecurities/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1629,6 +1647,7 @@ class B3:
 
     def clearing_posicoes_em_aberto(self, data: datetime.date):
         """Clearing - Quadro Analítico das Posições em Aberto"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/AnalyticalFramework/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1638,6 +1657,7 @@ class B3:
 
     def clearing_swap(self, data: datetime.date):
         """Clearing - Swap"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/SwapFlex/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
@@ -1647,6 +1667,7 @@ class B3:
 
     def clearing_termo_eletronico(self, data: datetime.date):
         """Clearing - Termo Eletrônico"""
+        # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/EletronicTerm/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data.isoformat(), "data_final": data.isoformat()},
