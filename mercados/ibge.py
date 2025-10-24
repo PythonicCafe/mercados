@@ -1,7 +1,7 @@
 from io import BytesIO
 
-
 _DESCRICAO_CLI = "Coleta valores históricos de índices"
+
 
 class IBGE:
     _urls = {
@@ -77,18 +77,27 @@ class IBGE:
 
 
 def _configura_parser_cli(parser):
-    from .utils import EXPORT_FORMATS, define_formato, dicts_to_file, extrai_nome_arquivo, parse_iso_date
+    from .utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
     indice_choices = sorted(IBGE._urls.keys())
     subparser_historico = subparsers.add_parser("historico", help="Baixa histórico de diversos índices")
     subparser_historico.add_argument(
-        "-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date,
+        "-i",
+        "--inicio",
+        "--data-inicial",
+        metavar="data",
+        type=parse_iso_date,
         help="Data de início no formato YYYY-MM-DD",
     )
     subparser_historico.add_argument(
-        "-f", "--fim", "--data-final", metavar="data", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD",
+        "-f",
+        "--fim",
+        "--data-final",
+        metavar="data",
+        type=parse_iso_date,
+        help="Data de fim no formato YYYY-MM-DD",
     )
     subparser_historico.add_argument(
         "-F",

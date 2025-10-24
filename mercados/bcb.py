@@ -9,8 +9,8 @@ from typing import Optional
 
 from .utils import USER_AGENT, create_session, dicts_to_file, parse_br_date, parse_date
 
-
 _DESCRICAO_CLI = "Coleta séries temporais e faz ajuste de valores"
+
 
 @dataclass
 class TaxaIntervalo:
@@ -260,9 +260,7 @@ class BancoCentral:
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
             ultimo_dia = monthrange(data_final.year, data_final.month)
             data_certa = datetime.date(data_final.year, data_final.month, ultimo_dia)
-            raise ValueError(
-                f"Data final precisa ser o último dia do mês: {data_final} vs {data_certa.isoformat()}"
-            )
+            raise ValueError(f"Data final precisa ser o último dia do mês: {data_final} vs {data_certa.isoformat()}")
         fator = Decimal(1)
         for ano in range(data_inicial.year, data_final.year + 1):
             for taxa in self.selic_por_mes(ano):
@@ -273,20 +271,42 @@ class BancoCentral:
 
 
 def _configura_parser_cli(parser):
-    from .utils import EXPORT_FORMATS, define_formato, extrai_nome_arquivo, parse_iso_date
+    from .utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
     subparser_ajustar_selic = subparsers.add_parser("ajustar-selic", help="Ajusta valores pela taxa Selic")
-    subparser_ajustar_selic.add_argument("tipo_periodo", metavar="tipo_periodo", choices=["dia", "mês"], help="Tipo de período. Opções: dia, mês.")
-    subparser_ajustar_selic.add_argument("data_inicial", type=parse_iso_date, help="Data de início no formato YYYY-MM-DD")
+    subparser_ajustar_selic.add_argument(
+        "tipo_periodo", metavar="tipo_periodo", choices=["dia", "mês"], help="Tipo de período. Opções: dia, mês."
+    )
+    subparser_ajustar_selic.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data de início no formato YYYY-MM-DD"
+    )
     subparser_ajustar_selic.add_argument("data_final", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD")
-    subparser_ajustar_selic.add_argument("valor", type=Decimal, help="Valor a ser ajustado (use '.' como separador de casas decimais)")
+    subparser_ajustar_selic.add_argument(
+        "valor", type=Decimal, help="Valor a ser ajustado (use '.' como separador de casas decimais)"
+    )
 
     series_choices = sorted(BancoCentral.series.keys())
-    subparser_serie_temporal = subparsers.add_parser("serie-temporal", help="Baixa dados históricos de diversas séries temporais")
-    subparser_serie_temporal.add_argument("-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date, help="Data de início no formato YYYY-MM-DD (opcional)")
-    subparser_serie_temporal.add_argument("-f", "--fim", "--data-final", metavar="data", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD (opcional)")
+    subparser_serie_temporal = subparsers.add_parser(
+        "serie-temporal", help="Baixa dados históricos de diversas séries temporais"
+    )
+    subparser_serie_temporal.add_argument(
+        "-i",
+        "--inicio",
+        "--data-inicial",
+        metavar="data",
+        type=parse_iso_date,
+        help="Data de início no formato YYYY-MM-DD (opcional)",
+    )
+    subparser_serie_temporal.add_argument(
+        "-f",
+        "--fim",
+        "--data-final",
+        metavar="data",
+        type=parse_iso_date,
+        help="Data de fim no formato YYYY-MM-DD (opcional)",
+    )
     subparser_serie_temporal.add_argument(
         "-F",
         "--formato",

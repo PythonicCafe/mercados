@@ -32,6 +32,7 @@ _UM_MILESIMO = Decimal("0.001")
 _UM_PONTO_BASE = Decimal("0.0001")
 _DESCRICAO_CLI = "Coleta dados históricos de negociação, dentre outros"
 
+
 def parse_br_int(value):
     if value is None or value == "":
         return None
@@ -1704,6 +1705,7 @@ class B3:
 
     # TODO: pegar diversos dados históricos em https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/
 
+
 def _configura_parser_cli(parser):
     from pathlib import Path
 
@@ -1739,7 +1741,10 @@ def _configura_parser_cli(parser):
 
     subparser = subparsers.add_parser("valor-indice", help="Coleta valores diários dos índices")
     subparser.add_argument(
-        "indice", type=str, metavar="indice", choices=sorted(B3.indices),
+        "indice",
+        type=str,
+        metavar="indice",
+        choices=sorted(B3.indices),
         help=f"Código do índice na B3. Opções: {', '.join(sorted(B3.indices))}",
     )
     subparser.add_argument("ano", type=int)
@@ -1750,22 +1755,35 @@ def _configura_parser_cli(parser):
     indices_carteira.remove("IBOVESPA")
     indices_carteira.sort()
     subparser.add_argument(
-        "indice", type=str, metavar="indice", choices=indices_carteira,
+        "indice",
+        type=str,
+        metavar="indice",
+        choices=indices_carteira,
         help=f"Código do índice na B3. Opções: {', '.join(sorted(indices_carteira))}",
     )
     subparser.add_argument(
-        "periodo", type=str, metavar="periodo", choices=B3._carteira_indice_periodos,
+        "periodo",
+        type=str,
+        metavar="periodo",
+        choices=B3._carteira_indice_periodos,
         help=f"Período de validade da carteira. Opções: {', '.join(sorted(B3._carteira_indice_periodos))}",
     )
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser = subparsers.add_parser("ultimas-cotacoes", help="Coleta cotação do último pregão para determinado ativo, com atraso de 15min")
+    subparser = subparsers.add_parser(
+        "ultimas-cotacoes", help="Coleta cotação do último pregão para determinado ativo, com atraso de 15min"
+    )
     subparser.add_argument("codigo_negociacao", type=str, help="Código de negociação do ativo na B3")
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa", help="Coleta dados históricos consolidados por dia de negociação")
+    subparser_negociacao_bolsa = subparsers.add_parser(
+        "negociacao-bolsa", help="Coleta dados históricos consolidados por dia de negociação"
+    )
     subparser_negociacao_bolsa.add_argument(
-        "frequencia", type=str, metavar="frequencia", choices=["dia", "mês", "ano"],
+        "frequencia",
+        type=str,
+        metavar="frequencia",
+        choices=["dia", "mês", "ano"],
         help="Frequência do arquivo de cotação disponível. Opções: dia, mês, ano",
     )
     subparser_negociacao_bolsa.add_argument(
@@ -1787,7 +1805,9 @@ def _configura_parser_cli(parser):
     subparser_converter = subparsers.add_parser(
         "intradiaria-converter", help="Converte arquivo ZIP de negociações intradiárias para CSV."
     )
-    subparser_converter.add_argument("-c", "--codigo-negociacao", action="append", help="Filtra pelo código de negociação")
+    subparser_converter.add_argument(
+        "-c", "--codigo-negociacao", action="append", help="Filtra pelo código de negociação"
+    )
     subparser_converter.add_argument(
         "zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido"
     )

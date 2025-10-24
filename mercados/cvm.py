@@ -585,7 +585,9 @@ def _configura_parser_cli(parser):
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
     parser_noticias = subparsers.add_parser("noticias", help="Baixa notícias do site da CVM a partir de hoje")
-    parser_noticias.add_argument("data_inicial", type=parse_iso_date, help="Data de corte inicial no formato YYYY-MM-DD")
+    parser_noticias.add_argument(
+        "data_inicial", type=parse_iso_date, help="Data de corte inicial no formato YYYY-MM-DD"
+    )
     parser_noticias.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
     # TODO: deixar csv_filename opcional
     # TODO: aceitar `-` (para stdout)
@@ -645,11 +647,19 @@ def _configura_parser_cli(parser):
         help="Nome de empresa para filtrar. Precisa ser o mesmo nome retornado por rad-empresas",
     )
     parser_rad_busca.add_argument(
-        "-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date,
+        "-i",
+        "--inicio",
+        "--data-inicial",
+        metavar="data",
+        type=parse_iso_date,
         help="Data mínima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument(
-        "-f", "--fim", "--data-final", metavar="data", type=parse_iso_date,
+        "-f",
+        "--fim",
+        "--data-final",
+        metavar="data",
+        type=parse_iso_date,
         help="Data máxima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
@@ -770,6 +780,7 @@ def main(args):
     else:
         return 100
     return 0
+
 
 # TODO: adicionar ITR (Informe Trimestral de Resultados)
 # TODO: adicionar Carteira dos fundos (CDA - Composição e Diversificação das Aplicações)

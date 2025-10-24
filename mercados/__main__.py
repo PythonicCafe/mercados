@@ -1,8 +1,7 @@
 import argparse
 import sys
 
-from mercados import b3, bcb, cvm, ibge, fundosnet
-
+from mercados import b3, bcb, cvm, fundosnet, ibge
 
 parser = argparse.ArgumentParser(prog="mercados", description="Coleta dados do mercado financeiro brasileiro")
 subparsers = parser.add_subparsers(dest="fonte", metavar="fonte", help="Fonte de dados", required=True)

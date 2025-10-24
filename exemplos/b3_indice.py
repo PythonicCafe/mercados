@@ -1,7 +1,7 @@
 import csv
 import datetime
-from mercados.b3 import B3
 
+from mercados.b3 import B3
 
 indice_escolhido = "IFIX"
 ano_inicial = 2010

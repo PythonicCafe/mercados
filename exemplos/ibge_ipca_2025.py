@@ -2,7 +2,6 @@ import datetime
 
 from mercados.ibge import IBGE
 
-
 ibge = IBGE()
 indice = "IPCA"  # Teste com "IPCA-15" e "INPC"
 hoje = datetime.datetime.now().date()

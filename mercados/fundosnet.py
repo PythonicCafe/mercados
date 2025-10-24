@@ -22,6 +22,7 @@ _MODELOS_NOMES_ARQUIVOS = {
 }
 _DESCRICAO_CLI = "Busca e baixa documentos publicados no FundosNET"
 
+
 def parse_certificado_descricao(value):
     result = _REGEXP_CERTIFICADO_DESCRICAO.findall(value)
     if not result:
@@ -405,16 +406,25 @@ def _configura_parser_cli(parser):
         help=f"Modelo para usar no nome do arquivo a ser baixado. Opções: {modelos_str}",
     )
     parser.add_argument(
-        "-p", "--path", type=Path, help="Se especificado, baixa os documentos encontrados nessa pasta",
+        "-p",
+        "--path",
+        type=Path,
+        help="Se especificado, baixa os documentos encontrados nessa pasta",
     )
     parser.add_argument(
-        "-i", "--inicio", "--data-inicial", metavar="data",
+        "-i",
+        "--inicio",
+        "--data-inicial",
+        metavar="data",
         type=parse_iso_date,
         default=datetime.date(2016, 1, 1),
         help="Data de início (de publicação do documento) para a busca no formato YYYY-MM-DD",
     )
     parser.add_argument(
-        "-f", "--fim", "--data-final", metavar="data",
+        "-f",
+        "--fim",
+        "--data-final",
+        metavar="data",
         type=parse_iso_date,
         default=datetime.datetime.now().date(),
         help="Data de fim (de publicação do documento) para a busca no formato YYYY-MM-DD",
