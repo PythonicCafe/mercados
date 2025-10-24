@@ -17,6 +17,7 @@ Algumas premissas para o desenvolvimento:
   (*parsing*) para os modelos/dataclasses usados. Os testes devem conter dados reais, obfuscando dados pessoais
   sensíveis que possam existir, que devem ser salvos no próprio repositório
 - Mensagens de commit devem ser claras e, caso aplicável, deve conter um dos seguintes prefixos:
+  - `cli: `, para alterações gerais na interface de linha de comando
   - `doc: `, para alterações em documentação
   - `dev: `, para alterações referentes ao desenvolvimento (`Makefile`, linter etc.)
   - `pkg: `, para alterações relacionadas ao empacotamento

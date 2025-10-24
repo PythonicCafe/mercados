@@ -160,13 +160,13 @@ echo mercados.b3 clearing-custodia-fungivel
 python -m mercados.b3 clearing-custodia-fungivel "$DATA_INICIAL" "$DATA_PATH/b3-clearing-custodia-fungivel.csv"
 
 echo mercados.b3 clearing-emprestimos-registrados
-python -m mercados.b3 clearing-emprestimos-registrados --codigo_negociacao "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-registrados.csv"
+python -m mercados.b3 clearing-emprestimos-registrados --codigo-negociacao "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-registrados.csv"
 
 echo mercados.b3 clearing-emprestimos-negociados
-python -m mercados.b3 clearing-emprestimos-negociados --codigo_negociacao "$TICKER" --doador 'BTG PACTUAL CTVM S/A' "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-negociados.csv"
+python -m mercados.b3 clearing-emprestimos-negociados --codigo-negociacao "$TICKER" --doador 'BTG PACTUAL CTVM S/A' "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-negociados.csv"
 
 echo mercados.b3 clearing-emprestimos-em-aberto
-python -m mercados.b3 clearing-emprestimos-em-aberto --codigo_negociacao "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-em-aberto.csv"
+python -m mercados.b3 clearing-emprestimos-em-aberto --codigo-negociacao "$TICKER" "$DATA_ANTERIOR" "$DATA_INICIAL" "$DATA_PATH/b3-clearing-emprestimos-em-aberto.csv"
 
 echo mercados.b3 clearing-opcoes-flexiveis
 python -m mercados.b3 clearing-opcoes-flexiveis "$DATA_INICIAL" "$DATA_PATH/b3-clearing-opcoes-flexiveis.csv"

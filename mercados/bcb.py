@@ -266,36 +266,35 @@ class BancoCentral:
         return (fator * valor).quantize(Decimal("0.01"))
 
 
-if __name__ == "__main__":
-    import argparse
-    import sys
-
+def _configura_parser_cli(parser):
     from .utils import EXPORT_FORMATS, define_formato, extrai_nome_arquivo, parse_iso_date
 
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
-    subparser_ajustar_selic = subparsers.add_parser("ajustar-selic")
-    subparser_ajustar_selic.add_argument("tipo_periodo", choices=["dia", "mês"])
-    subparser_ajustar_selic.add_argument("data_inicial", type=parse_iso_date, help="Data de início")
-    subparser_ajustar_selic.add_argument("data_final", type=parse_iso_date, help="Data de fim")
-    subparser_ajustar_selic.add_argument("valor", type=Decimal, help="Valor a ser ajustado")
+    subparser_ajustar_selic = subparsers.add_parser("ajustar-selic", help="Ajusta valores pela taxa Selic")
+    subparser_ajustar_selic.add_argument("tipo_periodo", metavar="tipo_periodo", choices=["dia", "mês"], help="Tipo de período. Opções: dia, mês.")
+    subparser_ajustar_selic.add_argument("data_inicial", type=parse_iso_date, help="Data de início no formato YYYY-MM-DD")
+    subparser_ajustar_selic.add_argument("data_final", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD")
+    subparser_ajustar_selic.add_argument("valor", type=Decimal, help="Valor a ser ajustado (use '.' como separador de casas decimais)")
 
-    subparser_serie_temporal = subparsers.add_parser("serie-temporal")
-    subparser_serie_temporal.add_argument("--data-inicial", "-i", type=parse_iso_date, help="Data de início (opcional)")
-    subparser_serie_temporal.add_argument("--data-final", "-f", type=parse_iso_date, help="Data de fim (opcional)")
+    series_choices = sorted(BancoCentral.series.keys())
+    subparser_serie_temporal = subparsers.add_parser("serie-temporal", help="Baixa dados históricos de diversas séries temporais")
+    subparser_serie_temporal.add_argument("-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date, help="Data de início no formato YYYY-MM-DD (opcional)")
+    subparser_serie_temporal.add_argument("-f", "--fim", "--data-final", metavar="data", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD (opcional)")
     subparser_serie_temporal.add_argument(
-        "--formato",
         "-F",
+        "--formato",
         type=str,
+        metavar="fmt",
         choices=EXPORT_FORMATS,
         default=None,
-        help="Formato de saída",
+        help=f"Formato de saída. Opções: {', '.join(sorted(EXPORT_FORMATS))}",
     )
     subparser_serie_temporal.add_argument(
         "serie",
-        choices=list(BancoCentral.series.keys()),
-        help="Nome da série temporal",
+        metavar="serie",
+        choices=series_choices,
+        help=f"Nome da série temporal. Opções: {', '.join(series_choices)}",
     )
     subparser_serie_temporal.add_argument(
         "arquivo",
@@ -304,10 +303,20 @@ if __name__ == "__main__":
         help="Nome do arquivo a ser salvo",
     )
 
+
+def main():
+    import argparse
+    import sys
+
+    from .utils import define_formato
+
+    parser = argparse.ArgumentParser()
+    _configura_parser_cli(parser)
     args = parser.parse_args()
+    comando = args.comando
     bc = BancoCentral()
 
-    if args.command == "ajustar-selic":
+    if comando == "ajustar-selic":
         tipo = args.tipo_periodo
         inicio = args.data_inicial
         fim = args.data_final
@@ -319,12 +328,13 @@ if __name__ == "__main__":
             ajustado = bc.ajustar_selic_por_mes(data_inicial=inicio, data_final=fim, valor=valor)
         print(ajustado)
 
-    elif args.command == "serie-temporal":
-        inicio = args.data_inicial
-        fim = args.data_final
+    elif comando == "serie-temporal":
+        inicio = args.inicio
+        fim = args.fim
         nome_serie = args.serie
         arquivo = args.arquivo
-        fmt = define_formato(args.formato, arquivo)
+        formato = args.formato
+        fmt = define_formato(formato, arquivo)
         data = [tx.serialize() for tx in bc.serie_temporal(nome_serie, inicio=inicio, fim=fim)]
         if arquivo is None:
             dicts_to_file(data, fmt, sys.stdout)
@@ -332,3 +342,13 @@ if __name__ == "__main__":
             arquivo.parent.mkdir(exist_ok=True, parents=True)
             with arquivo.open(mode="w") as fobj:
                 dicts_to_file(data, fmt, fobj)
+
+    else:
+        return 100
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

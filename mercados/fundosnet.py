@@ -15,6 +15,11 @@ REGEXP_CERTIFICADO_DESCRICAO = re.compile(
     r"^(.*) (CR|CRI|CRA|DEB|OTS) Emissão:(.*) Série(?:\(s\))?:(.*) ([0-9]{2}/[0-9]{4}) (.*)$"
 )
 REGEXP_XML_ENCODING = re.compile('encoding="([^"]+)"')
+modelos_nomes_arquivos = {
+    "id": "{doc_id}{extension}",
+    "id-partes": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
+    "data": "{year}/{month}/{day}/{doc_id}",
+}
 
 
 def parse_certificado_descricao(value):
@@ -382,80 +387,89 @@ class FundosNet:
         return self._extrai_dados_protocolo(response.content)
 
 
-if __name__ == "__main__":
+def _configura_parser_cli(parser):
+    from pathlib import Path
+
+    from .utils import parse_iso_date
+
+    # TODO: dividir em vários subcomandos
+    modelos_str = "; ".join(f"{key}: {value}" for key, value in modelos_nomes_arquivos.items())
+    categoria_choices = sorted([item[1] for item in choices.DOCUMENTO_CATEGORIA])
+    tipo_choices = [item[1] for item in choices.DOCUMENTO_TIPO]
+    parser.add_argument(
+        "-m",
+        "--modelo-nome-arquivo",
+        default="id",
+        metavar="campo",
+        choices=["id", "id-partes", "data"],
+        help=f"Modelo para usar no nome do arquivo a ser baixado. Opções: {modelos_str}",
+    )
+    parser.add_argument(
+        "-p", "--path", type=Path, help="Se especificado, baixa os documentos encontrados nessa pasta",
+    )
+    parser.add_argument(
+        "-i", "--inicio", "--data-inicial", metavar="data",
+        type=parse_iso_date,
+        default=datetime.date(2016, 1, 1),
+        help="Data de início (de publicação do documento) para a busca no formato YYYY-MM-DD",
+    )
+    parser.add_argument(
+        "-f", "--fim", "--data-final", metavar="data",
+        type=parse_iso_date,
+        default=datetime.datetime.now().date(),
+        help="Data de fim (de publicação do documento) para a busca no formato YYYY-MM-DD",
+    )
+    parser.add_argument(
+        "-c",
+        "--categoria",
+        type=str,
+        choices=categoria_choices,
+        metavar="categoria",
+        help=f"Filtra pela categoria do documento. Opções: {'; '.join(categoria_choices)}",
+    )
+    parser.add_argument(
+        "-t",
+        "--tipo",
+        type=str,
+        choices=tipo_choices,
+        metavar="tipo",
+        help=f"Filtra pelo tipo de documento. Opções: {'; '.join(tipo_choices)}",
+    )
+    parser.add_argument("csv_filename", type=Path, help="Arquivo CSV com os documentos encontrados")
+
+
+def main():
     import argparse
     import csv
     from dataclasses import asdict
     from pathlib import Path
 
-    from .utils import day_range, parse_iso_date
+    from .utils import day_range
 
-    modelos_nomes_arquivos = {
-        "id": "{doc_id}{extension}",
-        "id-partes": "{p4}/{p3}/{p2}/{p1}/{doc_id8}",
-        "data": "{year}/{month}/{day}/{doc_id}",
-    }
-    modelos_str = "; ".join(f"{key}: {value}" for key, value in modelos_nomes_arquivos.items())
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--modelo-nome-arquivo",
-        "-m",
-        default="id",
-        choices=["id", "id-partes", "data"],
-        help=f"Modelo para usar no nome do arquivo a ser baixado.\n{modelos_str}",
-    )
-    parser.add_argument(
-        "--download-path", "-d", type=Path, help="Se especificado, baixa os documentos encontrados nessa pasta"
-    )
-    parser.add_argument(
-        "--data-inicial",
-        "-i",
-        type=parse_iso_date,
-        default=datetime.date(2016, 1, 1),
-        help="Data de início (de publicação do documento) para a busca",
-    )
-    parser.add_argument(
-        "--data-final",
-        "-f",
-        type=parse_iso_date,
-        default=datetime.datetime.now().date(),
-        help="Data de fim (de publicação do documento) para a busca",
-    )
-    parser.add_argument(
-        "--categoria",
-        "-c",
-        type=str,
-        choices=[item[1] for item in choices.DOCUMENTO_CATEGORIA],
-        metavar="",
-        help="Filtra pela categoria do documento",
-    )
-    parser.add_argument(
-        "--tipo",
-        "-t",
-        type=str,
-        choices=[item[1] for item in choices.DOCUMENTO_TIPO],
-        metavar="",
-        help="Filtra pelo tipo de documento",
-    )
-    parser.add_argument("csv_filename", type=Path, help="Arquivo CSV com os documentos encontrados")
+    _configura_parser_cli(parser)
     args = parser.parse_args()
-    data_inicial, data_final = args.data_inicial, args.data_final
+    data_inicial = args.inicio
+    data_final = args.fim
+    tipo = args.tipo
+    categoria = args.categoria
+    download_path = args.path
+    modelo_nome = args.modelo_nome_arquivo
+    csv_filename = args.csv_filename
     datas_a_pesquisar = [
         dia
         for dia in day_range(data_inicial, data_final + datetime.timedelta(days=1))
         if dia.day == 1 or dia in (data_inicial, data_final)
     ]
-    modelo_nome_arquivo = modelos_nomes_arquivos[args.modelo_nome_arquivo]
-    download_path = args.download_path
+    modelo_nome_arquivo = modelos_nomes_arquivos[modelo_nome]
     if download_path:
         download_path.mkdir(parents=True, exist_ok=True)
-    csv_filename = args.csv_filename
     csv_filename.parent.mkdir(parents=True, exist_ok=True)
     filters = {}
-    if args.categoria:
-        filters["category"] = args.categoria
-    if args.tipo:
-        filters["type_"] = args.tipo
+    if categoria:
+        filters["category"] = categoria
+    if tipo:
+        filters["type_"] = tipo
 
     fnet = FundosNet()
     with csv_filename.open(mode="w") as csv_fobj:
@@ -478,3 +492,10 @@ if __name__ == "__main__":
                     filename.parent.mkdir(parents=True, exist_ok=True)
                     with filename.open(mode="wb") as fobj:
                         fobj.write(response.content)
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

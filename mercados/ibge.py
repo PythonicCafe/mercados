@@ -74,30 +74,33 @@ class IBGE:
         return self._extrai_planilha_indice(zip_content)
 
 
-def main():
-    import argparse
-    import sys
-
+def _configura_parser_cli(parser):
     from .utils import EXPORT_FORMATS, define_formato, dicts_to_file, extrai_nome_arquivo, parse_iso_date
 
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="comando", required=True)
+    subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
-    subparser_historico = subparsers.add_parser("historico")
-    subparser_historico.add_argument("--data-inicial", "-i", type=parse_iso_date, help="Data de início (opcional)")
-    subparser_historico.add_argument("--data-final", "-f", type=parse_iso_date, help="Data de fim (opcional)")
+    indice_choices = sorted(IBGE._urls.keys())
+    subparser_historico = subparsers.add_parser("historico", help="Baixa histórico de diversos índices")
     subparser_historico.add_argument(
-        "--formato",
+        "-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date,
+        help="Data de início no formato YYYY-MM-DD",
+    )
+    subparser_historico.add_argument(
+        "-f", "--fim", "--data-final", metavar="data", type=parse_iso_date, help="Data de fim no formato YYYY-MM-DD",
+    )
+    subparser_historico.add_argument(
         "-F",
+        "--formato",
+        metavar="fmt",
         type=str,
         choices=EXPORT_FORMATS,
         default=None,
-        help="Formato de saída",
+        help=f"Formato de saída. Opções: {', '.join(sorted(EXPORT_FORMATS))}",
     )
     subparser_historico.add_argument(
         "indice",
-        choices=sorted(IBGE._urls.keys()),
-        help="Índice",
+        choices=indice_choices,
+        help=f"Índice. Opções: {', '.join(indice_choices)}",
     )
     subparser_historico.add_argument(
         "arquivo",
@@ -106,15 +109,26 @@ def main():
         help="Nome do arquivo a ser salvo",
     )
 
+
+def main():
+    import argparse
+    import sys
+
+    from .utils import define_formato, dicts_to_file
+
+    parser = argparse.ArgumentParser()
+    _configura_parser_cli(parser)
     args = parser.parse_args()
+    comando = args.comando
     ibge = IBGE()
 
-    if args.comando == "historico":
-        inicio = args.data_inicial
+    if comando == "historico":
+        inicio = args.inicio
         fim = args.data_final
         indice = args.indice
         arquivo = args.arquivo
-        fmt = define_formato(args.formato, arquivo)
+        formato = args.formato
+        fmt = define_formato(formato, arquivo)
         data = []
         for tx in ibge.historico(indice=indice):
             if (inicio is not None and tx.data < inicio) or (fim is not None and tx.data > fim):
@@ -128,6 +142,12 @@ def main():
             with arquivo.open(mode="w") as fobj:
                 dicts_to_file(data, fmt, fobj)
 
+    else:
+        return 100
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())

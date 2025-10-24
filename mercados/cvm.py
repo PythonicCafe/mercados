@@ -580,15 +580,14 @@ class RAD:
         return list(self._extract_rows(raw_data))
 
 
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Captura e trata dados da CVM")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+def _configura_parser_cli(parser):
+    subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
     parser_noticias = subparsers.add_parser("noticias", help="Baixa notícias do site da CVM a partir de hoje")
-    parser_noticias.add_argument("data_minima", type=parse_iso_date, help="Data mínima para baixar")
+    parser_noticias.add_argument("data_inicial", type=parse_iso_date, help="Data de corte inicial no formato YYYY-MM-DD")
     parser_noticias.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
     parser_informe_diario_fundo = subparsers.add_parser(
         "informe-diario-fundo", help="Baixa informes diários dos fundos para um determinado mês"
@@ -599,11 +598,15 @@ if __name__ == "__main__":
         help="Mês de referência do informe no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_informe_diario_fundo.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
     parser_contas_fundos = subparsers.add_parser(
         "contas-fundos", help="Baixa descrições das contas usadas nos balancetes de fundos"
     )
     parser_contas_fundos.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
     parser_balancete_fundo_investimento = subparsers.add_parser(
         "balancete-fundo-investimento", help="Baixa balancetes dos fundos de investimento para um determinado mês"
@@ -614,6 +617,8 @@ if __name__ == "__main__":
         help="Mês de referência do balancete no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_balancete_fundo_investimento.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
     parser_balancete_fundo_estruturado = subparsers.add_parser(
         "balancete-fundo-estruturado", help="Baixa balancetes dos fundos estruturados para um determinado mês"
@@ -624,38 +629,51 @@ if __name__ == "__main__":
         help="Mês de referência do balancete no formato YYYY-MM ou YYYY-MM-DD (dia é ignorado)",
     )
     parser_balancete_fundo_estruturado.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
     parser_rad_empresas = subparsers.add_parser("rad-empresas", help="Baixa lista de empresas disponíveis no RAD")
     parser_rad_empresas.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
 
     parser_rad_busca = subparsers.add_parser("rad-busca", help="Busca por documentos publicados por empresas")
     parser_rad_busca.add_argument(
-        "--empresa",
         "-e",
+        "--empresa",
         type=str,
         action="append",
         help="Nome de empresa para filtrar. Precisa ser o mesmo nome retornado por rad-empresas",
     )
     parser_rad_busca.add_argument(
-        "--data-inicial", "-i", type=parse_iso_date, help="Data mínima de publicação do documento"
+        "-i", "--inicio", "--data-inicial", metavar="data", type=parse_iso_date,
+        help="Data mínima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument(
-        "--data-final", "-f", type=parse_iso_date, help="Data máxima de publicação do documento"
+        "-f", "--fim", "--data-final", metavar="data", type=parse_iso_date,
+        help="Data máxima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")
+    # TODO: deixar csv_filename opcional
+    # TODO: aceitar `-` (para stdout)
 
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Captura e trata dados da CVM")
+    _configura_parser_cli(parser)
     args = parser.parse_args()
+    comando = args.comando
 
-    if args.command == "noticias":
+    if comando == "noticias":
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
-        data_minima = args.data_minima
+        data_inicial = args.data_inicial
 
         cvm = CVM()
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for noticia in cvm.noticias():
-                if noticia.data < data_minima:
+                if noticia.data < data_inicial:
                     break
                 row = asdict(noticia)
                 if writer is None:
@@ -663,7 +681,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "rad-empresas":
+    elif comando == "rad-empresas":
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
@@ -677,12 +695,12 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "rad-busca":
+    elif comando == "rad-busca":
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
         empresas = args.empresa
-        inicio = args.data_inicial
-        fim = args.data_final
+        inicio = args.inicio
+        fim = args.fim
 
         rad = RAD()
         with csv_filename.open(mode="w") as csv_fobj:
@@ -694,7 +712,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "informe-diario-fundo":
+    elif comando == "informe-diario-fundo":
         ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
@@ -709,7 +727,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "contas-fundos":
+    elif comando == "contas-fundos":
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
@@ -723,7 +741,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "balancete-fundo-investimento":
+    elif comando == "balancete-fundo-investimento":
         ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
@@ -738,7 +756,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "balancete-fundo-estruturado":
+    elif comando == "balancete-fundo-estruturado":
         ano_mes = args.ano_mes
         csv_filename = args.csv_filename
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
@@ -753,6 +771,10 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
+    else:
+        return 100
+    return 0
+
 # TODO: adicionar ITR (Informe Trimestral de Resultados)
 # TODO: adicionar Carteira dos fundos (CDA - Composição e Diversificação das Aplicações)
 #       <https://dados.cvm.gov.br/dataset/fi-doc-cda>
@@ -760,3 +782,9 @@ if __name__ == "__main__":
 # TODO: adicionar Valores Mobiliários Negociados e Detidos
 #       Pegar de <https://dados.cvm.gov.br/dataset/cia_aberta-doc-vlmo> /
 #       <https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/VLMO/DADOS/> ou RAD?
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

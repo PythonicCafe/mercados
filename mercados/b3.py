@@ -1683,73 +1683,74 @@ class B3:
 
     # TODO: pegar diversos dados históricos em https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/
 
-
-if __name__ == "__main__":
-    import argparse
-    import datetime
+def _configura_parser_cli(parser):
     from pathlib import Path
 
-    from .utils import day_range
-
-    TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
-    comandos_padrao = [
-        "bdr",
-        "cra-documents",
-        "cri-documents",
-        "debentures",
-        "fiagro-dividends",
-        "fiagro-documents",
-        "fiagro-subscriptions",
-        "fii-dividends",
-        "fii-documents",
-        "fii-subscriptions",
-        "fiinfra-dividends",
-        "fiinfra-documents",
-        "fiinfra-subscriptions",
-        "fip-dividends",
-        "fip-documents",
-        "fip-subscriptions",
-        "fundo-listado",
-        "negociacao-balcao",
-    ]
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="command", required=True)
-    for comando in comandos_padrao:
-        subparser = subparsers.add_parser(comando)
-        subparser.add_argument("--quiet", "-q", action="store_true", help="Não mostra mensagens de status")
+    comandos_padrao = {
+        "bdr": "Coleta lista de BDRs",
+        "cra-documents": "Coleta documentos publicados por CRAs",
+        "cri-documents": "Coleta documentos publicados por CRIs",
+        "debentures": "Coleta lista de debêntures",
+        "fiagro-dividends": "Coleta dividendos de FI-Agros",
+        "fiagro-documents": "Coleta lista de documentos publicados por FI-Agros",
+        "fiagro-subscriptions": "Coleta histórico de subscrições de FI-Agros",
+        "fii-dividends": "Coleta dividendos de FIIs",
+        "fii-documents": "Coleta documentos publicados por FIIs",
+        "fii-subscriptions": "Coleta histórico de subscrições de FIIs",
+        "fiinfra-dividends": "Coleta dividendos de FI-Infras",
+        "fiinfra-documents": "Coleta documentos publicados por FI-Infras",
+        "fiinfra-subscriptions": "Coleta histórico de subscrições de FI-Infras",
+        "fip-dividends": "Coleta dividendos de FIPs",
+        "fip-documents": "Coleta documentos publicados por FIPs",
+        "fip-subscriptions": "Coleta histórico de subscrições de FIPs",
+        "fundo-listado": "Coleta fundos listados",
+        "negociacao-balcao": "Coleta dados históricos de negociação em balcão",
+    }
+    subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
+    for comando, descricao in comandos_padrao.items():
+        subparser = subparsers.add_parser(comando, help=descricao)
+        subparser.add_argument("-q", "--quiet", action="store_true", help="Não mostra mensagens de status")
         if comando == "fundo-listado":
             subparser.add_argument(
-                "--detalhe", "-d", action="store_true", help="Baixa informações mais detalhadas dos fundos"
+                "-d", "--detalhe", action="store_true", help="Baixa informações mais detalhadas dos fundos"
             )
         subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser = subparsers.add_parser("valor-indice")
-    subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=B3.indices)
+    subparser = subparsers.add_parser("valor-indice", help="Coleta valores diários dos índices")
+    subparser.add_argument(
+        "indice", type=str, metavar="indice", choices=sorted(B3.indices),
+        help=f"Código do índice na B3. Opções: {', '.join(sorted(B3.indices))}",
+    )
     subparser.add_argument("ano", type=int)
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser = subparsers.add_parser("carteira-indice")
+    subparser = subparsers.add_parser("carteira-indice", help="Coleta ativos da carteira de um determinado índice")
     indices_carteira = list(B3.indices) + ["IBOV"]
     indices_carteira.remove("IBOVESPA")
     indices_carteira.sort()
-    subparser.add_argument("indice", type=str, help="Código do índice na B3", choices=indices_carteira)
     subparser.add_argument(
-        "periodo", type=str, help="Período de validade da carteira", choices=B3._carteira_indice_periodos
+        "indice", type=str, metavar="indice", choices=indices_carteira,
+        help=f"Código do índice na B3. Opções: {', '.join(sorted(indices_carteira))}",
+    )
+    subparser.add_argument(
+        "periodo", type=str, metavar="periodo", choices=B3._carteira_indice_periodos,
+        help=f"Período de validade da carteira. Opções: {', '.join(sorted(B3._carteira_indice_periodos))}",
     )
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser = subparsers.add_parser("ultimas-cotacoes")
+    subparser = subparsers.add_parser("ultimas-cotacoes", help="Coleta cotação do último pregão para determinado ativo, com atraso de 15min")
     subparser.add_argument("codigo_negociacao", type=str, help="Código de negociação do ativo na B3")
     subparser.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
-    subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa")
+    subparser_negociacao_bolsa = subparsers.add_parser("negociacao-bolsa", help="Coleta dados históricos consolidados por dia de negociação")
     subparser_negociacao_bolsa.add_argument(
-        "frequencia", type=str, choices=["dia", "mês", "ano"], help="Frequência do arquivo de cotação disponível"
+        "frequencia", type=str, metavar="frequencia", choices=["dia", "mês", "ano"],
+        help="Frequência do arquivo de cotação disponível. Opções: dia, mês, ano",
     )
     subparser_negociacao_bolsa.add_argument(
         "data",
         type=parse_iso_date,
-        help="Data a ser baixada em formato YYYY-MM-DD (para frequência mensal, use dia = 01, para anual use mês e dia = 01)",
+        help="Data a ser baixada no formato YYYY-MM-DD (para frequência mensal, use dia = 01, para anual use mês e dia = 01)",
     )
     subparser_negociacao_bolsa.add_argument("csv_filename", type=Path, help="Nome do arquivo CSV a ser salvo")
 
@@ -1757,7 +1758,7 @@ if __name__ == "__main__":
         "intradiaria-baixar", help="Baixa arquivo ZIP de negociações intradiárias para uma data."
     )
     subparser_baixar.add_argument(
-        "--chunk-size", "-c", type=int, default=256 * 1024, help="Tamanho do chunk no download"
+        "-c", "--chunk-size", type=int, default=256 * 1024, help="Tamanho do chunk no download"
     )
     subparser_baixar.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_baixar.add_argument("zip_filename", type=Path, help="Nome do arquivo ZIP a ser salvo")
@@ -1765,7 +1766,7 @@ if __name__ == "__main__":
     subparser_converter = subparsers.add_parser(
         "intradiaria-converter", help="Converte arquivo ZIP de negociações intradiárias para CSV."
     )
-    subparser_converter.add_argument("--codigo-ativo", "-c", action="append", help="Filtra pelo código de negociação")
+    subparser_converter.add_argument("-c", "--codigo-negociacao", action="append", help="Filtra pelo código de negociação")
     subparser_converter.add_argument(
         "zip_filename", type=Path, help="Nome do arquivo ZIP (já baixado) a ser convertido"
     )
@@ -1782,7 +1783,7 @@ if __name__ == "__main__":
     subparser_clearing_creditos_de_proventos = subparsers.add_parser(
         "clearing-creditos-de-proventos", help="Coleta dados de Clearing - Créditos de Proventos - Renda Variável"
     )
-    subparser_clearing_creditos_de_proventos.add_argument("--emissor", type=str, help="Filtra por emissor")
+    subparser_clearing_creditos_de_proventos.add_argument("-e", "--emissor", type=str, help="Filtra por emissor")
     subparser_clearing_creditos_de_proventos.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
     )
@@ -1799,7 +1800,7 @@ if __name__ == "__main__":
         help="Coleta dados de Clearing - Empréstimos de Ativos - Empréstimos Registrados",
     )
     subparser_clearing_emprestimos_registrados.add_argument(
-        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+        "-c", "--codigo-negociacao", type=str, help="Filtra por código de negociação"
     )
     subparser_clearing_emprestimos_registrados.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
@@ -1812,11 +1813,11 @@ if __name__ == "__main__":
     subparser_clearing_emprestimos_negociados = subparsers.add_parser(
         "clearing-emprestimos-negociados", help="Coleta dados de Clearing - Empréstimos de Ativos - Negócios"
     )
-    subparser_clearing_emprestimos_negociados.add_argument("--tomador", type=str, help="Filtra por tomador")
-    subparser_clearing_emprestimos_negociados.add_argument("--doador", type=str, help="Filtra por doador")
-    subparser_clearing_emprestimos_negociados.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_negociados.add_argument("-t", "--tomador", type=str, help="Filtra por tomador")
+    subparser_clearing_emprestimos_negociados.add_argument("-d", "--doador", type=str, help="Filtra por doador")
+    subparser_clearing_emprestimos_negociados.add_argument("-m", "--mercado", type=str, help="Filtra por mercado")
     subparser_clearing_emprestimos_negociados.add_argument(
-        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+        "-c", "--codigo-negociacao", type=str, help="Filtra por código de negociação"
     )
     subparser_clearing_emprestimos_negociados.add_argument(
         "data", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
@@ -1826,9 +1827,9 @@ if __name__ == "__main__":
     subparser_clearing_emprestimos_em_aberto = subparsers.add_parser(
         "clearing-emprestimos-em-aberto", help="Coleta dados de Clearing - Empréstimos de Ativos - Posições em Aberto"
     )
-    subparser_clearing_emprestimos_em_aberto.add_argument("--mercado", type=str, help="Filtra por mercado")
+    subparser_clearing_emprestimos_em_aberto.add_argument("-m", "--mercado", type=str, help="Filtra por mercado")
     subparser_clearing_emprestimos_em_aberto.add_argument(
-        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+        "-c", "--codigo-negociacao", type=str, help="Filtra por código de negociação"
     )
     subparser_clearing_emprestimos_em_aberto.add_argument(
         "data_inicial", type=parse_iso_date, help="Data no formato YYYY-MM-DD"
@@ -1842,7 +1843,7 @@ if __name__ == "__main__":
         "clearing-opcoes-flexiveis", help="Coleta dados de Clearing - Opções Flexíveis"
     )
     subparser_clearing_opcoes_flexiveis.add_argument(
-        "--codigo_negociacao", type=str, help="Filtra por código de negociação"
+        "-c", "--codigo-negociacao", type=str, help="Filtra por código de negociação"
     )
     subparser_clearing_opcoes_flexiveis.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_opcoes_flexiveis.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
@@ -1871,14 +1872,23 @@ if __name__ == "__main__":
     subparser_clearing_termo_eletronico.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
     subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
+def main():
+    import argparse
+    import datetime
+
+    from .utils import day_range
+
+    TERM_CLEAR_LINE_FROM_CURSOR = "\x1b[K"
+    parser = argparse.ArgumentParser()
+    _configura_parser_cli(parser)
     args = parser.parse_args()
     b3 = B3()
-    command = args.command
+    comando = args.comando
     csv_filename = getattr(args, "csv_filename", None)
     if csv_filename:
         csv_filename.parent.mkdir(parents=True, exist_ok=True)
 
-    if command == "bdr":
+    if comando == "bdr":
         quiet = args.quiet
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
@@ -1894,7 +1904,7 @@ if __name__ == "__main__":
             if not quiet:
                 print(f"\rBDR: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
 
-    elif command == "cri-documents":
+    elif comando == "cri-documents":
         current_year = datetime.datetime.now().year
         securitizadoras = b3.securitizadoras()
         with csv_filename.open(mode="w") as csv_fobj:
@@ -1915,7 +1925,7 @@ if __name__ == "__main__":
                                 writer.writeheader()
                             writer.writerow(row)
 
-    elif command == "cra-documents":
+    elif comando == "cra-documents":
         current_year = datetime.datetime.now().year
         securitizadoras = b3.securitizadoras()
         with csv_filename.open(mode="w") as csv_fobj:
@@ -1936,7 +1946,7 @@ if __name__ == "__main__":
                                 writer.writeheader()
                             writer.writerow(row)
 
-    elif command == "fundo-listado":
+    elif comando == "fundo-listado":
         quiet = args.quiet
         detalhe = args.detalhe
         data_sources = (
@@ -1963,7 +1973,7 @@ if __name__ == "__main__":
                 if not quiet:
                     print(f"\r{tipo:10}: {counter:4}" + TERM_CLEAR_LINE_FROM_CURSOR, flush=True)
 
-    elif command == "fii-dividends":
+    elif comando == "fii-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiis(detalhe=False):
@@ -1976,7 +1986,7 @@ if __name__ == "__main__":
                     writer.writerow(row)
                     # TODO: include stock_dividends?
 
-    elif command == "fii-subscriptions":
+    elif comando == "fii-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiis(detalhe=True):
@@ -1989,7 +1999,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fii-documents":
+    elif comando == "fii-documents":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiis(detalhe=True):
@@ -2002,7 +2012,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fiinfra-dividends":
+    elif comando == "fiinfra-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiinfras(detalhe=False):
@@ -2015,7 +2025,7 @@ if __name__ == "__main__":
                     writer.writerow(row)
                     # TODO: include stock_dividends?
 
-    elif command == "fiinfra-subscriptions":
+    elif comando == "fiinfra-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiinfras(detalhe=True):
@@ -2028,7 +2038,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fiinfra-documents":
+    elif comando == "fiinfra-documents":
         # TODO: o arquivo está ficando em branco, verificar
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
@@ -2042,7 +2052,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fiagro-dividends":
+    elif comando == "fiagro-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiagros(detalhe=False):
@@ -2055,7 +2065,7 @@ if __name__ == "__main__":
                     writer.writerow(row)
                     # TODO: include stock_dividends?
 
-    elif command == "fiagro-subscriptions":
+    elif comando == "fiagro-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiagros(detalhe=True):
@@ -2068,7 +2078,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fiagro-documents":
+    elif comando == "fiagro-documents":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fiagros(detalhe=True):
@@ -2081,7 +2091,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fip-dividends":
+    elif comando == "fip-dividends":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fips(detalhe=False):
@@ -2094,7 +2104,7 @@ if __name__ == "__main__":
                     writer.writerow(row)
                     # TODO: include stock_dividends?
 
-    elif command == "fip-documents":
+    elif comando == "fip-documents":
         # TODO: o arquivo está ficando em branco, verificar
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
@@ -2107,7 +2117,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "fip-subscriptions":
+    elif comando == "fip-subscriptions":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for obj in b3.fips(detalhe=True):
@@ -2119,7 +2129,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "debentures":
+    elif comando == "debentures":
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for row in b3.debentures():
@@ -2128,7 +2138,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "negociacao-balcao":
+    elif comando == "negociacao-balcao":
         today = datetime.datetime.now().date()
         start_date = datetime.date(today.year, 1, 1)
         end_date = today + datetime.timedelta(days=1)
@@ -2142,7 +2152,7 @@ if __name__ == "__main__":
                         writer.writeheader()
                     writer.writerow(row)
 
-    elif command == "negociacao-bolsa":
+    elif comando == "negociacao-bolsa":
         frequencia = args.frequencia
         data = args.data
 
@@ -2155,7 +2165,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif args.command == "intradiaria-baixar":
+    elif comando == "intradiaria-baixar":
         data = args.data
         chunk_size = args.chunk_size
         zip_filename = args.zip_filename
@@ -2168,7 +2178,7 @@ if __name__ == "__main__":
             for chunk in response.iter_content(chunk_size):
                 fobj.write(chunk)
 
-    elif args.command == "intradiaria-converter":
+    elif comando == "intradiaria-converter":
         zip_filename = args.zip_filename
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
         csv_filename = args.csv_filename
@@ -2184,41 +2194,48 @@ if __name__ == "__main__":
                 if codigo_ativo is None or item.codigo_negociacao in codigo_ativo:
                     writer.writerow(row)
 
-    elif command == "clearing-acoes-custodiadas":
+    elif comando == "clearing-acoes-custodiadas":
+        data_inicial = args.data_inicial
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_acoes_custodiadas(data_inicial=args.data_inicial):
+            for item in b3.clearing_acoes_custodiadas(data_inicial=data_inicial):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-creditos-de-proventos":
+    elif comando == "clearing-creditos-de-proventos":
+        data_inicial = args.data_inicial
+        emissor = args.emissor
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_creditos_de_proventos(data_inicial=args.data_inicial, filtro_emissor=args.emissor):
+            for item in b3.clearing_creditos_de_proventos(data_inicial=data_inicial, filtro_emissor=emissor):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-custodia-fungivel":
+    elif comando == "clearing-custodia-fungivel":
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_custodia_fungivel(data=args.data):
+            for item in b3.clearing_custodia_fungivel(data=data):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-emprestimos-registrados":
+    elif comando == "clearing-emprestimos-registrados":
+        data_inicial = data_inicial
+        data_final = args.data_final
+        codigo_negociacao = args.codigo_negociacao
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in b3.clearing_emprestimos_registrados(
-                data_inicial=args.data_inicial, data_final=args.data_final, codigo_negociacao=args.codigo_negociacao
+                data_inicial=data_inicial, data_final=data_final, codigo_negociacao=codigo_negociacao
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2226,15 +2243,20 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-emprestimos-negociados":
+    elif comando == "clearing-emprestimos-negociados":
+        data = args.data
+        tomador = args.tomador
+        doador = args.doador
+        mercado = args.mercado
+        codigo_negociacao = args.codigo_negociacao
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in b3.clearing_emprestimos_negociados(
-                data=args.data,
-                filtro_tomador=args.tomador,
-                filtro_doador=args.doador,
-                filtro_mercado=args.mercado,
-                codigo_negociacao=args.codigo_negociacao,
+                data=data,
+                filtro_tomador=tomador,
+                filtro_doador=doador,
+                filtro_mercado=mercado,
+                codigo_negociacao=codigo_negociacao,
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2242,14 +2264,18 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-emprestimos-em-aberto":
+    elif comando == "clearing-emprestimos-em-aberto":
+        data_inicial = args.data_inicial
+        data_final = args.data_final
+        mercado = args.mercado
+        codigo_negociacao = args.codigo_negociacao
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
             for item in b3.clearing_emprestimos_em_aberto(
-                data_inicial=args.data_inicial,
-                data_final=args.data_final,
-                filtro_mercado=args.mercado,
-                codigo_negociacao=args.codigo_negociacao,
+                data_inicial=data_inicial,
+                data_final=data_final,
+                filtro_mercado=mercado,
+                codigo_negociacao=codigo_negociacao,
             ):
                 row = item.serialize()
                 if writer is None:
@@ -2257,56 +2283,62 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-opcoes-flexiveis":
+    elif comando == "clearing-opcoes-flexiveis":
+        codigo_negociacao = args.codigo_negociacao
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_opcoes_flexiveis(data=args.data, codigo_negociacao=args.codigo_negociacao):
+            for item in b3.clearing_opcoes_flexiveis(data=data, codigo_negociacao=codigo_negociacao):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-prazo-deposito-titulos":
+    elif comando == "clearing-prazo-deposito-titulos":
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_prazo_deposito_titulos(data=args.data):
+            for item in b3.clearing_prazo_deposito_titulos(data=data):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-posicoes-em-aberto":
+    elif comando == "clearing-posicoes-em-aberto":
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_posicoes_em_aberto(data=args.data):
+            for item in b3.clearing_posicoes_em_aberto(data=data):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-swap":
+    elif comando == "clearing-swap":
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for item in b3.clearing_swap(data=args.data):
+            for item in b3.clearing_swap(data=data):
                 row = item.serialize()
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "clearing-termo-eletronico":
+    elif comando == "clearing-termo-eletronico":
+        data = args.data
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
-            for row in b3.clearing_termo_eletronico(data=args.data):
+            for row in b3.clearing_termo_eletronico(data=data):
                 if writer is None:
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "valor-indice":
+    elif comando == "valor-indice":
         indice = args.indice
         ano = args.ano
         with csv_filename.open(mode="w") as csv_fobj:
@@ -2318,7 +2350,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "carteira-indice":
+    elif comando == "carteira-indice":
         indice = args.indice
         periodo = args.periodo
         with csv_filename.open(mode="w") as csv_fobj:
@@ -2330,7 +2362,7 @@ if __name__ == "__main__":
                     writer.writeheader()
                 writer.writerow(row)
 
-    elif command == "ultimas-cotacoes":
+    elif comando == "ultimas-cotacoes":
         codigo_negociacao = args.codigo_negociacao
         with csv_filename.open(mode="w") as csv_fobj:
             writer = None
@@ -2340,3 +2372,13 @@ if __name__ == "__main__":
                     writer = csv.DictWriter(csv_fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
                 writer.writerow(row)
+
+    else:
+        return 100
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())
