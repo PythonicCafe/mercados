@@ -1263,6 +1263,7 @@ class CustodiaFungivel:
 
 
 class B3:
+    _participants_call_url = "https://sistemaswebb3-listados.b3.com.br/participantsProxy/participantCall/"
     _funds_call_url = "https://sistemaswebb3-listados.b3.com.br/fundsListedProxy/Search/"
     _indexes_stats_url = "https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/"
     _indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
@@ -1273,6 +1274,16 @@ class B3:
     )
     # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
     _carteira_indice_periodos = ("dia", "teórica", "próxima")
+    # Imagem de cada selo: <https://sistemaswebb3-listados.b3.com.br/participantsPage/assets/img/<id>.png>
+    _selos = {
+        72: "PQO Agro Broker",
+        73: "PQO Carryng Broker",
+        75: "PQO Execution Broker",
+        78: "PQO Retail Broker",
+        323: "PQO Non Resident Broker B3",
+        345: "PQO - Selo Programa de Qualificação Operacional",
+        999: "B3 Certifica",
+    }
 
     def __init__(self, user_agent=USER_AGENT, proxy=None):
         self.session = create_session(user_agent=user_agent, proxy=proxy)
@@ -1511,6 +1522,56 @@ class B3:
     # TODO: GetListedByType/ b'{"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31"}'
     # TODO: GetListedCategory/ b'{"cnpj":"42537579000176"}'
     # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
+
+    def participantes(self):
+        # TODO: equivalente a "GetInitialParticipants/" sem passar categoria?
+        response = self.request(urljoin(self._participants_call_url, "GetParticipantsDownload"), decode_json=False)
+        zip_fobj = io.BytesIO(response.content)
+        zf = ZipFile(zip_fobj)
+        with zf.open(zf.filelist[0].filename) as raw_fobj:
+            fobj = io.TextIOWrapper(raw_fobj, encoding="utf-8-sig")
+            for row in csv.DictReader(fobj, delimiter=";"):
+                yield row
+
+    def participante_detalhe(self, cnpj):
+        obj = self.request(
+            urljoin(self._participants_call_url, "GetDetail/"),
+            url_params={"document": REGEXP_CNPJ_SEPARATORS.sub("", cnpj)},
+        )
+        # TODO: extrair selos de self._selos
+        # {'fullName': 'MIRAE ASSET (BRASIL) CCTVM LTDA',
+        # 'document': '12392983000138',
+        # 'documentType': 'CNPJ',
+        # 'site': '',
+        # 'categories': [{'describleCategories': 'ADMINISTRADOR DE CLUBES',
+        # 'codes': '262',
+        # 'origin': 'L'},
+        # {'describleCategories': 'AGENTE DE CUSTÓDIA', 'codes': '262', 'origin': 'L'},
+        # {'describleCategories': 'CUSTODIANTE BALCÃO',
+        # 'codes': '262 - 83832 - 83833',
+        # 'origin': 'L'},
+        # {'describleCategories': 'LIQUIDANTE', 'codes': '262', 'origin': 'L'},
+        # {'describleCategories': 'MEMBRO DE COMPENSAÇÃO',
+        # 'codes': '262',
+        # 'origin': 'L'},
+        # {'describleCategories': 'PARTICIPANTE DE BALCÃO',
+        # 'codes': '262',
+        # 'origin': 'L'},
+        # {'describleCategories': 'PARTICIPANTE DE NEGOCIAÇÃO PLENO',
+        # 'codes': '262',
+        # 'origin': 'L'},
+        # {'describleCategories': 'SEGMENTO BALCAO,PARTICIPANTE DE CCP',
+        # 'codes': '11251.00-6',
+        # 'origin': 'B'}],
+        # 'sealsCode': ';999;;345;',
+        # 'updateDate': '2025-07-12'}
+        return obj
+
+    def corretoras(self):
+        yield from self.paginate(
+            urljoin(self._participants_call_url, "GetInitialParticipants/"),
+            url_params={"categories": "3", "seals": "", "name": "", "document": "", "code": ""},
+        )
 
     def _empresa_detalhe_raw(self, codigo_cvm):
         # TODO: para vários códigos CVM, o valor retornado é `{}`, como: 900049, 916478, 900242, 916304. Verificar se é
