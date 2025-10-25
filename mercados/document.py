@@ -297,6 +297,7 @@ class InformeRendimentos:
             "tipo_amortizacao": self.tipo_amortizacao,
         }
 
+
 @dataclass
 class OfertaPublica:
     nome_fundo: str = None

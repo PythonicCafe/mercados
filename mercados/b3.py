@@ -15,7 +15,6 @@ from zipfile import ZipFile
 from mercados.bcb import Taxa
 from mercados.utils import (
     BRT,
-    REGEXP_CNPJ_SEPARATORS,
     USER_AGENT,
     clean_string,
     create_session,
@@ -294,6 +293,7 @@ class AtivoIndice:
             "participacao": self.participacao,
         }
 
+
 @dataclass
 class NegociacaoBolsa:
     quantidade: Optional[int]
@@ -415,6 +415,7 @@ class NegociacaoBolsa:
             "preco_execucao": self.preco_execucao,
         }
 
+
 @dataclass
 class PrecoAtivo:
     codigo_negociacao: str
@@ -438,6 +439,7 @@ class PrecoAtivo:
             "valor": self.valor,
             "datahora": self.datahora,
         }
+
 
 @dataclass
 class Dividendo:
@@ -477,6 +479,7 @@ class Dividendo:
             "periodo_referencia": self.periodo_referencia,
         }
 
+
 @dataclass
 class FundoDocumento:
     acronimo: str
@@ -513,6 +516,7 @@ class FundoDocumento:
             "data_referencia": self.data_referencia,
             "data_ordem": self.data_ordem,
         }
+
 
 @dataclass
 class FundoB3Resumido:
@@ -801,6 +805,7 @@ class NegociacaoBalcao:
             "taxa": self.taxa,
         }
 
+
 @dataclass
 class NegociacaoIntradiaria:
     """
@@ -852,6 +857,7 @@ class NegociacaoIntradiaria:
             "comprador_codigo": self.comprador_codigo,
             "vendedor_codigo": self.vendedor_codigo,
         }
+
 
 @dataclass
 class EmprestimoAtivo:
@@ -970,6 +976,7 @@ class EmprestimoNegociado:
             "participante_doador": self.participante_doador,
             "participante_tomador": self.participante_tomador,
         }
+
 
 @dataclass
 class EmprestimoEmAberto:
@@ -1356,7 +1363,6 @@ class B3:
         # TODO: salvar arquivo em cache
         response = self.session.get(url)
         yield from self._le_zip_intradiaria(io.BytesIO(response.content))
-
 
     def request(
         self,

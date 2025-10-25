@@ -79,10 +79,7 @@ class Tesouro:
 
         response = self.session.get(url, timeout=self.timeout)
         csv_data = response.content.decode(response.apparent_encoding)
-        dados = [
-            TituloRendaFixa.from_dict(row)
-            for row in csv.DictReader(io.StringIO(csv_data), delimiter=";")
-        ]
+        dados = [TituloRendaFixa.from_dict(row) for row in csv.DictReader(io.StringIO(csv_data), delimiter=";")]
         dados.sort(key=lambda obj: (obj.data, obj.vencimento.year, obj.nome), reverse=True)
         return dados
 
