@@ -1268,6 +1268,7 @@ class B3:
     _indexes_stats_url = "https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/"
     _indexes_call_url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/"
     _companies_call_url = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/"
+    _market_value_call_url = "https://sistemaswebb3-listados.b3.com.br/marketValueProxy/marketValueCall/"
     indices = (
         "AGFS BDRX GPTW IBBC IBBE IBBR IBEE IBEP IBEW IBHB IBLV IBOVESPA IBRA IBSD IBXL IBXX ICO2 ICON IDIV IDVR IEEX "
         "IFIL IFIX IFNC IGCT IGCX IGNM IMAT IMOB INDX ISEE ITAG IVBX MLCX SMLL UTIL".split()
@@ -1607,6 +1608,10 @@ class B3:
         """
         detalhe = self._empresa_detalhe_raw(codigo_cvm)
         return Empresa.from_dict(None, detalhe=detalhe)
+
+    def valor_de_mercado(self):
+        # TODO: implement
+        pass
 
     def bdrs(self):
         """Devolve os BDRs listados na B3"""
