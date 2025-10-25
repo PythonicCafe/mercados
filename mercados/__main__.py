@@ -15,7 +15,9 @@ def _cria_parser():
     return parser
 
 
-def main(args):
+def main():
+    parser = _cria_parser()
+    args = parser.parse_args()
     fonte = args.fonte
 
     if fonte in _MODULES:
@@ -26,6 +28,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = _cria_parser()
-    args = parser.parse_args()
-    sys.exit(main(args))
+    main()
