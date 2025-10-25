@@ -1276,7 +1276,7 @@ class B3:
         )
 
     def _make_url_params(self, params):
-        return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
+        return base64.b64encode(json.dumps(params, separators=(",", ":")).encode("utf-8")).decode("ascii")
 
     def url_negociacao_bolsa(self, frequencia: str, data: datetime.date):
         """
