@@ -138,6 +138,146 @@ def converte_decimal(valor: str) -> Optional[Decimal]:
 
 
 @dataclass
+class Codigo:
+    negociacao: str
+    isin: str
+
+    def serialize(self):
+        return {
+            "negociacao": self.negociacao,
+            "isin": self.isin,
+        }
+
+
+@dataclass
+class Empresa:
+    codigo_cvm: int
+    emissora: str
+    razao_social: str
+    nome_pregao: str
+    indicador_mercado: int
+    estado: str
+    segmento: str
+    tipo: int
+    cnpj: Optional[str] = None
+    mercado: Optional[str] = None
+    data_listagem: Optional[datetime.date] = None
+    tipo_bdr: Optional[str] = None
+    inicio_negociacao: Optional[datetime.date] = None
+    atividade_principal: Optional[str] = None
+    classificacao_setorial: Optional[str] = None
+    website: Optional[str] = None
+    codigo_negociacao: Optional[str] = None
+    instituicao: list[str] = None
+    outros_codigos: list[Codigo] = None
+    tem_bdr: Optional[str] = None
+    tem_emissoes: Optional[bool] = None
+
+    @classmethod
+    def _parse_base(cls, row):
+        # XXX: para o registro de empresa detalhado, não temos 'dateListing', 'segment', 'segmentEng' e 'type'
+        data_listagem = row.pop("dateListing", None)  # TODO: É o início da negociação?
+        if data_listagem is not None:
+            if data_listagem.endswith("/9999"):
+                data_listagem = None
+            else:
+                data_listagem = parse_date("br-date", data_listagem)
+        cnpj = row.pop("cnpj")
+        if cnpj == "0":
+            cnpj = None
+        row.pop("segmentEng", None)  # Segmento em Inglês - ignorado (`None` para caso `detalhe = True`)
+        tipo = row.pop("type", None)
+        tipo = int(tipo) if tipo is not None else None
+        return {
+            "codigo_cvm": int(row.pop("codeCVM")),
+            "emissora": row.pop("issuingCompany"),
+            "razao_social": row.pop("companyName"),
+            "nome_pregao": row.pop("tradingName"),
+            "cnpj": cnpj,
+            "data_listagem": data_listagem,
+            "indicador_mercado": int(row.pop("marketIndicator")),
+            "tipo_bdr": row.pop("typeBDR") or None,
+            "estado": row.pop("status"),
+            "segmento": row.pop("segment", None),
+            "tipo": tipo,
+            "mercado": row.pop("market"),
+        }
+
+    @classmethod
+    def from_dict(cls, row, detalhe=None):
+        if row is not None:
+            obj = cls._parse_base(row)
+            assert not row, f"Dados de empresa listada não extraídos: {row}"
+        elif not detalhe:
+            raise ValueError("Dados da empresa em branco")
+        else:  # Caso de `B3.empresa_detalhe`
+            obj = {}
+
+        if detalhe:
+            novo_base = cls._parse_base(detalhe)
+            for key, value in novo_base.items():
+                obj[key] = value or obj.get(key)  # `.get()` é usado para caso `row` seja `None`
+            row = detalhe
+            campos_ignorados = (
+                "industryClassificationEng",  # Não nos interessa, já temos em Português
+                "hasQuotation",  # Vem sempre `None`
+                "describleCategoryBVMF",  # Vem sempre `None`
+                "lastDate",  # Não é exibido na interface do site
+            )
+            for campo in campos_ignorados:
+                del row[campo]
+            obj.update(
+                {
+                    "inicio_negociacao": parse_date(
+                        "br-date", row.pop("dateQuotation")
+                    ),  # TODO: é o mesmo que dateListing?
+                    "atividade_principal": row.pop("activity"),  # TODO: é o mesmo que segment?
+                    "classificacao_setorial": row.pop("industryClassification"),  # TODO: é o mesmo que segment?
+                    "website": row.pop("website"),
+                    "codigo_negociacao": row.pop("code"),
+                    "tem_bdr": row.pop("hasBDR"),
+                    "tem_emissoes": row.pop("hasEmissions"),
+                    "instituicao": [
+                        item for item in (row.pop("institutionCommon"), row.pop("institutionPreferred")) if item
+                    ],
+                    "outros_codigos": [],
+                }
+            )
+            codigos = row.pop("otherCodes") or []
+            for codigo in codigos:
+                negociacao, isin = codigo.pop("code"), codigo.pop("isin")
+                obj["outros_codigos"].append(Codigo(negociacao=negociacao, isin=isin))
+                assert not codigo, f"Dados de código de negociação não extraídos: {codigo}"
+            assert not row, f"Dados detalhados de empresa listada não extraídos: {row}"
+        return cls(**obj)
+
+    def serialize(self):
+        return {
+            "codigo_cvm": self.codigo_cvm,
+            "emissora": self.emissora,
+            "razao_social": self.razao_social,
+            "nome_pregao": self.nome_pregao,
+            "indicador_mercado": self.indicador_mercado,
+            "estado": self.estado,
+            "segmento": self.segmento,
+            "tipo": self.tipo,
+            "cnpj": self.cnpj,
+            "mercado": self.mercado,
+            "data_listagem": self.data_listagem,
+            "tipo_bdr": self.tipo_bdr,
+            "inicio_negociacao": self.inicio_negociacao,
+            "atividade_principal": self.atividade_principal,
+            "classificacao_setorial": self.classificacao_setorial,
+            "website": self.website,
+            "codigo_negociacao": self.codigo_negociacao,
+            "instituicao": self.instituicao,
+            "outros_codigos": self.outros_codigos,
+            "tem_bdr": self.tem_bdr,
+            "tem_emissoes": self.tem_emissoes,
+        }
+
+
+@dataclass
 class AtivoIndice:
     codigo_negociacao: str
     ativo: str
@@ -1365,6 +1505,41 @@ class B3:
     # TODO: GetListedByType/ b'{"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31"}'
     # TODO: GetListedCategory/ b'{"cnpj":"42537579000176"}'
     # TODO: GetListedDocuments/ b'{"pageNumber":1,"pageSize":4,"cnpj":"42537579000176","identifierFund":"CPTR","typeFund":34,"dateInitial":"2024-01-01","dateFinal":"2024-12-31","category":7}'
+
+    def _empresa_detalhe_raw(self, codigo_cvm):
+        # TODO: para vários códigos CVM, o valor retornado é `{}`, como: 900049, 916478, 900242, 916304. Verificar se é
+        # possível pegar essas informações diretamente da CVM.
+        return self.request(
+            urljoin(self._companies_call_url, "GetDetail/"),
+            url_params={"codeCVM": codigo_cvm, "language": "pt-br"},
+        )
+
+    def empresas(self, detalhe=False):
+        """Devolve as empresas listadas na B3"""
+        # TODO: checar se inclui BDRs patrocinados e não patrocinados
+        lista = self.paginate(
+            base_url=urljoin(self._companies_call_url, "GetInitialCompanies/"),
+            url_params={"language": "pt-br"},
+        )
+        if not detalhe:
+            for row in lista:
+                yield Empresa.from_dict(row)
+        else:
+            # TODO: executar em paralelo?
+            for row in lista:
+                empresa_detalhe = self._empresa_detalhe_raw(row["codeCVM"])
+                yield Empresa.from_dict(row, detalhe=empresa_detalhe)
+
+    def empresa_detalhe(self, codigo_cvm):
+        """
+        Coleta detalhes da empresa, porém sem alguns campos
+
+        Apesar de ter mais detalhes que as empresas retornadas em `empresas(detalhes=False)`, esse endpoint não tem os
+        seguinetes campos: 'dateListing', 'segment', 'segmentEng' e 'type'. Agradeça à B3 pela consistência.
+        ATENÇÃO: esse método não vai funcionar para empresas que retornam os detalhes em branco.
+        """
+        detalhe = self._empresa_detalhe_raw(codigo_cvm)
+        return Empresa.from_dict(None, detalhe=detalhe)
 
     def bdrs(self):
         """Devolve os BDRs listados na B3"""

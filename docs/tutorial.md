@@ -217,6 +217,7 @@ Dados que podem ser baixados da B3:
 - Cadastro de fundos listados (FII, FI-Infra, FI-Agro, FIP, FIDC e ETF)
 - Cadastro de debêntures ativas
 - Cadastro de BDRs listados
+- Cadastro de empresas listadas
 - Informações cadastrais sobre CRAs e CRIs
 - Documentos de CRAs, CRIs, FIIs, FI-Infras, FI-Agros e FIPs listados
 - Dividendos de FI-Infras e FI-Agros
