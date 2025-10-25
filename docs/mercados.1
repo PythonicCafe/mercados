@@ -1,4 +1,4 @@
-.TH MERCADOS "1" "2025\-10\-24" "mercados 0.2.0" "Generated Python Manual"
+.TH MERCADOS "1" "2025\-10\-25" "mercados 0.2.0" "Generated Python Manual"
 .SH NAME
 mercados
 .SH SYNOPSIS
@@ -19,11 +19,14 @@ Coleta séries temporais e faz ajuste de valores
 \fBmercados\fR \fI\,cvm\/\fR
 Coleta notícias e faz buscas no RAD/EmpresaNet
 .TP
+\fBmercados\fR \fI\,fundosnet\/\fR
+Busca e baixa documentos publicados no FundosNET
+.TP
 \fBmercados\fR \fI\,ibge\/\fR
 Coleta valores históricos de índices
 .TP
-\fBmercados\fR \fI\,fundosnet\/\fR
-Busca e baixa documentos publicados no FundosNET
+\fBmercados\fR \fI\,stn\/\fR
+Coleta preços históricos dos títutlos do Tesouro Direto
 
 .SH COMMAND \fI\,'mercados b3'\/\fR
 usage: mercados b3 [\-h] comando ...
@@ -788,39 +791,6 @@ Data mínima de publicação do documento no formato YYYY\-MM\-DD
 \fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
 Data máxima de publicação do documento no formato YYYY\-MM\-DD
 
-.SH COMMAND \fI\,'mercados ibge'\/\fR
-usage: mercados ibge [\-h] comando ...
-
-.SH
-POSITIONAL ARGUMENTS \fI\,'mercados ibge'\/\fR
-.TP
-\fBmercados ibge\fR \fI\,historico\/\fR
-Baixa histórico de diversos índices
-
-.SH COMMAND \fI\,'mercados ibge historico'\/\fR
-usage: mercados ibge historico [\-h] [\-i data] [\-f data] [\-F fmt] {INPC,IPCA,IPCA\-15} [arquivo]
-
-.TP
-\fB{INPC,IPCA,IPCA\-15}\fR
-Índice. Opções: INPC, IPCA, IPCA\-15
-
-.TP
-\fBarquivo\fR
-Nome do arquivo a ser salvo
-
-.SH OPTIONS \fI\,'mercados ibge historico'\/\fR
-.TP
-\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
-Data de início no formato YYYY\-MM\-DD
-
-.TP
-\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
-Data de fim no formato YYYY\-MM\-DD
-
-.TP
-\fB\-F\fR \fI\,fmt\/\fR, \fB\-\-formato\fR \fI\,fmt\/\fR
-Formato de saída. Opções: csv, markdown, md, tsv, txt
-
 .SH COMMAND \fI\,'mercados fundosnet'\/\fR
 usage: mercados fundosnet [\-h] [\-m campo] [\-p PATH] [\-i data] [\-f data] [\-c categoria] [\-t tipo] csv_filename
 
@@ -889,6 +859,76 @@ Relatório Anual; Relatório Anual; Relatório Gerencial; Relatório de Agente F
 Representante de Cotistas; Relação das demandas judiciais ou extrajudiciais; Rendimentos e Amortizações; Rentabilidade; Restritos \-
 ICVM 476; Sem regime fiduciário; Sentença denegatória ou concessiva; Sentença denegatória ou concessiva; Sentença denegatória ou
 concessiva; Suplemento C; Suplemento D; Todos
+
+.SH COMMAND \fI\,'mercados ibge'\/\fR
+usage: mercados ibge [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados ibge'\/\fR
+.TP
+\fBmercados ibge\fR \fI\,historico\/\fR
+Baixa histórico de diversos índices
+
+.SH COMMAND \fI\,'mercados ibge historico'\/\fR
+usage: mercados ibge historico [\-h] [\-i data] [\-f data] [\-F fmt] {INPC,IPCA,IPCA\-15} [arquivo]
+
+.TP
+\fB{INPC,IPCA,IPCA\-15}\fR
+Índice. Opções: INPC, IPCA, IPCA\-15
+
+.TP
+\fBarquivo\fR
+Nome do arquivo a ser salvo
+
+.SH OPTIONS \fI\,'mercados ibge historico'\/\fR
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data de início no formato YYYY\-MM\-DD
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data de fim no formato YYYY\-MM\-DD
+
+.TP
+\fB\-F\fR \fI\,fmt\/\fR, \fB\-\-formato\fR \fI\,fmt\/\fR
+Formato de saída. Opções: csv, markdown, md, tsv, txt
+
+.SH COMMAND \fI\,'mercados stn'\/\fR
+usage: mercados stn [\-h] comando ...
+
+.SH
+POSITIONAL ARGUMENTS \fI\,'mercados stn'\/\fR
+.TP
+\fBmercados stn\fR \fI\,titulos\/\fR
+Coleta preços históricos dos títutlos do Tesouro Direto
+
+.SH COMMAND \fI\,'mercados stn titulos'\/\fR
+usage: mercados stn titulos [\-h] [\-I nome] [\-i data] [\-f data] [\-F fmt] [\-n nome1 \-n nome2 ...] [arquivo]
+
+.TP
+\fBarquivo\fR
+Nome do arquivo a ser salvo
+
+.SH OPTIONS \fI\,'mercados stn titulos'\/\fR
+.TP
+\fB\-I\fR \fI\,nome\/\fR, \fB\-\-indexador\fR \fI\,nome\/\fR
+Filtra pelo indexador do título
+
+.TP
+\fB\-i\fR \fI\,data\/\fR, \fB\-\-inicio\fR \fI\,data\/\fR, \fB\-\-data\-inicial\fR \fI\,data\/\fR
+Data de corte inicial no formato YYYY\-MM\-DD
+
+.TP
+\fB\-f\fR \fI\,data\/\fR, \fB\-\-fim\fR \fI\,data\/\fR, \fB\-\-data\-final\fR \fI\,data\/\fR
+Data de corte final no formato YYYY\-MM\-DD
+
+.TP
+\fB\-F\fR \fI\,fmt\/\fR, \fB\-\-formato\fR \fI\,fmt\/\fR
+Formato de saída. Opções: csv, markdown, md, tsv, txt
+
+.TP
+\fB\-n\fR \fI\,nome1 \-n nome2 ...\/\fR, \fB\-\-nome\fR \fI\,nome1 \-n nome2 ...\/\fR
+Filtra pelo nome do título. Pode ser especificado várias vezes.
 
 .SH AUTHOR
 .nf
