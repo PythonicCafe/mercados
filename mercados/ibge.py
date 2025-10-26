@@ -131,7 +131,7 @@ def main(args):
 
     if comando == "historico":
         inicio = args.inicio
-        fim = args.data_final
+        fim = args.fim
         indice = args.indice
         arquivo = args.arquivo
         formato = args.formato
