@@ -14,13 +14,13 @@ print(f"Encontrados {len(etfs)} ETFs")
 etfs.sort(key=lambda etf: etf.codigo_negociacao)
 for etf in etfs:
     etf_cnpj = etf.cnpj
-    for doc in fnet.search(
+    for doc in fnet.busca(
         cnpj=etf_cnpj,
         situacao="A",
-        category="Informes Periódicos",
-        type_="Informe Diário",
-        start_date=inicio,
-        end_date=fim,
+        categoria="Informes Periódicos",
+        tipo="Informe Diário",
+        inicio=inicio,
+        fim=fim,
     ):
         xml = fnet.baixa_xml(doc.url)
         informes = InformeDiarioFundo.from_xml(xml)

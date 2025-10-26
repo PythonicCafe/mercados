@@ -8,7 +8,7 @@ from lxml.html import document_fromstring
 
 from mercados import choices
 from mercados.document import DocumentMeta
-from mercados.utils import BRT, USER_AGENT, create_session, remove_acentos, remove_espacos
+from mercados.utils import BRT, USER_AGENT, create_session, parse_date, remove_acentos, remove_espacos
 
 _REGEXP_CSRF_TOKEN = re.compile("""csrf_token ?= ?["']([^"']+)["']""")
 _REGEXP_CERTIFICADO_DESCRICAO = re.compile(
@@ -174,20 +174,20 @@ class FundosNet:
     @cached_property
     def types(self):
         result = {}
-        for category_id in self.categories.values():
-            result[category_id] = []
+        for categoria_id in self.categories.values():
+            result[categoria_id] = []
             for tipo in choices.FUNDO_TIPO:
                 if tipo[0] == 0:
                     continue
                 response = self.request(
                     "GET",
                     "listarTodosTiposPorCategoriaETipoFundo",
-                    params={"idTipoFundo": tipo[0], "idCategoria": category_id},
+                    params={"idTipoFundo": tipo[0], "idCategoria": categoria_id},
                     xhr=True,
                 )
                 for row in response.json():
                     row["descricao"] = row["descricao"].strip()
-                    result[category_id].append(row)
+                    result[categoria_id].append(row)
         return result
 
     def paginate(self, path, params=None, xhr=True, items_per_page=200):
@@ -235,23 +235,23 @@ class FundosNet:
             else:
                 break
 
-    # TODO: unify search methods
-    def search(
+    # TODO: unificar métodos de busca
+    def busca(
         self,
-        category="Todos",
-        type_="Todos",
-        fund_type="Todos",
+        categoria="Todos",
+        tipo="Todos",
+        tipo_fundo="Todos",
         cnpj=None,
         situacao=None,
-        start_date=None,
-        end_date=None,
-        ordering_field="dataEntrega",
-        order="desc",
-        items_per_page=200,
+        inicio=None,
+        fim=None,
+        campo_ordenacao="dataEntrega",
+        ordenacao="desc",
+        itens_por_pagina=200,
     ):
         # TODO: traduzir parâmetros e nome do método para Português
-        order_choices = ("asc", "desc")
-        ordering_field_choices = (
+        ordenacao_choices = ("asc", "desc")
+        campo_ordenacao_choices = (
             "denominacaoSocial",
             "CategoriaDescricao",
             "tipoDescricao",
@@ -262,22 +262,26 @@ class FundosNet:
             "versao",
             "modalidade",
         )
-        order = str(order or "").strip().lower()
-        assert_in("order", order, order_choices)
-        assert_in("ordering_field", ordering_field, ordering_field_choices)
-        assert_in("category", category, choices.DOCUMENTO_CATEGORIA_DICT)
-        category_id = choices.DOCUMENTO_CATEGORIA_DICT[category]
-        if type_ != "Todos":
-            assert_in("type_", type_, choices.DOCUMENTO_TIPO_DICT)
-        type_id = choices.DOCUMENTO_TIPO_DICT[type_]
-        assert_in("fund_type", fund_type, choices.FUNDO_TIPO_DICT)
-        fund_type_id = choices.FUNDO_TIPO_DICT[fund_type]
+        ordenacao = str(ordenacao or "").strip().lower()
+        assert_in("ordenacao", ordenacao, ordenacao_choices)
+        assert_in("campo_ordenacao", campo_ordenacao, campo_ordenacao_choices)
+        assert_in("categoria", categoria, choices.DOCUMENTO_CATEGORIA_DICT)
+        categoria_id = choices.DOCUMENTO_CATEGORIA_DICT[categoria]
+        if tipo != "Todos":
+            assert_in("tipo", tipo, choices.DOCUMENTO_TIPO_DICT)
+        tipo_id = choices.DOCUMENTO_TIPO_DICT[tipo]
+        assert_in("tipo_fundo", tipo_fundo, choices.FUNDO_TIPO_DICT)
+        tipo_fundo_id = choices.FUNDO_TIPO_DICT[tipo_fundo]
         situacao_choices = "AIC"
         situacao = str(situacao or "").upper().strip()
         if situacao:
             assert_in("situacao", situacao, situacao_choices)
-        if fund_type_id == 0:
-            fund_type_id = ""
+        if tipo_fundo_id == 0:
+            tipo_fundo_id = ""
+        if isinstance(inicio, str):
+            inicio = parse_date("iso-date", inicio)
+        if isinstance(fim, str):
+            fim = parse_date("iso-date", fim)
         # TODO: filter other fields, like:
         # - administrador
         # - cnpj
@@ -288,13 +292,13 @@ class FundosNet:
         # TODO: get all possible especie
         # TODO: get all administradores https://fnet.bmfbovespa.com.br/fnet/publico/buscarAdministrador?term=&page=2&paginaCertificados=false&_=1655592601540
         params = {
-            f"o[0][{ordering_field}]": order,
-            "idCategoriaDocumento": category_id,
-            "idTipoDocumento": type_id,
-            "tipoFundo": fund_type_id,
+            f"o[0][{campo_ordenacao}]": ordenacao,
+            "idCategoriaDocumento": categoria_id,
+            "idTipoDocumento": tipo_id,
+            "tipoFundo": tipo_fundo_id,
             "idEspecieDocumento": "0",
-            "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
-            "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
+            "dataInicial": inicio.strftime("%d/%m/%Y") if inicio else "",
+            "dataFinal": fim.strftime("%d/%m/%Y") if fim else "",
         }
         if cnpj is not None:
             params["cnpj"] = params["cnpjFundo"] = cnpj
@@ -304,21 +308,21 @@ class FundosNet:
             path="pesquisarGerenciadorDocumentosDados",
             params=params,
             xhr=True,
-            items_per_page=items_per_page,
+            items_per_page=itens_por_pagina,
         )
         for row in result:
             yield DocumentMeta.from_json(row)
 
-    def search_certificate(
+    def busca_certificado(
         self,
-        start_date=None,
-        end_date=None,
-        ordering_field="dataEntrega",
-        order="desc",
-        items_per_page=200,
+        inicio=None,
+        fim=None,
+        campo_ordenacao="dataEntrega",
+        ordenacao="desc",
+        itens_por_pagina=200,
     ):
-        assert order in ("asc", "desc")
-        assert ordering_field in (
+        assert ordenacao in ("asc", "desc")
+        assert campo_ordenacao in (
             "denominacaoSocial",
             "CategoriaDescricao",
             "tipoDescricao",
@@ -329,21 +333,25 @@ class FundosNet:
             "versao",
             "modalidade",
         )
-        # TODO: filter other fields
+        # TODO: filtrar por outros campos
+        if isinstance(inicio, str):
+            inicio = parse_date("iso-date", inicio)
+        if isinstance(fim, str):
+            fim = parse_date("iso-date", fim)
         params = {
-            f"o[0][{ordering_field}]": order,
+            f"o[0][{campo_ordenacao}]": ordenacao,
             "idCategoriaDocumento": "0",
             "idTipoDocumento": "0",
             "idEspecieDocumento": "0",
-            "dataInicial": start_date.strftime("%d/%m/%Y") if start_date else "",
-            "dataFinal": end_date.strftime("%d/%m/%Y") if end_date else "",
+            "dataInicial": inicio.strftime("%d/%m/%Y") if inicio else "",
+            "dataFinal": fim.strftime("%d/%m/%Y") if fim else "",
             "paginaCertificados": "true",
         }
         result = self.paginate(
             path="pesquisarGerenciadorDocumentosDados",
             params=params,
             xhr=True,
-            items_per_page=items_per_page,
+            items_per_page=itens_por_pagina,
         )
         for row in result:
             yield DocumentMeta.from_json(row)
@@ -470,20 +478,20 @@ def main(args):
     if download_path:
         download_path.mkdir(parents=True, exist_ok=True)
     csv_filename.parent.mkdir(parents=True, exist_ok=True)
-    filters = {}
+    filtros = {}
     if categoria:
-        filters["category"] = categoria
+        filtros["categoria"] = categoria
     if tipo:
-        filters["type_"] = tipo
+        filtros["tipo"] = tipo
 
     fnet = FundosNet()
     with csv_filename.open(mode="w") as csv_fobj:
         writer = None
         for inicio, fim in zip(datas_a_pesquisar, datas_a_pesquisar[1:]):
             fim = fim - datetime.timedelta(days=1) if fim != data_final else fim
-            filters["start_date"] = inicio  # TODO: renomear parâmetro para Português
-            filters["end_date"] = fim  # TODO: renomear parâmetro para Português
-            resultado = fnet.search(**filters)
+            filtros["inicio"] = inicio
+            filtros["fim"] = fim
+            resultado = fnet.busca(**filtros)
             for documento in resultado:
                 row = documento.serialize()
                 if writer is None:

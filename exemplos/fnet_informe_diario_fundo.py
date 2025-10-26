@@ -10,7 +10,7 @@ fnet = FundosNet()
 
 print("Buscando documentos no FundosNET e selecionando informes diários")
 documentos = {}
-for doc in fnet.search(start_date=data_inicial, end_date=data_final):
+for doc in fnet.busca(inicio=data_inicial, fim=data_final):
     if doc.tipo != "Informe Diário":
         continue
     documentos[doc.id] = doc
