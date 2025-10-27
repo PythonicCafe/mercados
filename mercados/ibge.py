@@ -55,6 +55,7 @@ class IBGE:
                 ano = int(ano)
                 ultimo_ano = ano
             mes = meses.index(mes) + 1
+            # TODO: quantize valor UM_CENTAVO
             resultado.append(Taxa(data=datetime.date(ano, mes, 15), valor=Decimal(str(valor))))
 
         return resultado

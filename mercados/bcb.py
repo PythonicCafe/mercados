@@ -358,6 +358,7 @@ def main(args):
         print(ajustado)
 
     elif comando == "serie-temporal":
+        # TODO: limitar tempo para algumas séries (10 anos em séries de periodicidade diária)
         inicio = args.inicio
         fim = args.fim
         nome_serie = args.serie
