@@ -1443,7 +1443,7 @@ class B3:
             url=urljoin(self._funds_call_url, "GetEventsCorporateActions/"),
             url_params={"language": "pt-br", "idCEM": acronimo},
         )
-        dividends = data.get("cashDividends") if data else []
+        dividends = data.get("cashDividends") or [] if data else []
         return [Dividendo.from_dict(row) for row in dividends]
 
     # TODO: implement stockDividends
