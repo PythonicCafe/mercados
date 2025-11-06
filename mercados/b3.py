@@ -356,35 +356,47 @@ class NegociacaoBolsa:
     def from_line(cls, line: str):
         assert len(line) == 246 and line[:2] == "01"
         row = cls._line_to_dict(line)
-        return cls(
-            quantidade=int(row["quatot"]) if row["quatot"] else None,
-            pontos_strike=int(row["ptoexe"]) if row["ptoexe"] != "0000000000000" else None,
-            data=datetime.datetime.strptime(row["date_of_exchange"], "%Y%m%d").date(),
+        qtd = row.pop("quatot")
+        strike = row.pop("ptoexe")
+        vencimento = row.pop("datven")
+        negociacoes = row.pop("totneg")
+        lote = row.pop("fatcot")
+        indice_correcao = row.pop("indopc")
+        distribuicao = row.pop("dismes")
+        codigo_bdi = row.pop("codbdi")
+        codigo_tipo_mercado = row.pop("tpmerc")
+        prazo_termo = row.pop("prazot")
+        obj = cls(
+            quantidade=int(qtd) if qtd else None,
+            pontos_strike=int(strike) if strike != "0000000000000" else None,
+            data=datetime.datetime.strptime(row.pop("date_of_exchange"), "%Y%m%d").date(),
             data_vencimento=(
-                None if row["datven"] == "99991231" else datetime.datetime.strptime(row["datven"], "%Y%m%d").date()
+                None if vencimento == "99991231" else datetime.datetime.strptime(vencimento, "%Y%m%d").date()
             ),
-            negociacoes=int(row["totneg"]) if row["totneg"] else None,
-            lote=int(row["fatcot"]) if row["fatcot"] else None,
-            indice_correcao=int(row["indopc"]) if row["indopc"] else None,
-            distribuicao=int(row["dismes"]) if row["dismes"] else None,
-            codigo_bdi=int(row["codbdi"]) if row["codbdi"] else None,
-            codigo_tipo_mercado=int(row["tpmerc"]) if row["tpmerc"] else None,
-            prazo_termo=None if row["prazot"] == "" else int(row["prazot"]),
-            codigo_isin=row["codisi"],
-            codigo_negociacao=row["codneg"].strip(),
-            moeda=row["modref"],
-            nome_pregao=row["nomres"],
-            tipo_papel=row["especi"],
-            preco_abertura=converte_centavos_para_decimal(row["preabe"]),
-            preco_maximo=converte_centavos_para_decimal(row["premax"]),
-            preco_minimo=converte_centavos_para_decimal(row["premin"]),
-            preco_medio=converte_centavos_para_decimal(row["premed"]),
-            preco_ultimo=converte_centavos_para_decimal(row["preult"]),
-            preco_melhor_oferta_compra=converte_centavos_para_decimal(row["preofc"]),
-            preco_melhor_oferta_venda=converte_centavos_para_decimal(row["preofv"]),
-            volume=converte_centavos_para_decimal(row["voltot"]),
-            preco_execucao=converte_centavos_para_decimal(row["preexe"]),
+            negociacoes=int(negociacoes) if negociacoes else None,
+            lote=int(lote) if lote else None,
+            indice_correcao=int(indice_correcao) if indice_correcao else None,
+            distribuicao=int(distribuicao) if distribuicao else None,
+            codigo_bdi=int(codigo_bdi) if codigo_bdi else None,
+            codigo_tipo_mercado=int(codigo_tipo_mercado) if codigo_tipo_mercado else None,
+            prazo_termo=None if prazo_termo == "" else int(prazo_termo),
+            codigo_isin=row.pop("codisi"),
+            codigo_negociacao=row.pop("codneg").strip(),
+            moeda=row.pop("modref"),
+            nome_pregao=row.pop("nomres"),
+            tipo_papel=row.pop("especi"),
+            preco_abertura=converte_centavos_para_decimal(row.pop("preabe")),
+            preco_maximo=converte_centavos_para_decimal(row.pop("premax")),
+            preco_minimo=converte_centavos_para_decimal(row.pop("premin")),
+            preco_medio=converte_centavos_para_decimal(row.pop("premed")),
+            preco_ultimo=converte_centavos_para_decimal(row.pop("preult")),
+            preco_melhor_oferta_compra=converte_centavos_para_decimal(row.pop("preofc")),
+            preco_melhor_oferta_venda=converte_centavos_para_decimal(row.pop("preofv")),
+            volume=converte_centavos_para_decimal(row.pop("voltot")),
+            preco_execucao=converte_centavos_para_decimal(row.pop("preexe")),
         )
+        assert not row, f"Dados de negociação não extraídos: {row=}"
+        return obj
 
     def serialize(self):
         return {
