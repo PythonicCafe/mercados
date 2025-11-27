@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import csv
 import datetime
@@ -8,7 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
-from typing import Dict, List, Optional
+from typing import Any, Generator
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
@@ -32,19 +34,19 @@ _UM_PONTO_BASE = Decimal("0.0001")
 _DESCRICAO_CLI = "Coleta dados históricos de negociação, dentre outros"
 
 
-def parse_br_int(value):
+def parse_br_int(value) -> int | None:
     if value is None or value == "":
         return None
     return int(value.replace(".", ""))
 
 
-def parse_float(value):
+def parse_float(value) -> float | None:
     if value is None or value == "":
         return None
     return float(value)
 
 
-def parse_decimal(value, places=2):
+def parse_decimal(value, places=2) -> Decimal | None:
     if value is None or value == "":
         return None
     quantization = {2: _UM_CENTAVO, 3: _UM_MILESIMO, 4: _UM_PONTO_BASE}[places]
@@ -90,7 +92,7 @@ def json_decode(data):
 
 
 @lru_cache(maxsize=16 * 1024)
-def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
+def converte_centavos_para_decimal(valor: str) -> Decimal | None:
     """Converte um valor em centavos em str para Decimal em Reais com 2 casas decimais
 
     >>> print(converte_centavos_para_decimal(""))
@@ -112,7 +114,7 @@ def converte_centavos_para_decimal(valor: str) -> Optional[Decimal]:
 
 
 @lru_cache(maxsize=16 * 1024)
-def converte_decimal(valor: str) -> Optional[Decimal]:
+def converte_decimal(valor: str) -> Decimal | None:
     """
     >>> print(converte_decimal(""))
     None
@@ -141,7 +143,7 @@ class Codigo:
     negociacao: str
     isin: str
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str]:
         return {
             "negociacao": self.negociacao,
             "isin": self.isin,
@@ -158,22 +160,22 @@ class Empresa:
     estado: str
     segmento: str
     tipo: int
-    cnpj: Optional[str] = None
-    mercado: Optional[str] = None
-    data_listagem: Optional[datetime.date] = None
-    tipo_bdr: Optional[str] = None
-    inicio_negociacao: Optional[datetime.date] = None
-    atividade_principal: Optional[str] = None
-    classificacao_setorial: Optional[str] = None
-    website: Optional[str] = None
-    codigo_negociacao: Optional[str] = None
-    instituicao: list[str] = None
-    outros_codigos: list[Codigo] = None
-    tem_bdr: Optional[str] = None
-    tem_emissoes: Optional[bool] = None
+    cnpj: str | None = None
+    mercado: str | None = None
+    data_listagem: datetime.date | None = None
+    tipo_bdr: str | None = None
+    inicio_negociacao: datetime.date | None = None
+    atividade_principal: str | None = None
+    classificacao_setorial: str | None = None
+    website: str | None = None
+    codigo_negociacao: str | None = None
+    instituicao: list[str] | None = None
+    outros_codigos: list[Codigo] | None = None
+    tem_bdr: str | None = None
+    tem_emissoes: bool | None = None
 
     @classmethod
-    def _parse_base(cls, row):
+    def _parse_base(cls, row) -> dict[str, Any]:
         # XXX: para o registro de empresa detalhado, não temos 'dateListing', 'segment', 'segmentEng' e 'type'
         data_listagem = row.pop("dateListing", None)  # TODO: É o início da negociação?
         if data_listagem is not None:
@@ -250,7 +252,7 @@ class Empresa:
             assert not row, f"Dados detalhados de empresa listada não extraídos: {row}"
         return cls(**obj)
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Any]:
         return {
             "codigo_cvm": self.codigo_cvm,
             "emissora": self.emissora,
@@ -282,9 +284,9 @@ class AtivoIndice:
     ativo: str
     tipo: str
     qtd_teorica: Decimal
-    participacao: Decimal
+    participacao: Decimal | None = None
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | None]:
         return {
             "codigo_negociacao": self.codigo_negociacao,
             "ativo": self.ativo,
@@ -296,34 +298,34 @@ class AtivoIndice:
 
 @dataclass
 class NegociacaoBolsa:
-    quantidade: Optional[int]
-    pontos_strike: Optional[int]
+    quantidade: int | None
+    pontos_strike: int | None
     data: datetime.date
-    data_vencimento: Optional[datetime.date]
-    negociacoes: Optional[int]
-    lote: Optional[int]
-    indice_correcao: Optional[int]
-    distribuicao: Optional[int]
-    codigo_bdi: Optional[int]
-    codigo_tipo_mercado: Optional[int]
-    prazo_termo: Optional[int]
+    data_vencimento: datetime.date | None
+    negociacoes: int | None
+    lote: int | None
+    indice_correcao: int | None
+    distribuicao: int | None
+    codigo_bdi: int | None
+    codigo_tipo_mercado: int | None
+    prazo_termo: int | None
     codigo_isin: str
     codigo_negociacao: str
     moeda: str
     nome_pregao: str
     tipo_papel: str
-    preco_abertura: Optional[Decimal]
-    preco_maximo: Optional[Decimal]
-    preco_minimo: Optional[Decimal]
-    preco_medio: Optional[Decimal]
-    preco_ultimo: Optional[Decimal]
-    preco_melhor_oferta_compra: Optional[Decimal]
-    preco_melhor_oferta_venda: Optional[Decimal]
-    volume: Optional[Decimal]
-    preco_execucao: Optional[Decimal]
+    preco_abertura: Decimal | None
+    preco_maximo: Decimal | None
+    preco_minimo: Decimal | None
+    preco_medio: Decimal | None
+    preco_ultimo: Decimal | None
+    preco_melhor_oferta_compra: Decimal | None
+    preco_melhor_oferta_venda: Decimal | None
+    volume: Decimal | None
+    preco_execucao: Decimal | None
 
     @classmethod
-    def _line_to_dict(cls, line):
+    def _line_to_dict(cls, line) -> dict[str, Any]:
         return {
             "date_of_exchange": line[2:10].strip(),
             "codbdi": line[10:12].strip(),
@@ -398,7 +400,7 @@ class NegociacaoBolsa:
         assert not row, f"Dados de negociação não extraídos: {row=}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | None]:
         return {
             "quantidade": self.quantidade,
             "pontos_strike": self.pontos_strike,
@@ -445,7 +447,7 @@ class PrecoAtivo:
         assert not row, f"Dados de preço não extraídos: {row=}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | datetime.datetime]:
         return {
             "codigo_negociacao": self.codigo_negociacao,
             "valor": self.valor,
@@ -480,7 +482,7 @@ class Dividendo:
             tipo=tipo_mapping.get(row["label"], row["label"]),
         )
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | datetime.date]:
         return {
             "tipo": self.tipo,
             "codigo_isin": self.codigo_isin,
@@ -499,8 +501,8 @@ class FundoDocumento:
     tipo: str
     datahora_entrega: datetime.datetime
     url: str
-    data_referencia: datetime.date = None
-    data_ordem: datetime.date = None
+    data_referencia: datetime.date | None = None
+    data_ordem: datetime.date | None = None
 
     @classmethod
     def from_dict(cls, acronimo, row):
@@ -518,7 +520,7 @@ class FundoDocumento:
             url=f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={acronimo}&strData={row['date']}",
         )
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Any]:
         return {
             "acronimo": self.acronimo,
             "fundo": self.fundo,
@@ -589,22 +591,22 @@ class FundoB3:
     data_aprovacao_cotas: datetime.date
     administrador_responsavel: str
     administrador_responsavel_cargo: str
-    administrador: Optional[str] = None
-    administrador_endereco: Optional[str] = None
-    administrador_ddd: Optional[str] = None
-    administrador_telefone: Optional[str] = None
-    administrador_fax: Optional[str] = None
-    administrador_email: Optional[str] = None
-    website: Optional[str] = None
-    tipo_fnet: Optional[str] = None
-    codigos_negociacao: Optional[List[str]] = None
-    segmento: Optional[str] = None
+    administrador: str | None = None
+    administrador_endereco: str | None = None
+    administrador_ddd: str | None = None
+    administrador_telefone: str | None = None
+    administrador_fax: str | None = None
+    administrador_email: str | None = None
+    website: str | None = None
+    tipo_fnet: str | None = None
+    codigos_negociacao: list[str] | None = None
+    segmento: str | None = None
 
     @property
     def codigo_negociacao(self):
         return self.codigos_negociacao[0] if self.codigos_negociacao else f"{self.acronimo}11"
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Any]:
         obj = {
             "id_fnet": self.id_fnet,
             "tipo": self.tipo,
@@ -743,11 +745,11 @@ class NegociacaoBalcao:
     preco: Decimal
     volume: Decimal
     origem: str
-    codigo_isin: str = None
-    data_liquidacao: datetime.date = None
-    emissor: str = None
-    situacao: str = None
-    taxa: Decimal = None
+    codigo_isin: str | None = None
+    data_liquidacao: datetime.date | None = None
+    emissor: str | None = None
+    situacao: str | None = None
+    taxa: Decimal | None = None
 
     @classmethod
     def from_dict(cls, row):
@@ -800,7 +802,7 @@ class NegociacaoBalcao:
         assert not row
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | datetime.date | None]:
         return {
             "codigo": self.codigo,
             "codigo_if": self.codigo_if,
@@ -838,7 +840,7 @@ class NegociacaoIntradiaria:
     vendedor_codigo: str
 
     @classmethod
-    def from_dict(cls, row: Dict):
+    def from_dict(cls, row: dict):
         row.pop("DataReferencia")  # Não será usado, dado que DataNegocio é a data em que o negócio ocorreu
         data = parse_date("iso-date", row.pop("DataNegocio"))
         hora = parse_time(row.pop("HoraFechamento"))
@@ -857,7 +859,7 @@ class NegociacaoIntradiaria:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.datetime]:
         return {
             "datahora": self.datahora,
             "codigo_negocio": self.codigo_negocio,
@@ -911,7 +913,7 @@ class EmprestimoAtivo:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | float | int | str | datetime.date]:
         return {
             "data": self.data,
             "codigo_negociacao": self.codigo_negociacao,
@@ -971,7 +973,7 @@ class EmprestimoNegociado:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, float | int | str | datetime.date]:
         return {
             "data_referencia": self.data_referencia,
             "codigo_negociacao": self.codigo_negociacao,
@@ -1000,7 +1002,7 @@ class EmprestimoEmAberto:
     mercado: str
     saldo_quantidade: int
     saldo: Decimal
-    preco_medio: Decimal = None
+    preco_medio: Decimal | None = None
 
     @classmethod
     def from_dict(cls, row):
@@ -1022,7 +1024,7 @@ class EmprestimoEmAberto:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date | None]:
         return {
             "data": self.data,
             "codigo_negociacao": self.codigo_negociacao,
@@ -1066,7 +1068,7 @@ class OpcaoFlexivel:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date]:
         return {
             "codigo_negociacao": self.codigo_negociacao,
             "operacao": self.operacao,
@@ -1101,7 +1103,7 @@ class PrazoDeposito:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str | datetime.date]:
         return {
             "data": self.data,
             "empresa": self.empresa,
@@ -1134,7 +1136,7 @@ class PosicaoEmAberto:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date]:
         return {
             "data": self.data,
             "mercado": self.mercado,
@@ -1168,7 +1170,7 @@ class Swap:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date]:
         return {
             "codigo": self.codigo,
             "vencimento": self.vencimento,
@@ -1194,7 +1196,7 @@ class AcaoCustodiada:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, int | str]:
         return {
             "empresa": self.empresa,
             "tipo": self.tipo,
@@ -1227,7 +1229,7 @@ class CreditoProvento:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | datetime.date]:
         return {
             "emissor": self.emissor,
             "codigo_isin": self.codigo_isin,
@@ -1263,7 +1265,7 @@ class CustodiaFungivel:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str | datetime.date]:
         return {
             "prazo_final_subscricao": self.prazo_final_subscricao,
             "prazo_final_cessao": self.prazo_final_cessao,
@@ -1295,10 +1297,10 @@ class B3:
             decode_json=False,
         )
 
-    def _make_url_params(self, params):
+    def _make_url_params(self, params) -> str:
         return base64.b64encode(json.dumps(params, separators=(",", ":")).encode("utf-8")).decode("ascii")
 
-    def url_negociacao_bolsa(self, frequencia: str, data: datetime.date):
+    def url_negociacao_bolsa(self, frequencia: str, data: datetime.date) -> str:
         """
         :param frequencia: deve ser "dia", "mês" ou "ano"
         :param data: data desejada (use o dia "01" caso frequência seja "mês" e o dia e mês "01" caso frequência seja
@@ -1314,8 +1316,12 @@ class B3:
         elif frequencia == "ano":
             date = data.strftime("%Y")
             return f"https://bvmf.bmfbovespa.com.br/InstDados/SerHist/COTAHIST_A{date}.ZIP"
+        else:
+            raise ValueError(f"Frequência inválida: {repr(frequencia)}")
 
-    def negociacao_bolsa(self, frequencia: str, data: datetime.date):
+    def negociacao_bolsa(
+        self, frequencia: str, data: datetime.date
+    ) -> Generator[NegociacaoBolsa, Any, ValueError | None]:
         """
         Baixa cotação para uma determinada data (dia, mês ou ano)
 
@@ -1350,14 +1356,14 @@ class B3:
                 continue
             yield NegociacaoBolsa.from_line(line)
 
-    def url_intradiaria_zip(self, data: datetime.date):
+    def url_intradiaria_zip(self, data: datetime.date) -> str:
         # <https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/cotacoes/cotacoes/>
         # TODO: aceitar datetime.date ou str (iso format)
         data_str = data.strftime("%Y-%m-%d")
         url = f"https://arquivos.b3.com.br/rapinegocios/tickercsv/{data_str}"
         return url
 
-    def _le_zip_intradiaria(self, fobj):
+    def _le_zip_intradiaria(self, fobj) -> Generator[NegociacaoIntradiaria, Any, None]:
         zf = ZipFile(fobj)
         if len(zf.filelist) != 1:
             filenames = ", ".join(sorted(info.filename for info in zf.filelist))
@@ -1445,7 +1451,7 @@ class B3:
             else:
                 yield FundoB3Resumido.from_dict(obj, tipo=tipo)
 
-    def fundo_listado_detalhe(self, tipo, id_fnet, acronimo):
+    def fundo_listado_detalhe(self, tipo, id_fnet, acronimo) -> FundoB3:
         response_data = self.request(
             method="GET",
             url=urljoin(self._funds_call_url, "GetDetailFund/"),
@@ -1487,7 +1493,7 @@ class B3:
             yield FundoDocumento.from_dict(identificador, row)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
-    def _fundo_demonstrativos(self, identificador):
+    def _fundo_demonstrativos(self, identificador) -> Generator[FundoDocumento, Any, None]:
         "Demonstrativos financeiros e relatórios"
         result = self.paginate(
             base_url=urljoin(self._funds_call_url, "GetListedPreviousDocuments/"),
@@ -1535,7 +1541,7 @@ class B3:
             url_params={"codeCVM": codigo_cvm, "language": "pt-br"},
         )
 
-    def empresas(self, detalhe=False):
+    def empresas(self, detalhe=False) -> Generator[Empresa, Any, None]:
         """Devolve as empresas listadas na B3"""
         # TODO: checar se inclui BDRs patrocinados e não patrocinados
         lista = self.paginate(
@@ -1551,7 +1557,7 @@ class B3:
                 empresa_detalhe = self._empresa_detalhe_raw(row["codeCVM"])
                 yield Empresa.from_dict(row, detalhe=empresa_detalhe)
 
-    def empresa_detalhe(self, codigo_cvm):
+    def empresa_detalhe(self, codigo_cvm) -> Empresa:
         """
         Coleta detalhes da empresa, porém sem alguns campos
 
@@ -1594,7 +1600,9 @@ class B3:
         return self._fund_subscriptions(7, cnpj, identificador)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
-    def fii_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
+    def fii_documents(
+        self, cnpj, identificador, data_inicial: datetime.date | None = None, data_final: datetime.date | None = None
+    ):
         # TODO: aceitar datetime.date ou str (iso format)
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1622,7 +1630,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_documents(
-        self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
+        self, cnpj, identificador, data_inicial: datetime.date | None = None, data_final: datetime.date | None = None
     ):
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1649,7 +1657,9 @@ class B3:
         return self._fund_subscriptions(21, cnpj, identificador)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
-    def fip_documents(self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None):
+    def fip_documents(
+        self, cnpj, identificador, data_inicial: datetime.date | None = None, data_final: datetime.date | None = None
+    ):
         # TODO: aceitar datetime.date ou str (iso format)
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1680,7 +1690,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_documents(
-        self, cnpj, identificador, data_inicial: datetime.date = None, data_final: datetime.date = None
+        self, cnpj, identificador, data_inicial: datetime.date | None = None, data_final: datetime.date | None = None
     ):
         today = datetime.datetime.now()
         if data_inicial is None:
@@ -1734,7 +1744,7 @@ class B3:
         reader = csv.DictReader(io.StringIO(decoded_data), delimiter=";")
         yield from reader
 
-    def negociacao_balcao(self, date):
+    def negociacao_balcao(self, date) -> Generator[NegociacaoBalcao, Any, None]:
         response = self.request(
             "https://bvmf.bmfbovespa.com.br/NegociosRealizados/Registro/DownloadArquivoDiretorio",
             params={"data": date.strftime("%d-%m-%Y")},
@@ -1751,7 +1761,7 @@ class B3:
                     row[field] = None
             yield NegociacaoBalcao.from_dict(row)
 
-    def valor_indice(self, indice: str, ano: int):
+    def valor_indice(self, indice: str, ano: int) -> list[Taxa]:
         if indice not in self.indices:
             # TODO: testar IDAP5 e ICBIO
             raise ValueError(f"Índice desconhecido: {repr(indice)}")
@@ -1772,7 +1782,7 @@ class B3:
         dados.sort(key=lambda row: row.data)
         return dados
 
-    def carteira_indice(self, indice, periodo):
+    def carteira_indice(self, indice, periodo) -> list[AtivoIndice]:
         # TODO: adicionar checagem de índices. ATENÇÃO: a lista de strings não é a mesma de `valor_indice`, por
         # exemplo: IBOV (carteira_indice) é IBOVESPA (valor_indice). Obrigado B3 mais uma vez pela consistência. :|
         # XXX: a carteira "próxima" muitas vezes é igual à teórica (provavelmente somente pouco antes do
@@ -1904,7 +1914,7 @@ class B3:
             finished = table["pageCount"] == page or len(table["values"]) == 0
             page += 1
 
-    def clearing_acoes_custodiadas(self, data_inicial: datetime.date):
+    def clearing_acoes_custodiadas(self, data_inicial: datetime.date) -> Generator[AcaoCustodiada, Any, None]:
         """Clearing - Ações Custodiadas"""
         # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
@@ -1914,7 +1924,9 @@ class B3:
             data_class=AcaoCustodiada,
         )
 
-    def clearing_creditos_de_proventos(self, data_inicial: datetime.date, filtro_emissor=None):
+    def clearing_creditos_de_proventos(
+        self, data_inicial: datetime.date, filtro_emissor=None
+    ) -> Generator[CreditoProvento, Any, None]:
         """Clearing - Créditos de Proventos - Renda Variável"""
         # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
@@ -1928,7 +1940,7 @@ class B3:
             data_class=CreditoProvento,
         )
 
-    def clearing_custodia_fungivel(self, data: datetime.date):
+    def clearing_custodia_fungivel(self, data: datetime.date) -> Generator[CustodiaFungivel, Any, None]:
         """Clearing - Custódia Fungível"""
         # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
@@ -1940,7 +1952,7 @@ class B3:
 
     def clearing_emprestimos_registrados(
         self, data_inicial: datetime.date, data_final: datetime.date, codigo_negociacao=None
-    ):
+    ) -> Generator[EmprestimoAtivo, Any, None]:
         """Clearing - Empréstimos de Ativos - Empréstimos Registrados"""
         # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
@@ -2010,7 +2022,9 @@ class B3:
             f"https://arquivos.b3.com.br/bdi/table/BTBLendingOpenPosition/{data_inicial}/{data_final}/filters"
         )
 
-    def clearing_opcoes_flexiveis(self, data: datetime.date, codigo_negociacao=None):
+    def clearing_opcoes_flexiveis(
+        self, data: datetime.date, codigo_negociacao=None
+    ) -> Generator[OpcaoFlexivel, Any, None]:
         """Clearing - Opções Flexíveis"""
         # TODO: aceitar datetime.date ou str (iso format)
         query_params = {"sort": "TckrSymb"}
@@ -2023,7 +2037,7 @@ class B3:
             data_class=OpcaoFlexivel,
         )
 
-    def clearing_prazo_deposito_titulos(self, data: datetime.date):
+    def clearing_prazo_deposito_titulos(self, data: datetime.date) -> Generator[PrazoDeposito, Any, None]:
         """Clearing - Prazo para Depósito de Títulos"""
         # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
@@ -2033,7 +2047,7 @@ class B3:
             data_class=PrazoDeposito,
         )
 
-    def clearing_posicoes_em_aberto(self, data: datetime.date):
+    def clearing_posicoes_em_aberto(self, data: datetime.date) -> Generator[PosicaoEmAberto, Any, None]:
         """Clearing - Quadro Analítico das Posições em Aberto"""
         # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
@@ -2043,7 +2057,7 @@ class B3:
             data_class=PosicaoEmAberto,
         )
 
-    def clearing_swap(self, data: datetime.date):
+    def clearing_swap(self, data: datetime.date) -> Generator[Swap, Any, None]:
         """Clearing - Swap"""
         # TODO: aceitar datetime.date ou str (iso format)
         yield from self._tabela_clearing(
@@ -2093,7 +2107,7 @@ class B3:
     # TODO: pegar diversos dados históricos em https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/pesquisa-por-pregao/
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser) -> None:
     from pathlib import Path
 
     comandos_padrao = {
@@ -2304,7 +2318,7 @@ def _configura_parser_cli(parser):
     subparser_clearing_termo_eletronico.add_argument("csv_filename", type=Path, help="Nome do CSV a ser criado")
 
 
-def main(args):
+def main(args) -> int:
     import datetime
 
     from mercados.utils import day_range
