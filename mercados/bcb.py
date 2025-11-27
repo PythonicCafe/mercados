@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import datetime
 import io
@@ -5,7 +7,7 @@ import json
 from calendar import monthrange
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Optional
+from typing import Any
 
 from mercados.utils import USER_AGENT, create_session, parse_br_date, parse_date
 
@@ -18,7 +20,7 @@ class TaxaIntervalo:
     data_final: datetime.date
     valor: Decimal
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | datetime.date]:
         return {
             "data_inicial": self.data_inicial,
             "data_final": self.data_final,
@@ -31,7 +33,7 @@ class Taxa:
     data: datetime.date
     valor: Decimal
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | datetime.date]:
         return {
             "data": self.data,
             "valor": self.valor,
@@ -153,8 +155,8 @@ class BancoCentral:
     def serie_temporal(
         self,
         nome_ou_codigo: str | int,
-        inicio: Optional[datetime.date | str] = None,
-        fim: Optional[datetime.date | str] = None,
+        inicio: datetime.date | str | None = None,
+        fim: datetime.date | str | None = None,
     ) -> list[Taxa]:
         """
         Acessa API de séries temporais do Banco Central
@@ -195,7 +197,7 @@ class BancoCentral:
         response.raise_for_status()
         return [Taxa(data=parse_br_date(row["data"]), valor=Decimal(row["valor"])) for row in response.json()]
 
-    def _novoselic_csv_request(self, filtro: dict, ordenacao: list[dict]):
+    def _novoselic_csv_request(self, filtro: dict, ordenacao: list[dict]) -> list[dict[str, Any]]:
         response = self.session.post(
             "https://www3.bcb.gov.br/novoselic/rest/fatoresAcumulados/pub/exportarCsv",
             data={"filtro": json.dumps(filtro), "parametrosOrdenacao": json.dumps(ordenacao)},
@@ -289,7 +291,7 @@ class BancoCentral:
         return (fator * valor).quantize(Decimal("0.01"))
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser) -> None:
     from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
@@ -349,7 +351,7 @@ def _configura_parser_cli(parser):
     )
 
 
-def main(args):
+def main(args) -> int:
     import sys
 
     from mercados.utils import define_formato, dicts_to_file
