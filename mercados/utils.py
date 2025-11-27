@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import datetime
 import re
@@ -7,7 +9,7 @@ from dataclasses import fields as dataclass_fields
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, TextIO
+from typing import TextIO
 from unicodedata import normalize
 
 import requests
@@ -37,7 +39,7 @@ USER_AGENT = "Mozilla/5.0 mercados/python"
 
 
 @lru_cache(maxsize=1024)
-def camel_to_snake(value):
+def camel_to_snake(value: str) -> str:
     """
     >>> camel_to_snake("CamelToSnakeCase")
     'camel_to_snake_case'
@@ -51,7 +53,7 @@ def camel_to_snake(value):
     return slug(REGEXP_CAMELCASE_2.sub(r"\1_\2", REGEXP_CAMELCASE_1.sub(r"\1_\2", value)))
 
 
-def day_range(start, stop):
+def day_range(start: datetime.date, stop: datetime.date):
     """
     >>> list(day_range(datetime.date(2020, 1, 1), datetime.date(2020, 1, 3)))
     [datetime.date(2020, 1, 1), datetime.date(2020, 1, 2)]
@@ -68,11 +70,11 @@ def day_range(start, stop):
         current += one_day
 
 
-def formato_por_extensao(arquivo: Path):
+def formato_por_extensao(arquivo: Path) -> str:
     return arquivo.suffix[1:].lower().strip()
 
 
-def extrai_nome_arquivo(valor: str):
+def extrai_nome_arquivo(valor: str) -> Path:
     from argparse import ArgumentTypeError
 
     arquivo = Path(valor)
@@ -84,7 +86,7 @@ def extrai_nome_arquivo(valor: str):
     return arquivo
 
 
-def define_formato(fmt: Optional[str], arquivo: Path):
+def define_formato(fmt: str | None, arquivo: Path) -> str:
     """
     Define formato final de arquivo com base no formato (caso disponível) e extensão do arquivo
 
@@ -101,7 +103,7 @@ def define_formato(fmt: Optional[str], arquivo: Path):
     return formato_por_extensao(arquivo)
 
 
-def dicts_to_file(data: list[dict], fmt: str, fobj: TextIO):
+def dicts_to_file(data: list[dict], fmt: str, fobj: TextIO) -> None:
     """Convert a list of dictionaries to a string representation in a specific format and write it to the file-object.
 
     Values are not expected to have new-line (\n) and if the markdown format is used, it won't escape special chars,
@@ -165,7 +167,7 @@ def dicts_to_file(data: list[dict], fmt: str, fobj: TextIO):
         fobj.write(line_separator.join(lines) + line_separator)
 
 
-def get_pdf_text(file_contents):
+def get_pdf_text(file_contents: bytes) -> str:
     command = ["pdftotext", "-layout", "-nopgbrk", "-enc", "UTF-8", "-", "-"]
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     stdout_data, stderr_data = process.communicate(input=file_contents)
@@ -173,15 +175,17 @@ def get_pdf_text(file_contents):
     return text
 
 
-def remove_espacos(text):
+def remove_espacos(text: str) -> str:
     return REGEXP_SPACES.sub(" ", text).strip()
 
 
-def remove_acentos(text):
+def remove_acentos(text: str) -> str:
     return normalize("NFKD", text).encode("ascii", errors="ignore").decode("ascii")
 
 
-def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"):
+def slug(
+    text: str, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
+) -> str:
     """Generate a slug for the `text`.
 
     >>> slug(' ÁLVARO  justen% ')
@@ -215,7 +219,7 @@ def slug(text, separator="_", permitted_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
     return text.strip(separator)
 
 
-def create_session(user_agent: str = USER_AGENT, proxy: Optional[str] = None):
+def create_session(user_agent: str = USER_AGENT, proxy: str | None = None):
     import urllib3  # noqa
 
     urllib3.disable_warnings()
@@ -233,7 +237,7 @@ def create_session(user_agent: str = USER_AGENT, proxy: Optional[str] = None):
 
 
 @lru_cache(maxsize=20)
-def parse_bool(value):
+def parse_bool(value: str) -> bool | None:
     return {
         "t": True,
         "true": True,
@@ -248,7 +252,7 @@ def parse_bool(value):
     }[str(value or "").lower().strip()]
 
 
-def parse_br_decimal(value):
+def parse_br_decimal(value: str) -> Decimal | None:
     """
     from decimal import Decimal
     >>> parse_br_decimal("1")
@@ -266,7 +270,7 @@ def parse_br_decimal(value):
     return Decimal(value.replace(".", "").replace(",", "."))
 
 
-def parse_decimal(value):
+def parse_decimal(value: str) -> Decimal | None:
     """
     from decimal import Decimal
     >>> parse_decimal("1")
@@ -286,7 +290,7 @@ def parse_decimal(value):
     return Decimal(value.replace(",", ""))
 
 
-def parse_date(fmt, value, full=False):
+def parse_date(fmt: str, value: str, full: bool = False) -> datetime.date | None:
     value = str(value or "").strip()
     if not value or value == "0001-01-01":
         return None
@@ -320,11 +324,11 @@ def parse_date(fmt, value, full=False):
         return obj.date()
 
 
-def parse_iso_date(value):
+def parse_iso_date(value: str) -> datetime.date | None:
     return parse_date("iso-date", value)
 
 
-def parse_iso_month(value):
+def parse_iso_month(value: str) -> datetime.date | None:
     """
     >>> import datetime
     >>> parse_iso_month("2025-07")
@@ -344,23 +348,23 @@ def parse_iso_month(value):
     return parse_date("iso-date", value)
 
 
-def parse_datetime_force_timezone(value):
+def parse_datetime_force_timezone(value: str) -> datetime.datetime:
     return datetime.datetime.fromisoformat(value).replace(tzinfo=datetime.timezone(datetime.timedelta(hours=-3)))
 
 
-def clean_string(value):
+def clean_string(value: str | None) -> str:
     if value is None:
         return value
     return value.strip()
 
 
-def parse_br_date(value):
+def parse_br_date(value: str) -> datetime.date | None:
     if not value or value == "0001-01-01":
         return None
     return parse_date("br-date", value)
 
 
-def parse_time(value):
+def parse_time(value: str) -> datetime.time:
     """
     >>> import datetime
     >>> parse_time('165443336')  # 16 h 54 min 43 s 336 ms
@@ -376,7 +380,7 @@ def parse_time(value):
 
 
 @lru_cache(maxsize=120)
-def get_month(value):
+def get_month(value: str) -> str:
     value = {
         "janeeiro": "janeiro",
         "jneiro": "janeiro",
@@ -400,13 +404,13 @@ def get_month(value):
 
 
 @lru_cache(maxsize=120)
-def last_day_of_month(year, month):
+def last_day_of_month(year: int, month: int) -> datetime.date:
     dt = datetime.date(year, month, 20) + datetime.timedelta(days=15)
     return datetime.date(year, month, 20 + 15 - dt.day)
 
 
 @lru_cache(maxsize=120)
-def fix_periodo_referencia(value, original_year):
+def fix_periodo_referencia(value: str, original_year: str) -> datetime.date:
     # TODO: apply this function to raw values and save result
     value = (
         value.replace("antecip. da dist. de ", "")
@@ -522,11 +526,11 @@ def fix_periodo_referencia(value, original_year):
             return start, end
 
 
-def parse_int(value):
+def parse_int(value: str | int | None) -> int | None:
     return int(value) if value is not None else None
 
 
-def clean_xml_dict(d):
+def clean_xml_dict(d: dict) -> dict:
     """
     >>> clean_xml_dict({"a": {"@xsi:nil": "true"}})
     {'a': None}
@@ -545,7 +549,9 @@ def clean_xml_dict(d):
     return result
 
 
-def download_files(urls: list[str], filenames: list[Path], quiet=False, user_agent=USER_AGENT, proxy=None):
+def download_files(
+    urls: list[str], filenames: list[Path], quiet: bool = False, user_agent: str = USER_AGENT, proxy: str | None = None
+) -> None:
     session = create_session(user_agent=user_agent, proxy=proxy)
     for url, filename in zip(urls, filenames):
         filename = Path(filename)
@@ -555,7 +561,7 @@ def download_files(urls: list[str], filenames: list[Path], quiet=False, user_age
             fobj.write(response.content)
 
 
-def format_dataclass(obj, indent=4):
+def format_dataclass(obj, indent: int = 4) -> str:
     class_name = obj.__class__.__name__
     result = [f"{class_name}("]
     for field in dataclass_fields(obj.__class__):
