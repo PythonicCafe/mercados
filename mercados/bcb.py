@@ -235,8 +235,12 @@ class BancoCentral:
             )
         return resultado
 
-    def selic_por_dia(self, data_inicial, data_final) -> TaxaIntervalo:
+    def selic_por_dia(self, data_inicial: datetime.date | str, data_final: datetime.date | str) -> TaxaIntervalo:
         """Utiliza o sistema "novoselic" para pegar a variação diária da Selic para um determinado ano"""
+        if isinstance(data_inicial, str):
+            data_inicial = parse_date("iso-date", data_inicial)
+        if isinstance(data_final, str):
+            data_final = parse_date("iso-date", data_final)
         filtro = {
             "campoPeriodo": "periodo",
             "dataInicial": data_inicial.strftime("%d/%m/%Y"),
@@ -252,16 +256,24 @@ class BancoCentral:
         )
 
     def ajustar_selic_por_dia(
-        self, data_inicial: datetime.date, data_final: datetime.date, valor: int | float | Decimal
+        self, data_inicial: datetime.date | str, data_final: datetime.date | str, valor: int | float | Decimal
     ) -> Decimal:
         """Ajusta valor com base na Selic diária (vinda do sistema "novoselic")"""
+        if isinstance(data_inicial, str):
+            data_inicial = parse_date("iso-date", data_inicial)
+        if isinstance(data_final, str):
+            data_final = parse_date("iso-date", data_final)
         taxa = self.selic_por_dia(data_inicial, data_final)
         return (taxa.valor * valor).quantize(Decimal("0.01"))
 
     def ajustar_selic_por_mes(
-        self, data_inicial: datetime.date, data_final: datetime.date, valor: int | float | Decimal
+        self, data_inicial: datetime.date | str, data_final: datetime.date | str, valor: int | float | Decimal
     ) -> Decimal:
         """Ajusta valor com base na Selic mensal (vinda do sistema "novoselic")"""
+        if isinstance(data_inicial, str):
+            data_inicial = parse_date("iso-date", data_inicial)
+        if isinstance(data_final, str):
+            data_final = parse_date("iso-date", data_final)
         if data_inicial.day != 1:
             raise ValueError("Data inicial precisa ser o primeiro dia do mês")
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
