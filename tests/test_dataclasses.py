@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import datetime
 import random
 import string
 import types
 from dataclasses import fields, is_dataclass
 from decimal import Decimal
-from typing import Union, get_args, get_origin
+from typing import Union, get_args, get_origin, get_type_hints
 
 import pytest
 
@@ -80,11 +82,11 @@ def _cria_valor_falso(field_type: type):
 
 def cria_objeto_com_dados_falsos(DataClass):
     row = {}
-    for field in fields(DataClass):
-        field_type, is_optional = _unwrap_optional(field.type)
-        row[field.name] = _cria_valor_falso(field_type)
+    for field_name, field_type in get_type_hints(DataClass).items():
+        field_type, is_optional = _unwrap_optional(field_type)
+        row[field_name] = _cria_valor_falso(field_type)
         if is_optional and random.random() > 0.5:
-            row[field.name] = None
+            row[field_name] = None
     return DataClass(**row)
 
 
