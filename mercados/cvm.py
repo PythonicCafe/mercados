@@ -5,10 +5,11 @@ import re
 import tempfile
 import uuid
 import zipfile
+from collections.abc import Generator
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Optional
+from typing import Any, Self
 from urllib.parse import urljoin
 
 from lxml.html import document_fromstring
@@ -52,7 +53,7 @@ class InformeDiarioFundo:
     cotistas: int = None
 
     @classmethod
-    def from_dict(cls, row):
+    def from_dict(cls, row: dict) -> Self:
         cnpj_fundo = row["cnpj_fundo"] if "cnpj_fundo" in row else row["cnpj_fundo_classe"]
         tp_fundo = row.get("tp_fundo") if "tp_fundo" in row else row.get("tp_fundo_classe")  # Não existe para 201901
         return cls(
@@ -67,7 +68,7 @@ class InformeDiarioFundo:
             valor_carteira=Decimal(row["vl_total"]) if row["vl_total"] else None,
         )
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date]:
         return {
             "fundo_cnpj": self.fundo_cnpj,
             "data_competencia": self.data_competencia,
@@ -86,12 +87,12 @@ class ContaBalancete:
     codigo: int
     descricao: str
     data_inicio: datetime.date
-    data_fim: Optional[datetime.date] = None
-    normal: Optional[bool] = None
-    retificadora: Optional[bool] = None
-    conta_superior: Optional[int] = None
+    data_fim: datetime.date | None = None
+    normal: bool | None = None
+    retificadora: bool | None = None
+    conta_superior: int | None = None
 
-    def serialize(self):
+    def serialize(self) -> dict[str, int | str | datetime.date | bool | None]:
         return {
             "codigo": self.codigo,
             "descricao": self.descricao,
@@ -120,7 +121,7 @@ class ItemBalanceteFundo:
     saldo: Decimal
 
     @classmethod
-    def from_dict(cls, row):
+    def from_dict(cls, row: dict) -> Self | None:
         if not row["CD_CONTA_BALCTE"] and not row["VL_SALDO_BALCTE"]:
             return None
         row_copy = {key.lower(): value for key, value in row.items()}
@@ -140,7 +141,7 @@ class ItemBalanceteFundo:
             raise ValueError(f"Item de balancete não pode ser extraído - campos extras: {', '.join(row_copy.keys())}")
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | int | str | datetime.date]:
         return {
             "fundo_tipo_classe": self.fundo_tipo_classe,
             "fundo_cnpj": self.fundo_cnpj,
@@ -158,7 +159,7 @@ class Noticia:
     data: datetime.date
     descricao: str
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str | datetime.date]:
         return {
             "titulo": self.titulo,
             "link": self.link,
@@ -172,7 +173,7 @@ class CVM:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
 
-    def noticias(self):
+    def noticias(self) -> Generator[Noticia, Any, None]:
         url = "https://www.gov.br/cvm/pt-br/assuntos/noticias"
         params = {"b_size": 60, "b_start:int": 0}
         finished = False
@@ -203,7 +204,9 @@ class CVM:
         else:
             return f"https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diario_fi_{ano_mes.year}.zip"
 
-    def _le_zip_informe_diario(self, zip_filename, data):
+    def _le_zip_informe_diario(
+        self, zip_filename: Path | str, data: datetime.date
+    ) -> Generator[InformeDiarioFundo, Any, None]:
         zf = zipfile.ZipFile(zip_filename)
         if len(zf.filelist) == 1:
             # A partir de 2021 os arquivos ZIP são mensais e existe apenas 1 CSV por ZIP
@@ -237,7 +240,7 @@ class CVM:
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_informe_diario(zip_fobj, ano_mes)
 
-    def contas_fundos(self):
+    def contas_fundos(self) -> list[ContaBalancete]:
         response = self.session.get(
             "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx",
             timeout=self.timeout,
@@ -285,7 +288,7 @@ class CVM:
         else:
             return f"https://dados.cvm.gov.br/dados/FIE/DOC/BALANCETE/DADOS/HIST/balancete_fie_{ano_mes.year}.zip"
 
-    def _le_zip_balancete(self, zip_filename):
+    def _le_zip_balancete(self, zip_filename: Path | str) -> Generator[ItemBalanceteFundo, Any, None]:
         zf = zipfile.ZipFile(zip_filename)
         if len(zf.filelist) != 1:
             filenames = ", ".join(sorted(info.filename for info in zf.filelist))
@@ -370,7 +373,7 @@ class CVM:
                     }
 
 
-def extrai_datahora(valor, timezone=BRT):
+def extrai_datahora(valor: str, timezone=BRT) -> datetime.datetime | None:
     resultado = _REGEXP_DATAHORA.findall(valor)
     if not resultado:
         return None
@@ -381,7 +384,7 @@ def extrai_datahora(valor, timezone=BRT):
         return datetime.datetime.strptime(f"{data} {hora}", "%d/%m/%Y %H:%M").replace(tzinfo=timezone)
 
 
-def extrai_parametros(valor):
+def extrai_parametros(valor: str) -> tuple[str, list]:
     result = _REGEXP_PARAMETROS.match(valor.replace("\xa0", " "))
     if not result:
         raise ValueError(f"`valor` não está no formato de chamada de função JS: {repr(valor)}")
@@ -411,7 +414,7 @@ class DocumentoEmpresa:
     tipo: str = None
     detalhe_publicacao: str = None
 
-    def serialize(self):
+    def serialize(self) -> dict[str, uuid.UUID | str | datetime.datetime | None]:
         return {
             "uuid": self.uuid,
             "codigo_empresa": self.codigo_empresa,
@@ -434,7 +437,7 @@ class DocumentoEmpresa:
         }
 
     @property
-    def uuid(self):
+    def uuid(self) -> uuid.UUID:
         "Usa URLid do Brasil.IO para criar um ID único offline, mesmo que o documento não tenha ID próprio"
         unique_data = [
             self.id,
@@ -450,7 +453,7 @@ class DocumentoEmpresa:
         return uuid.uuid5(uuid.NAMESPACE_URL, f"https://id.brasil.io/cvm-rad-doc/v1/{internal_id}/")
 
     @classmethod
-    def from_data(cls, data):
+    def from_data(cls, data: str) -> Self:
         header = [
             "codigo_empresa",
             "empresa",
@@ -547,14 +550,14 @@ class RAD:
         self.timeout = timeout
         self._empresas = self._categorias = None
 
-    def _extract_rows(self, raw_data):
+    def _extract_rows(self, raw_data: str) -> Generator[DocumentoEmpresa, Any, None]:
         records = raw_data.split("$&&*")
         for record in records:
             if not record.strip():
                 continue
             yield DocumentoEmpresa.from_data(record)
 
-    def empresas(self):
+    def empresas(self) -> dict:
         url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx")
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
@@ -567,7 +570,7 @@ class RAD:
             result[other_code] = real_name
         return result
 
-    def categorias(self):
+    def categorias(self) -> dict[str, Any]:
         url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx")
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
@@ -589,7 +592,7 @@ class RAD:
         empresas: list = None,
         hora_inicio="00:00",
         hora_fim="23:59",
-    ):
+    ) -> list:
         """Busca documentos disponíveis no RAD/CVM (desde março/1998)"""
         url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx/ListarDocumentos")
         if empresas is not None:
@@ -645,7 +648,7 @@ class RAD:
         return list(self._extract_rows(raw_data))
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser) -> None:
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
 
     parser_noticias = subparsers.add_parser("noticias", help="Baixa notícias do site da CVM a partir de hoje")
@@ -731,7 +734,7 @@ def _configura_parser_cli(parser):
     # TODO: aceitar `-` (para stdout)
 
 
-def main(args):
+def main(args) -> int:
     comando = args.comando
 
     if comando == "noticias":
