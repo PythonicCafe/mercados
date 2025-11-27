@@ -22,7 +22,7 @@ class TituloRendaFixa:
     preco_venda: Decimal
 
     @classmethod
-    def from_dict(cls, row):
+    def from_dict(cls, row: dict):
         nome = row.pop("Tipo Titulo")
         indexador = None
         if nome == "Tesouro Selic":
@@ -49,7 +49,7 @@ class TituloRendaFixa:
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Decimal | str | datetime.date]:
         return {
             "data": self.data,
             "nome": self.nome,
@@ -68,7 +68,7 @@ class Tesouro:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
 
-    def historico_titulos(self):
+    def historico_titulos(self) -> list:
         """
         Baixa histórico de preços de títulos diários do Tesouro
 
@@ -84,7 +84,7 @@ class Tesouro:
         return dados
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser) -> None:
     from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
@@ -137,7 +137,7 @@ def _configura_parser_cli(parser):
     )
 
 
-def main(args):
+def main(args) -> int:
     import sys
 
     from mercados.utils import define_formato, dicts_to_file
