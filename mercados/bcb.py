@@ -265,7 +265,7 @@ class BancoCentral:
         if data_inicial.day != 1:
             raise ValueError("Data inicial precisa ser o primeiro dia do mês")
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
-            ultimo_dia = monthrange(data_final.year, data_final.month)
+            ultimo_dia = monthrange(data_final.year, data_final.month)[1]
             data_certa = datetime.date(data_final.year, data_final.month, ultimo_dia)
             raise ValueError(f"Data final precisa ser o último dia do mês: {data_final} vs {data_certa.isoformat()}")
         fator = Decimal(1)
