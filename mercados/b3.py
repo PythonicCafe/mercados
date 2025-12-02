@@ -21,6 +21,7 @@ from mercados.utils import (
     clean_string,
     create_session,
     parse_br_date,
+    parse_optional_br_date,
     parse_br_decimal,
     parse_date,
     parse_datetime_force_timezone,
@@ -515,7 +516,7 @@ class FundoDocumento:
             fundo=clean_string(row["companyName"]),
             tipo=row["name"],
             datahora_entrega=parse_datetime_force_timezone(row["date"]),
-            data_referencia=parse_br_date(row["referenceDate"]),
+            data_referencia=parse_optional_br_date(row["referenceDate"]),
             data_ordem=parse_date("iso-date", row["dateOrder"].replace("T00:00:00", "")),
             url=f"https://bvmf.bmfbovespa.com.br/sig/FormConsultaPdfDocumentoFundos.asp?strSigla={acronimo}&strData={row['date']}",
         )

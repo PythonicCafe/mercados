@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
-from mercados.utils import USER_AGENT, create_session, parse_br_date, parse_date
+from mercados.utils import USER_AGENT, create_session, parse_br_date, parse_date, parse_iso_date
 
 _DESCRICAO_CLI = "Coleta séries temporais e faz ajuste de valores"
 
@@ -240,9 +240,9 @@ class BancoCentral:
     def selic_por_dia(self, data_inicial: datetime.date | str, data_final: datetime.date | str) -> TaxaIntervalo:
         """Utiliza o sistema "novoselic" para pegar a variação diária da Selic para um determinado ano"""
         if isinstance(data_inicial, str):
-            data_inicial = parse_date("iso-date", data_inicial)
+            data_inicial = parse_iso_date(data_inicial)
         if isinstance(data_final, str):
-            data_final = parse_date("iso-date", data_final)
+            data_final = parse_iso_date(data_final)
         filtro = {
             "campoPeriodo": "periodo",
             "dataInicial": data_inicial.strftime("%d/%m/%Y"),
@@ -262,20 +262,20 @@ class BancoCentral:
     ) -> Decimal:
         """Ajusta valor com base na Selic diária (vinda do sistema "novoselic")"""
         if isinstance(data_inicial, str):
-            data_inicial = parse_date("iso-date", data_inicial)
+            data_inicial = parse_iso_date(data_inicial)
         if isinstance(data_final, str):
-            data_final = parse_date("iso-date", data_final)
+            data_final = parse_iso_date(data_final)
         taxa = self.selic_por_dia(data_inicial, data_final)
-        return (taxa.valor * valor).quantize(Decimal("0.01"))
+        return (taxa.valor * Decimal(valor)).quantize(Decimal("0.01"))
 
     def ajustar_selic_por_mes(
         self, data_inicial: datetime.date | str, data_final: datetime.date | str, valor: int | float | Decimal
     ) -> Decimal:
         """Ajusta valor com base na Selic mensal (vinda do sistema "novoselic")"""
         if isinstance(data_inicial, str):
-            data_inicial = parse_date("iso-date", data_inicial)
+            data_inicial = parse_iso_date(data_inicial)
         if isinstance(data_final, str):
-            data_final = parse_date("iso-date", data_final)
+            data_final = parse_iso_date(data_final)
         if data_inicial.day != 1:
             raise ValueError("Data inicial precisa ser o primeiro dia do mês")
         elif data_final.day != monthrange(data_final.year, data_final.month)[1]:
@@ -288,10 +288,10 @@ class BancoCentral:
                 if taxa.data_inicial >= data_inicial and taxa.data_final <= data_final:
                     fator *= taxa.valor
         fator = fator.quantize(Decimal("0.0000000000000001"))
-        return (fator * valor).quantize(Decimal("0.01"))
+        return (fator * Decimal(valor)).quantize(Decimal("0.01"))
 
 
-def _configura_parser_cli(parser) -> None:
+def _configura_parser_cli(parser: "argparse.ArgumentParser") -> None:
     from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
@@ -351,7 +351,7 @@ def _configura_parser_cli(parser) -> None:
     )
 
 
-def main(args) -> int:
+def main(args: "argparse.Namespace") -> int:
     import sys
 
     from mercados.utils import define_formato, dicts_to_file
