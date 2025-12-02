@@ -21,11 +21,12 @@ from mercados.utils import (
     clean_string,
     create_session,
     parse_br_date,
-    parse_optional_br_date,
     parse_br_decimal,
     parse_date,
     parse_datetime_force_timezone,
     parse_iso_date,
+    parse_optional_br_date,
+    parse_optional_br_decimal,
     parse_time,
 )
 
@@ -772,7 +773,7 @@ class NegociacaoBalcao:
             datahora=parse_date("iso-datetime-tz", f"{date}T{row.pop('Horario Negocio')}-03:00"),
             emissor=row.pop("Emissor"),
             instrumento=row.pop("Instrumento Financeiro"),
-            taxa=parse_br_decimal(row.pop("Taxa Negocio")),
+            taxa=parse_optional_br_decimal(row.pop("Taxa Negocio")),
             quantidade=quantidade,
             preco=preco,
             volume=volume,
@@ -850,7 +851,7 @@ class NegociacaoIntradiaria:
             datahora=datahora,
             codigo_negociacao=row.pop("CodigoInstrumento"),
             acao_atualizacao=int(row.pop("AcaoAtualizacao")),
-            preco=parse_br_decimal(row.pop("PrecoNegocio")),
+            preco=parse_optional_br_decimal(row.pop("PrecoNegocio")),
             quantidade=int(row.pop("QuantidadeNegociada")),
             codigo_negocio=int(row.pop("CodigoIdentificadorNegocio")),
             pregao_tipo=int(row.pop("TipoSessaoPregao")),
@@ -1808,7 +1809,7 @@ class B3:
                         ativo=row["asset"],
                         tipo=row["type"],
                         qtd_teorica=parse_br_decimal(row["theoricalQty"]),
-                        participacao=parse_br_decimal(row["part"]),
+                        participacao=parse_optional_br_decimal(row["part"]),
                     )
                 )
 
@@ -1827,7 +1828,7 @@ class B3:
                         ativo=row["asset"],
                         tipo=row["type"],
                         qtd_teorica=parse_br_decimal(row["theoricalQty"]),
-                        participacao=parse_br_decimal(row["part"]),
+                        participacao=parse_optional_br_decimal(row["part"]),
                     )
                 )
 
@@ -1846,7 +1847,7 @@ class B3:
                         ativo=row["asset"],
                         tipo=row["type"],
                         qtd_teorica=parse_br_decimal(row["theoricalQty"]),
-                        participacao=parse_br_decimal(row["part"]),
+                        participacao=parse_optional_br_decimal(row["part"]),
                     )
                 )
         header = response["header"]
@@ -1857,7 +1858,7 @@ class B3:
                     ativo="",
                     tipo="",
                     qtd_teorica=parse_br_decimal(header["theoricalQty"]),
-                    participacao=parse_br_decimal(header["part"]),
+                    participacao=parse_optional_br_decimal(header["part"]),
                 ),
                 AtivoIndice(
                     codigo_negociacao="Redutor",
@@ -1889,7 +1890,7 @@ class B3:
     #                 ativo=row["Ação"],
     #                 tipo=row["Tipo"],
     #                 qtd_teorica=parse_br_decimal(row["Qtde. Teórica"]),
-    #                 participacao=parse_br_decimal(row["Part. (%)"]),
+    #                 participacao=parse_optional_br_decimal(row["Part. (%)"]),
     #             )
 
     def _tabela_clearing(self, url_template, url_params, query_params, json_data=None, data_class=None):

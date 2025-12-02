@@ -4,7 +4,7 @@ import io
 from dataclasses import dataclass
 from decimal import Decimal
 
-from mercados.utils import USER_AGENT, create_session, parse_br_decimal, parse_date
+from mercados.utils import USER_AGENT, create_session, parse_br_date, parse_br_decimal
 
 _DESCRICAO_CLI = "Coleta preços históricos dos títutlos do Tesouro Direto"
 
@@ -38,8 +38,8 @@ class TituloRendaFixa:
         obj = cls(
             nome=nome,
             indexador=indexador,
-            vencimento=parse_date("br-date", row.pop("Data Vencimento")),
-            data=parse_date("br-date", row.pop("Data Base")),
+            vencimento=parse_br_date(row.pop("Data Vencimento")),
+            data=parse_br_date(row.pop("Data Base")),
             taxa_compra=parse_br_decimal(row.pop("Taxa Compra Manha")),
             taxa_venda=parse_br_decimal(row.pop("Taxa Venda Manha")),
             preco_compra=parse_br_decimal(row.pop("PU Compra Manha")),

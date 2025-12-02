@@ -17,6 +17,7 @@ from mercados.utils import (
     parse_date,
     parse_decimal,
     parse_int,
+    parse_optional_br_decimal,
     slug,
 )
 
@@ -948,8 +949,8 @@ class InformeDiarioFundo:
                 patrimonio_liquido=parse_br_decimal(informe2.pop("PATRIM_LIQ")),
                 captado=parse_br_decimal(informe2.pop("CAPTC_DIA")),
                 resgatado=parse_br_decimal(informe2.pop("RESG_DIA")),
-                saidas_previstas=parse_br_decimal(informe2.pop("VL_TOTAL_SAI", None)),
-                ativos_liquidaveis=parse_br_decimal(informe2.pop("VL_TOTAL_ATV", None)),
+                saidas_previstas=parse_optional_br_decimal(informe2.pop("VL_TOTAL_SAI", None)),
+                ativos_liquidaveis=parse_optional_br_decimal(informe2.pop("VL_TOTAL_ATV", None)),
                 cotistas_significativos=[CotistaFundo.from_dict(cotista) for cotista in cotistas_significativos],
                 data_proximo_pl=parse_date("br-date", informe2.pop("DATA_PROX_PL", None)),
             )
