@@ -24,6 +24,7 @@ from mercados.utils import (
     parse_date,
     parse_iso_date,
     parse_iso_month,
+    parse_optional_iso_date,
     slug,
 )
 
@@ -718,7 +719,7 @@ def _configura_parser_cli(parser) -> None:
         "--inicio",
         "--data-inicial",
         metavar="data",
-        type=parse_iso_date,
+        type=parse_optional_iso_date,
         help="Data mínima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument(
@@ -726,7 +727,7 @@ def _configura_parser_cli(parser) -> None:
         "--fim",
         "--data-final",
         metavar="data",
-        type=parse_iso_date,
+        type=parse_optional_iso_date,
         help="Data máxima de publicação do documento no formato YYYY-MM-DD",
     )
     parser_rad_busca.add_argument("csv_filename", type=Path, help="Nome do CSV para salvar os dados")

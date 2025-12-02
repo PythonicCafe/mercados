@@ -324,8 +324,24 @@ def parse_date(fmt: str, value: str, full: bool = False) -> datetime.date | None
         return obj.date()
 
 
-def parse_iso_date(value: str) -> datetime.date | None:
-    return parse_date("iso-date", value)
+def parse_iso_date(value: str) -> datetime.date:
+    return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+
+
+def parse_optional_iso_date(value: str | None) -> datetime.date | None:
+    if value is None or not str(value or "").strip():
+        return None
+    return parse_iso_date(value)
+
+
+def parse_br_date(value: str) -> datetime.date:
+    return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+
+
+def parse_optional_br_date(value: str) -> datetime.date | None:
+    if not value or value == "0001-01-01":
+        return None
+    return parse_br_date(value)
 
 
 def parse_iso_month(value: str) -> datetime.date | None:
@@ -356,12 +372,6 @@ def clean_string(value: str | None) -> str:
     if value is None:
         return value
     return value.strip()
-
-
-def parse_br_date(value: str) -> datetime.date | None:
-    if not value or value == "0001-01-01":
-        return None
-    return parse_date("br-date", value)
 
 
 def parse_time(value: str) -> datetime.time:
