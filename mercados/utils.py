@@ -252,22 +252,33 @@ def parse_bool(value: str) -> bool | None:
     }[str(value or "").lower().strip()]
 
 
-def parse_br_decimal(value: str) -> Decimal | None:
+def parse_br_decimal(value: str) -> Decimal:
     """
     from decimal import Decimal
     >>> parse_br_decimal("1")
     Decimal('1')
     >>> parse_br_decimal("1.234,56")
     Decimal('1234.56')
-    >>> print(parse_br_decimal(""))
+    """
+    # TODO: melhorar mensagem de erro quando não consegue converter decimal (o valor original não é mostrado, o que
+    # dificulta a depuração)
+    return Decimal(value.replace(".", "").replace(",", "."))
+
+
+def parse_optional_br_decimal(value: str) -> Decimal | None:
+    """
+    from decimal import Decimal
+    >>> print(parse_optional_br_decimal("   "))
     None
+    >>> print(parse_optional_br_decimal(None))
+    None
+    >>> parse_optional_br_decimal("1,23")
+    Decimal('1.23')
     """
     value = str(value or "").strip()
     if not value:
         return None
-    # TODO: melhorar mensagem de erro quando não consegue converter decimal (o valor original não é mostrado, o que
-    # dificulta a depuração)
-    return Decimal(value.replace(".", "").replace(",", "."))
+    return parse_br_decimal(value)
 
 
 def parse_decimal(value: str) -> Decimal | None:
@@ -279,7 +290,7 @@ def parse_decimal(value: str) -> Decimal | None:
     Decimal('1.23456')
     >>> parse_decimal("1,234.56")
     Decimal('1234.56')
-    >>> print(parse_br_decimal(""))
+    >>> print(parse_decimal(""))
     None
     """
     value = str(value or "").strip()
