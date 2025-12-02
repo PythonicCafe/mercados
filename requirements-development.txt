@@ -8,6 +8,15 @@ coverage >= 7.6.12, < 8.0.0
 flake8 >= 7.0.0, < 8.0.0
 ipython >= 8.24.0, < 9.0.0
 isort >= 5.13.2, < 6.0.0
+pipdeptree
 pytest >= 8.2.0, < 9.0.0
 twine >= 6.0.1, < 7.0.0
 wheel >= 0.45.1, < 1.0.0
+
+# Typing-related libraries
+lxml-stubs
+mypy >= 1.19.0, < 2.0.0
+types-requests
+types-urllib3
+types-xlrd
+types-xmltodict
