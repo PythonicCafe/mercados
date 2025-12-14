@@ -2645,7 +2645,7 @@ def main(args):
                 writer.writerow(row)
 
     elif comando == "clearing-emprestimos-registrados":
-        data_inicial = data_inicial
+        data_inicial = args.data_inicial
         data_final = args.data_final
         codigo_negociacao = args.codigo_negociacao
         with csv_filename.open(mode="w") as csv_fobj:
