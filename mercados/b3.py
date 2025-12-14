@@ -895,18 +895,18 @@ class EmprestimoAtivo:
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
             data=row.pop("Data"),
-            codigo_negociacao=row.pop("Ticker"),
-            codigo_isin=row.pop("ISIN"),
-            nome=row.pop("Empresa ou Fundo"),
+            codigo_negociacao=row.pop("Código IF"),
+            codigo_isin=row.pop("Código ISIN"),
+            nome=row.pop("Empresa ou fundo"),
             mercado=row.pop("Mercado"),
-            contratos=int(row.pop("Número de Contratos")),
-            quantidade=int(row.pop("Quantidade de Ativos")),
+            contratos=int(row.pop("Número de contratos")),
+            quantidade=int(row.pop("Quantidade de ativos")),
             minima=parse_float(row.pop("Mínima")),
-            media_ponderada=parse_float(row.pop("Média Ponderada")),
+            media_ponderada=parse_float(row.pop("Média ponderada")),
             maxima=parse_float(row.pop("Máxima")),
             valor=parse_decimal(row.pop("Valor em R$")),
-            taxa_doador=parse_float(row.pop("Taxa Doador")),
-            taxa_tomador=parse_float(row.pop("Taxa Tomador")),
+            taxa_doador=parse_float(row.pop("Taxa doador")),
+            taxa_tomador=parse_float(row.pop("Taxa tomador")),
         )
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
         return obj
@@ -1010,13 +1010,13 @@ class EmprestimoEmAberto:
             row[key] = parse_iso_date(row[key].replace("T00:00:00", ""))
         obj = cls(
             data=row.pop("Data"),
-            codigo_negociacao=row.pop("Ticker"),
-            codigo_isin=row.pop("ISIN"),
-            empresa=row.pop("Empresa ou Fundo"),
-            tipo=row.pop("Tipo"),
+            codigo_negociacao=row.pop("Código IF"),
+            codigo_isin=row.pop("Código ISIN"),
+            empresa=row.pop("Empresa ou fundo"),
+            tipo=row.pop("Tipo de empréstimo"),
             mercado=row.pop("Mercado"),
             saldo_quantidade=int(row.pop("Saldo em quantidade do ativo")),
-            preco_medio=parse_decimal(row.pop("Preço Médio")),
+            preco_medio=parse_decimal(row.pop("Preço médio")),
             saldo=parse_decimal(row.pop("Saldo em R$")),
         )
         assert not row, f"Dados sobraram e não foram extraídos para {cls.__name__}: {row}"
