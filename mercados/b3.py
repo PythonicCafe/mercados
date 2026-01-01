@@ -1286,8 +1286,9 @@ class B3:
     # TODO: (talvez, se possível) criar método para listar todos os índices programaticamente a partir de scraping
     _carteira_indice_periodos = ("dia", "teórica", "próxima")
 
-    def __init__(self, user_agent=USER_AGENT, proxy=None):
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
         # Requisição para guardar cookies:
         self.request(
             "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/fundos-de-investimento-imobiliario-fii.htm",
@@ -1332,7 +1333,7 @@ class B3:
 
         url = self.url_negociacao_bolsa(frequencia, data)
         # TODO: salvar arquivo em cache
-        response = self.session.get(url, verify=False)
+        response = self.session.get(url, verify=False, timeout=self.timeout)
         if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
             return ValueError(
                 f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
@@ -1373,7 +1374,7 @@ class B3:
         # TODO: aceitar datetime.date ou str (iso format)
         url = self.url_intradiaria_zip(data)
         # TODO: salvar arquivo em cache
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         yield from self._le_zip_intradiaria(io.BytesIO(response.content))
 
     def request(
@@ -1382,7 +1383,7 @@ class B3:
         url_params=None,
         params=None,
         method="GET",
-        timeout=10,
+        timeout=None,
         decode_json=True,
         verify_ssl=False,
         json_data=None,
@@ -1392,6 +1393,8 @@ class B3:
         if url_params is not None:
             url_params = self._make_url_params(url_params)
             url = urljoin(url, url_params)
+        if timeout is None:
+            timeout = self.timeout
         tried = 0
         while tried < max_tries:
             # São feitas múltiplas tentativas porque recorrentemente os servidores da CloudFlare respondem com erro
