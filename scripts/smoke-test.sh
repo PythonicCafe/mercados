@@ -189,7 +189,7 @@ python -m mercados.b3 clearing-termo-eletronico "$DATA_INICIAL" "$DATA_PATH/b3-c
 # IBGE
 echo mercados.ibge historico
 python -m mercados.ibge historico "IPCA-15" -i "2025-01-01" -F "csv" > "$DATA_PATH/ibge-historico-ipca-2025.csv"
-python -m mercados.ibge historico -i "2025-01-01" "IPCA-15" "ibge-historico-ipca15-2025.csv"
+python -m mercados.ibge historico -i "2025-01-01" "IPCA-15" "$DATA_PATH/ibge-historico-ipca15-2025.csv"
 
 
 # STN

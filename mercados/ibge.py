@@ -1,5 +1,7 @@
 from io import BytesIO
 
+from mercados.utils import USER_AGENT, create_session
+
 _DESCRICAO_CLI = "Coleta valores históricos de índices"
 
 
@@ -10,11 +12,9 @@ class IBGE:
         "INPC": "https://ftp.ibge.gov.br/Precos_Indices_de_Precos_ao_Consumidor/INPC/Serie_Historica/inpc_SerieHist.zip",
     }
 
-    def __init__(self, timeout=10):
-        from mercados.utils import create_session
-
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
-        self.session = create_session()
 
     def _baixa_planilha_indice(self, url):
         # TODO: implementar cache
