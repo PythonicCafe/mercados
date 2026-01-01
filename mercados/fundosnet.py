@@ -79,7 +79,9 @@ class FundosNet:
 
     base_url = "https://fnet.bmfbovespa.com.br/fnet/publico/"
 
-    def __init__(self, user_agent=USER_AGENT, timeout=5, verify_ssl=False, proxy=None):
+    def __init__(
+        self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0, verify_ssl: bool = False
+    ) -> None:
         self._user_agent = user_agent
         self._proxy = proxy
         self.timeout = timeout
@@ -91,14 +93,16 @@ class FundosNet:
     def session(self):
         if self._session is None:
             self._session = create_session(user_agent=self._user_agent, proxy=self._proxy)
-            self._session.headers["CSRFToken"] = self.csrf_token
+            self._session.headers["CSRFToken"] = self.get_csrf_token()
         return self._session
 
-    def baixa_xml(self, url, timeout=10.0, max_tries=5, wait_between_errors=0.5):
+    def baixa_xml(self, url: str, timeout: float | None = None, max_tries: int = 5, wait_between_errors: float = 0.5):
         """Baixa um XML do FundosNet a partir da URL e decodifica-o corretamente
 
         Serão feitas, no total, `max_tries` tentativas, pois em alguns casos a CloudFlare retorna um erro HTTP 5xx.
         """
+        if timeout is None:
+            timeout = self.timeout
         tried = 0
         while tried < max_tries:
             # Forçar o cabeçalho `Accept` faz com que a resposta não seja enviada em base64
@@ -138,8 +142,7 @@ class FundosNet:
         response = self.request("GET", "abrirGerenciadorDocumentosCVM", xhr=False)
         return response.text
 
-    @cached_property
-    def csrf_token(self):
+    def get_csrf_token(self):
         # TODO: expires crsf_token after some time
         matches = _REGEXP_CSRF_TOKEN.findall(self.main_page)
         if not matches:
