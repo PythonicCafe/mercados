@@ -167,15 +167,16 @@ class Noticia:
 
 
 class CVM:
-    def __init__(self, user_agent=USER_AGENT, proxy=None):
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
 
     def noticias(self):
         url = "https://www.gov.br/cvm/pt-br/assuntos/noticias"
         params = {"b_size": 60, "b_start:int": 0}
         finished = False
         while not finished:
-            response = self.session.get(url, params=params)
+            response = self.session.get(url, params=params, timeout=self.timeout)
             tree = document_fromstring(response.text)
             items = tree.xpath("//ul[contains(@class, 'noticias')]/li")
             for li in items:
@@ -229,12 +230,15 @@ class CVM:
         if isinstance(ano_mes, str):
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_informe_diario_fundo(ano_mes)
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_informe_diario(zip_fobj, ano_mes)
 
     def contas_fundos(self):
-        response = self.session.get("https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx")
+        response = self.session.get(
+            "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx",
+            timeout=self.timeout,
+        )
         tree = document_fromstring(response.content)
         table = []
         for row in tree.xpath("//table/tr"):
@@ -294,7 +298,7 @@ class CVM:
         if isinstance(ano_mes, str):
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_balancete_fundo_investimento(ano_mes)
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_balancete(zip_fobj)
 
@@ -303,7 +307,7 @@ class CVM:
         if isinstance(ano_mes, str):
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_balancete_fundo_estruturado(ano_mes)
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         zip_fobj = io.BytesIO(response.content)
         # TODO: deveria extrair de maneira diferente o ZIP anual e o mensal?
         yield from self._le_zip_balancete(zip_fobj)
@@ -531,8 +535,9 @@ class DocumentoEmpresa:
 
 class RAD:
     # TODO: métodos deveriam ser movidos para classe CVM?
-    def __init__(self, user_agent=USER_AGENT, proxy=None):
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
         self._empresas = self._categorias = None
 
     def _extract_rows(self, raw_data):
@@ -544,7 +549,7 @@ class RAD:
 
     def empresas(self):
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         tree = document_fromstring(response.content.decode("utf-8"))
         fake_json_data = tree.xpath("//input[@name = 'hdnEmpresas']/@value")[0]
         result = {}
@@ -556,7 +561,7 @@ class RAD:
 
     def categorias(self):
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         tree = document_fromstring(response.content.decode("utf-8"))
         options = {}
         for option in tree.xpath("//select[@id = 'cboCategorias']//option"):
@@ -621,7 +626,7 @@ class RAD:
             "versaoCaptcha": "",
         }
         # TODO: fazer paginação?
-        response = self.session.post(url, json=form_data)
+        response = self.session.post(url, json=form_data, timeout=self.timeout)
         data = response.json()
         erro = data["d"]["msgErro"]
         if erro:
