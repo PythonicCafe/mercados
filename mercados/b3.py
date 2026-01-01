@@ -2178,6 +2178,9 @@ def _configura_parser_cli(parser):
         "intradiaria-baixar", help="Baixa arquivo ZIP de negociações intradiárias para uma data."
     )
     subparser_baixar.add_argument(
+        "-t", "--timeout", type=float, default=15.0, help="Tempo de timeout da requisição HTTP"
+    )
+    subparser_baixar.add_argument(
         "-c", "--chunk-size", type=int, default=256 * 1024, help="Tamanho do chunk no download"
     )
     subparser_baixar.add_argument("data", type=parse_iso_date, help="Data no formato YYYY-MM-DD")
@@ -2588,10 +2591,11 @@ def main(args):
         data = args.data
         chunk_size = args.chunk_size
         zip_filename = args.zip_filename
+        timeout = args.timeout
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
 
         url = b3.url_intradiaria_zip(data)
-        response = b3.session.get(url, stream=True)
+        response = b3.session.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
         with zip_filename.open("wb") as fobj:
             for chunk in response.iter_content(chunk_size):
