@@ -1,5 +1,6 @@
 from io import BytesIO
 
+from mercados.bcb import Taxa
 from mercados.utils import USER_AGENT, create_session
 
 _DESCRICAO_CLI = "Coleta valores históricos de índices"
@@ -16,20 +17,19 @@ class IBGE:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
 
-    def _baixa_planilha_indice(self, url):
+    def _baixa_planilha_indice(self, url: str) -> bytes:
         # TODO: implementar cache
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
-        return response.content
+        content = response.content
+        return content if content is not None else bytes()
 
-    def _extrai_planilha_indice(self, content: BytesIO):
+    def _extrai_planilha_indice(self, content: bytes) -> list[Taxa]:
         import datetime
         from decimal import Decimal
         from zipfile import ZipFile
 
         import xlrd
-
-        from mercados.bcb import Taxa
 
         # TODO: adicionar cache
         # TODO: adicionar variação na taxa
@@ -43,24 +43,24 @@ class IBGE:
         sheet = workbook.sheet_by_index(0)
         meses = "JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ".split()
         resultado = [Taxa(data=datetime.date(1993, 12, 15), valor=Decimal("100.00"))]
-        ultimo_ano = None
+        ultimo_ano: int = 0
         for row_number in range(sheet.nrows):
-            row = [cell.value for cell in sheet.row(row_number)]
-            ano, mes, valor = row[:3]
-            if not mes or mes == "MÊS":
+            row = [str(cell.value) for cell in sheet.row(row_number)]
+            ano_str, mes_str, valor = row[:3]
+            if not mes_str or mes_str == "MÊS":
                 continue
-            if not ano:
+            if not ano_str:
                 ano = ultimo_ano
             else:
-                ano = int(ano)
+                ano = int(ano_str.replace(".0", ""))
                 ultimo_ano = ano
-            mes = meses.index(mes) + 1
+            mes = meses.index(mes_str) + 1
             # TODO: quantize valor UM_CENTAVO
-            resultado.append(Taxa(data=datetime.date(ano, mes, 15), valor=Decimal(str(valor))))
+            resultado.append(Taxa(data=datetime.date(ano, mes, 15), valor=Decimal(valor)))
 
         return resultado
 
-    def historico(self, indice):
+    def historico(self, indice: str) -> list[Taxa]:
         """
         Extrai os números-índices para um determinado índice, desde janeiro de 1994 (dez/1993 = 100)
 
@@ -77,7 +77,7 @@ class IBGE:
         return self._extrai_planilha_indice(zip_content)
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser: "argparse.ArgumentParser") -> None:
     from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
@@ -122,7 +122,7 @@ def _configura_parser_cli(parser):
     )
 
 
-def main(args):
+def main(args: "argparse.Namespace") -> int:
     import sys
 
     from mercados.utils import define_formato, dicts_to_file
