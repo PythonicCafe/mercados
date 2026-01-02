@@ -4,7 +4,7 @@ import io
 from dataclasses import dataclass
 from decimal import Decimal
 
-from mercados.utils import create_session, parse_br_decimal, parse_date
+from mercados.utils import USER_AGENT, create_session, parse_br_decimal, parse_date
 
 _DESCRICAO_CLI = "Coleta preços históricos dos títutlos do Tesouro Direto"
 
@@ -64,8 +64,8 @@ class TituloRendaFixa:
 
 
 class Tesouro:
-    def __init__(self, timeout=10.0):
-        self.session = create_session()
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
+        self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
 
     def historico_titulos(self):
