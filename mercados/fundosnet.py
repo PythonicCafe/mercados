@@ -2,8 +2,10 @@ import datetime
 import re
 import time
 from functools import cached_property
+from typing import Any, Generator, Optional, Union
 from urllib.parse import urljoin
 
+import requests
 from lxml.html import document_fromstring
 
 from mercados import choices
@@ -23,20 +25,20 @@ _MODELOS_NOMES_ARQUIVOS = {
 _DESCRICAO_CLI = "Busca e baixa documentos publicados no FundosNET"
 
 
-def parse_certificado_descricao(value):
+def parse_certificado_descricao(value: str) -> dict[str, str]:
     result = _REGEXP_CERTIFICADO_DESCRICAO.findall(value)
     if not result:
         raise ValueError(f"Valor informado não segue padrão de descrição de certificado: {repr(value)}")
     return {key: value for key, value in zip("nome tipo emissao serie data codigo".split(), result[0])}
 
 
-def assert_in(nome_variavel, valor, valores_possiveis):
+def assert_in(nome_variavel: str, valor: str, valores_possiveis: list[str]) -> None:
     if valor not in valores_possiveis:
         valores = ", ".join(valores_possiveis)
         raise ValueError(f"Valor inválido para `{nome_variavel}`: {repr(valor)} (esperado: {valores})")
 
 
-def format_document_path(pattern: str, doc: DocumentMeta, content_type: str):
+def format_document_path(pattern: str, doc: DocumentMeta, content_type: str) -> str:
     doc_id = int(doc.id)
     doc_id8 = f"{int(doc_id):08d}"
     extension = ""
@@ -86,17 +88,19 @@ class FundosNet:
         self._proxy = proxy
         self.timeout = timeout
         self.verify_ssl = verify_ssl
-        self._session = None
+        self._session: requests.Session = None
         self.draw = 0
 
     @property
-    def session(self):
+    def session(self) -> requests.Session:
         if self._session is None:
             self._session = create_session(user_agent=self._user_agent, proxy=self._proxy)
             self._session.headers["CSRFToken"] = self.get_csrf_token()
         return self._session
 
-    def baixa_xml(self, url: str, timeout: float | None = None, max_tries: int = 5, wait_between_errors: float = 0.5):
+    def baixa_xml(
+        self, url: str, timeout: float | None = None, max_tries: int = 5, wait_between_errors: float = 0.5
+    ) -> str:
         """Baixa um XML do FundosNet a partir da URL e decodifica-o corretamente
 
         Serão feitas, no total, `max_tries` tentativas, pois em alguns casos a CloudFlare retorna um erro HTTP 5xx.
@@ -119,7 +123,16 @@ class FundosNet:
         encoding = result[0] if result else "utf-8"
         return content.decode(encoding)
 
-    def request(self, method, path, headers=None, params=None, data=None, json=None, xhr=False):
+    def request(
+        self,
+        method: str,
+        path: str,
+        headers: dict | None = None,
+        params: dict | None = None,
+        data=None,
+        json=None,
+        xhr=False,
+    ) -> requests.Response:
         params = params or {}
         headers = headers or {}
         if xhr:
@@ -138,11 +151,11 @@ class FundosNet:
         )
 
     @cached_property
-    def main_page(self):
+    def main_page(self) -> str:
         response = self.request("GET", "abrirGerenciadorDocumentosCVM", xhr=False)
         return response.text
 
-    def get_csrf_token(self):
+    def get_csrf_token(self) -> str:
         # TODO: expires crsf_token after some time
         matches = _REGEXP_CSRF_TOKEN.findall(self.main_page)
         if not matches:
@@ -193,7 +206,7 @@ class FundosNet:
                     result[categoria_id].append(row)
         return result
 
-    def paginate(self, path, params=None, xhr=True, items_per_page=200):
+    def paginate(self, path, params=None, xhr=True, items_per_page=200) -> Generator[Any, Any, None]:
         params = params or {}
         params["s"] = 0  # rows to skip
         params["l"] = items_per_page  # page length
@@ -212,15 +225,15 @@ class FundosNet:
             params["_"] = int(time.time() * 1000)
             finished = params["s"] >= total_rows
 
-    def fundos(self):
+    def fundos(self) -> Generator[Any, Any, None]:
         yield from self._listar_fundos(certs=False)
 
-    def certificados(self):
+    def certificados(self) -> Generator[Any, Any, None]:
         for certificado in self._listar_fundos(certs=True):
             certificado.update(**parse_certificado_descricao(certificado["text"]))
             yield certificado
 
-    def _listar_fundos(self, certs: bool):
+    def _listar_fundos(self, certs: bool) -> Generator[Any, Any, None]:
         params = {
             "term": "",
             "page": 1,
@@ -251,7 +264,7 @@ class FundosNet:
         campo_ordenacao="dataEntrega",
         ordenacao="desc",
         itens_por_pagina=200,
-    ):
+    ) -> Generator[DocumentMeta, Any, None]:
         # TODO: traduzir parâmetros e nome do método para Português
         ordenacao_choices = ("asc", "desc")
         campo_ordenacao_choices = (
@@ -323,7 +336,7 @@ class FundosNet:
         campo_ordenacao="dataEntrega",
         ordenacao="desc",
         itens_por_pagina=200,
-    ):
+    ) -> Generator[DocumentMeta, Any, None]:
         assert ordenacao in ("asc", "desc")
         assert campo_ordenacao in (
             "denominacaoSocial",
@@ -359,7 +372,7 @@ class FundosNet:
         for row in result:
             yield DocumentMeta.from_json(row)
 
-    def _extrai_dados_protocolo(self, content: bytes):
+    def _extrai_dados_protocolo(self, content: bytes) -> dict[str, Optional[Union[str, datetime.datetime]]]:
         tree = document_fromstring(content)
         tabelas = tree.xpath("//table[caption]")
         row = {}
@@ -393,13 +406,13 @@ class FundosNet:
                 row[key] = None
         return row
 
-    def dados_protocolo(self, doc_id):
+    def dados_protocolo(self, doc_id) -> dict[str, Optional[Union[str, datetime.datetime]]]:
         """Coleta informações do protocolo de entrega para um determinado documento"""
         response = self.request("GET", "visualizarProtocoloDocumentoCVM", xhr=False, params={"idDocumento": doc_id})
         return self._extrai_dados_protocolo(response.content)
 
 
-def _configura_parser_cli(parser):
+def _configura_parser_cli(parser) -> None:
     from pathlib import Path
 
     from mercados.utils import parse_iso_date
@@ -459,7 +472,7 @@ def _configura_parser_cli(parser):
     parser.add_argument("csv_filename", type=Path, help="Arquivo CSV com os documentos encontrados")
 
 
-def main(args):
+def main(args) -> int:
     import csv
     from pathlib import Path
 
