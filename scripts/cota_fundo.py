@@ -77,8 +77,9 @@ class BRMoneyField(rows.fields.DecimalField):
 class CVMFundo:
     base_url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultBuscaPartic.aspx"
 
-    def __init__(self, user_agent=USER_AGENT, proxy=None):
+    def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
+        self.timeout = timeout
 
     def _parse_dados_fundo(self, tree):
         dados_fundo = [
@@ -108,7 +109,7 @@ class CVMFundo:
             "CNPJNome": cnpj,
             "COMPTC": competencia.strftime("%m/%Y") if competencia is not None else "",
         }
-        response = self.session.get(self.base_url, params=params, allow_redirects=True)
+        response = self.session.get(self.base_url, params=params, allow_redirects=True, timeout=self.timeout)
         tree = document_fromstring(response.text)
         meta = self._parse_dados_fundo(tree)
         assert clean_cnpj(meta["fundo_cnpj"]) == clean_cnpj(cnpj)
@@ -152,7 +153,7 @@ class CVMFundo:
             "CNPJNome": cnpj,
             "COMPTC": "",
         }
-        response = self.session.get(self.base_url, params=params, allow_redirects=True)
+        response = self.session.get(self.base_url, params=params, allow_redirects=True, timeout=self.timeout)
         tree = document_fromstring(response.text)
         datas_competencias = []
         for competencia in tree.xpath("//select[@name = 'ddComptc']/option/@value"):
