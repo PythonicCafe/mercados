@@ -1572,6 +1572,7 @@ class B3:
 
     def etfs(self, detalhe=False):
         """Devolve os ETFs listados na B3 (incluindo os de renda fixa)"""
+        # TODO: corrigir `None` em `data_aprovacao_cotas = parse_br_date(clean_string(data.pop("quotaDateApproved")))`
         yield from self._fundos_listados_por_tipo("ETF", detalhe=detalhe)
         yield from self._fundos_listados_por_tipo("ETF-RF", detalhe=detalhe)
 
@@ -1616,6 +1617,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiinfra_subscriptions(self, cnpj, identificador):
+        # TODO: não está funcionando: KeyError: 'subscriptions'
         return self._fund_subscriptions(27, cnpj, identificador)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
@@ -1643,6 +1645,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fip_subscriptions(self, cnpj, identificador):
+        # TODO: não está funcionando: KeyError: 'subscriptions'
         return self._fund_subscriptions(21, cnpj, identificador)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
@@ -1672,6 +1675,7 @@ class B3:
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
     def fiagro_subscriptions(self, cnpj, identificador):
+        # TODO: não está funcionando: KeyError: 'subscriptions'
         return self._fund_subscriptions(34, cnpj, identificador)
 
     # TODO: renomear identificador para um nome mais específico (acronimo, id_fnet, cnpj etc.)
@@ -1694,6 +1698,7 @@ class B3:
         return self.fundo_listado_detalhe("FIDC", fundo_id, identificador)
 
     def securitizadoras(self):
+        # TODO: página não encontrada (deve ter sido migrada)
         yield from self.paginate(urljoin(self._funds_call_url, "GetListedSecuritization/"))
 
     def cris(self, cnpj_securitizadora):
@@ -1915,6 +1920,7 @@ class B3:
         query_params = {"sort": "TckrSymb"}
         if filtro_emissor is not None:
             query_params["filter"] = base64.b64encode(filtro_emissor.encode("utf-8")).decode("ascii")
+        # TODO: corrigir 'Data de aprovação': AttributeError: 'NoneType' object has no attribute 'endswith'
         yield from self._tabela_clearing(
             url_template="https://arquivos.b3.com.br/bdi/table/ProventionCreditVariable/{data_inicial}/{data_final}/{page}/{page_size}",
             url_params={"data_inicial": data_inicial.isoformat(), "data_final": data_inicial.isoformat()},
@@ -2605,7 +2611,7 @@ def main(args):
         zip_filename = args.zip_filename
         zip_filename.parent.mkdir(parents=True, exist_ok=True)
         csv_filename = args.csv_filename
-        codigo_ativo = set(args.codigo_ativo) if args.codigo_ativo else None
+        filtro_codigo_negociacao = set(args.codigo_negociacao) if args.codigo_negociacao else None
 
         with csv_filename.open(mode="w") as fobj, zip_filename.open(mode="rb") as zip_fobj:
             writer = None
@@ -2614,7 +2620,7 @@ def main(args):
                 if writer is None:
                     writer = csv.DictWriter(fobj, fieldnames=list(row.keys()))
                     writer.writeheader()
-                if codigo_ativo is None or item.codigo_negociacao in codigo_ativo:
+                if filtro_codigo_negociacao is None or item.codigo_negociacao in filtro_codigo_negociacao:
                     writer.writerow(row)
 
     elif comando == "clearing-acoes-custodiadas":
