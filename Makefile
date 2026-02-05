@@ -1,5 +1,5 @@
 TAGS_FILE = .tags
-COMPOSE_RUN = docker compose run --rm -it --quiet-build
+COMPOSE_RUN = docker compose run --rm -it
 
 bash: 					# Run bash inside `main` container
 	$(COMPOSE_RUN) main bash

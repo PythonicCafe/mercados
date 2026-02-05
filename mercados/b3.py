@@ -2567,6 +2567,7 @@ def main(args):
                 writer.writerow(row)
 
     elif comando == "negociacao-balcao":
+        # TODO: adicionar opção de data inicial/data final
         today = datetime.datetime.now().date()
         start_date = datetime.date(today.year, 1, 1)
         end_date = today + datetime.timedelta(days=1)
