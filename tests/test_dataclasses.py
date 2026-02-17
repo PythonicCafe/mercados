@@ -1,9 +1,10 @@
 import datetime
 import random
 import string
+import types
 from dataclasses import fields, is_dataclass
 from decimal import Decimal
-from typing import get_args
+from typing import Union, get_args, get_origin
 
 import pytest
 
@@ -42,28 +43,46 @@ def rand_datetime(ano_minimo=1990, ano_maximo=2025):
     )
 
 
+def _unwrap_optional(field_type: type) -> tuple[type, bool]:
+    origin = get_origin(field_type)
+    if origin is Union or isinstance(field_type, types.UnionType):
+        args = get_args(field_type)
+        non_none = [a for a in args if a is not type(None)]
+        if len(non_none) == 1 and type(None) in args:
+            return non_none[0], True
+
+    return field_type, False
+
+
+def _cria_valor_falso(field_type: type):
+    if field_type is bool:
+        return random.random() > 0.5
+    elif field_type is str:
+        return rand_str(100)
+    elif field_type is int:
+        return rand_int(minimo=0, maximo=1000)
+    elif field_type is float:
+        return rand_float(maximo=10000)
+    elif field_type is Decimal:
+        return rand_decimal(maximo=100000)
+    elif field_type is datetime.date:
+        return rand_date()
+    elif field_type is datetime.datetime:
+        return rand_datetime()
+    elif get_origin(field_type) is list:
+        arg = get_args(field_type)[0]
+        return [_cria_valor_falso(arg) for _ in range(random.randint(1, 3))]
+    elif is_dataclass(field_type):
+        return cria_objeto_com_dados_falsos(field_type)
+    else:
+        raise TypeError(f"Tipo não suportado: {field_type!r}")
+
+
 def cria_objeto_com_dados_falsos(DataClass):
     row = {}
     for field in fields(DataClass):
-        field_type = field.type
-        is_optional = field_type.__name__ == "Optional"
-        if is_optional:
-            field_type, _none = get_args(field_type)
-            assert _none is type(None)
-        if field_type is bool:
-            row[field.name] = random.random() > 0.5
-        elif field_type is str:
-            row[field.name] = rand_str(100)
-        elif field_type is int:
-            row[field.name] = rand_int(minimo=0, maximo=1000)
-        elif field_type is float:
-            row[field.name] = rand_float(maximo=10000)
-        elif field_type is Decimal:
-            row[field.name] = rand_decimal(maximo=100000)
-        elif field_type is datetime.date:
-            row[field.name] = rand_date()
-        elif field_type is datetime.datetime:
-            row[field.name] = rand_datetime()
+        field_type, is_optional = _unwrap_optional(field.type)
+        row[field.name] = _cria_valor_falso(field_type)
         if is_optional and random.random() > 0.5:
             row[field.name] = None
     return DataClass(**row)

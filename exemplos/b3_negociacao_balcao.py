@@ -3,6 +3,7 @@ Busca debêntures das Americanas S.A. negociadas em balcão para janeiro de 2026
 
 Encontrará registros nos dias 2026-01-07 e 2026-01-30.
 """
+
 import datetime
 
 from mercados.b3 import B3
