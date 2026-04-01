@@ -2,8 +2,9 @@ import csv
 import datetime
 from pathlib import Path
 
-from mercados.cvm import CVM
 from requests.exceptions import HTTPError
+
+from mercados.cvm import CVM
 
 cnpj_fundo = "18302338000163"  # Ártica Long Term FIA
 csv_filename = Path("data") / "cota-artica-long-term.csv"

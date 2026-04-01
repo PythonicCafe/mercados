@@ -7,7 +7,7 @@
 *.sqlite
 *.sqlite3
 *~
-.*.sw?
+.*sw?
 .DS_Store
 .activate
 .bash_history
