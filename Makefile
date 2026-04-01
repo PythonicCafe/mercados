@@ -1,5 +1,11 @@
 TAGS_FILE = .tags
-COMPOSE_RUN = docker compose run --rm -it
+ifeq ($(CI),true)
+    DOCKER_EXEC_FLAGS = -T
+else
+    DOCKER_EXEC_FLAGS = -it
+endif
+COMPOSE = docker compose
+COMPOSE_RUN = $(COMPOSE) run --rm $(DOCKER_EXEC_FLAGS)
 
 bash: 					# Run bash inside `main` container
 	$(COMPOSE_RUN) main bash
@@ -53,7 +59,8 @@ shell:					# Execute IPython inside `main` container
 tags:					# Generate tags file for the entire project (requires universal-ctags)
 	@git ls-files | ctags -L - --tag-relative=yes --quiet --append -f "$(TAGS_FILE)"
 
-test:					# Execute `pytest` inside `main` container
-	$(COMPOSE_RUN) main pytest --doctest-modules $(TEST_ARGS) mercados/ tests/
+test:					# Execute `pytest` and coverage report inside `main` container
+	$(COMPOSE_RUN) main bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+
 
 .PHONY:	bash bash-root build clean cloc container-clean help kill lint release man shell tags test-release test
