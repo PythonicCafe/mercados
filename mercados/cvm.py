@@ -177,6 +177,7 @@ class CVM:
         finished = False
         while not finished:
             response = self.session.get(url, params=params, timeout=self.timeout)
+            response.raise_for_status()
             tree = document_fromstring(response.text)
             items = tree.xpath("//ul[contains(@class, 'noticias')]/li")
             for li in items:
@@ -231,6 +232,7 @@ class CVM:
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_informe_diario_fundo(ano_mes)
         response = self.session.get(url, timeout=self.timeout)
+        response.raise_for_status()
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_informe_diario(zip_fobj, ano_mes)
 
@@ -239,6 +241,7 @@ class CVM:
             "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/PadroesXML/ListaPlanoContasCOFI.aspx",
             timeout=self.timeout,
         )
+        response.raise_for_status()
         tree = document_fromstring(response.content)
         table = []
         for row in tree.xpath("//table/tr"):
@@ -299,6 +302,7 @@ class CVM:
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_balancete_fundo_investimento(ano_mes)
         response = self.session.get(url, timeout=self.timeout)
+        response.raise_for_status()
         zip_fobj = io.BytesIO(response.content)
         yield from self._le_zip_balancete(zip_fobj)
 
@@ -308,6 +312,7 @@ class CVM:
             ano_mes = parse_iso_month(ano_mes)
         url = self.url_balancete_fundo_estruturado(ano_mes)
         response = self.session.get(url, timeout=self.timeout)
+        response.raise_for_status()
         zip_fobj = io.BytesIO(response.content)
         # TODO: deveria extrair de maneira diferente o ZIP anual e o mensal?
         yield from self._le_zip_balancete(zip_fobj)
@@ -550,6 +555,7 @@ class RAD:
     def empresas(self):
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
         response = self.session.get(url, timeout=self.timeout)
+        response.raise_for_status()
         tree = document_fromstring(response.content.decode("utf-8"))
         fake_json_data = tree.xpath("//input[@name = 'hdnEmpresas']/@value")[0]
         result = {}
@@ -562,6 +568,7 @@ class RAD:
     def categorias(self):
         url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
         response = self.session.get(url, timeout=self.timeout)
+        response.raise_for_status()
         tree = document_fromstring(response.content.decode("utf-8"))
         options = {}
         for option in tree.xpath("//select[@id = 'cboCategorias']//option"):
@@ -627,6 +634,7 @@ class RAD:
         }
         # TODO: fazer paginação?
         response = self.session.post(url, json=form_data, timeout=self.timeout)
+        response.raise_for_status()
         data = response.json()
         erro = data["d"]["msgErro"]
         if erro:
