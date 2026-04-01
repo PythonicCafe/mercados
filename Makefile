@@ -56,6 +56,15 @@ release test-release: clean man		# Build and release the package to PyPI/Test Py
 shell:					# Execute IPython inside `main` container
 	$(COMPOSE_RUN) main ipython
 
+smoke-test:				# Run smoke test script inside `main` container
+	$(COMPOSE_RUN) main /app/scripts/smoke-test.sh
+
+smoke-test-examples:	# Run each .py in exemplos/ as a smoke test inside `main` container
+	@for example in exemplos/*.py; do \
+		echo "Running $$example..."; \
+		$(COMPOSE_RUN) --quiet-build -e PYTHONPATH=/app main python "/app/$$example" || exit 1; \
+	done
+
 tags:					# Generate tags file for the entire project (requires universal-ctags)
 	@git ls-files | ctags -L - --tag-relative=yes --quiet --append -f "$(TAGS_FILE)"
 
@@ -63,4 +72,4 @@ test:					# Execute `pytest` and coverage report inside `main` container
 	$(COMPOSE_RUN) main bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
 
-.PHONY:	bash bash-root build clean cloc container-clean help kill lint release man shell tags test-release test
+.PHONY:	bash bash-root build clean cloc container-clean help kill lint release man shell smoke-test smoke-test-examples tags test-release test
