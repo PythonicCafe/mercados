@@ -35,6 +35,7 @@ _REGEXP_SEM_PARAMETROS = re.compile(r"^[a-zA-Z0-9_]+\(\)$", flags=re.DOTALL)  # 
 _REGEXP_PARAMETROS = re.compile(r"^([a-zA-Z0-9_]+)\((.*?)\)$", flags=re.DOTALL)
 _REGEXP_PARAMETROS_INTERNA = re.compile(r"'(.*?)'|(\d+)", flags=re.DOTALL)
 _REGEXP_INFO_FUNCTION = re.compile('''class='fi-info'[^>]*onmouseover="([^>]*)"''', flags=re.DOTALL)
+RAD_BASE_URL = "https://www.rad.cvm.gov.br/ENETWeb/"
 _DESCRICAO_CLI = "Coleta notícias e faz buscas no RAD/EmpresaNet"
 
 
@@ -487,7 +488,7 @@ class DocumentoEmpresa:
                 ), f"Dados para link de visualização não reconhecidos: {search_function}, {search_params}"
                 if search_function == "OpenPopUpVer":
                     # params: ['frmExibirArquivoIPEExterno.aspx?NumeroProtocoloEntrega=66913']
-                    row["url_visualizacao"] = urljoin("https://www.rad.cvm.gov.br/ENET/", search_params[0])
+                    row["url_visualizacao"] = urljoin(RAD_BASE_URL, search_params[0])
                 elif search_function == "VisualizaArquivo_ITR_DFP_IAN":
                     # params: ['2', '09/03/1998', 'CONSULTA', 'FUTURETEL S.A. - EM LIQUIDAÇÃO', 'FUTURETEL', '17388',
                     #          'L']
@@ -508,10 +509,11 @@ class DocumentoEmpresa:
         if download_function == "OpenDownloadDocumentos":
             row["id"], _, row["protocolo"], row["tipo"] = download_params
             row["id"] = int(row["id"])
-            row["url_download"] = (
-                "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
+            row["url_download"] = urljoin(
+                RAD_BASE_URL,
+                f"frmDownloadDocumento.aspx?Tela=ext&"
                 f"numSequencia={row['id']}&numVersao={row['versao']}&numProtocolo={row['protocolo']}&"
-                f"descTipo={row['tipo']}&CodigoInstituicao=1"
+                f"descTipo={row['tipo']}&CodigoInstituicao=1",
             )
         elif download_function == "VisualizaArquivo_ITR_DFP_IAN":
             sDescTPDoc, sDataEncerra, sFuncao, sRazao, sPregao, sCodCVM, sMoeda = download_params
@@ -553,7 +555,7 @@ class RAD:
             yield DocumentoEmpresa.from_data(record)
 
     def empresas(self):
-        url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
+        url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx")
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
         tree = document_fromstring(response.content.decode("utf-8"))
@@ -566,7 +568,7 @@ class RAD:
         return result
 
     def categorias(self):
-        url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx"
+        url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx")
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
         tree = document_fromstring(response.content.decode("utf-8"))
@@ -589,7 +591,7 @@ class RAD:
         hora_fim="23:59",
     ):
         """Busca documentos disponíveis no RAD/CVM (desde março/1998)"""
-        url = "https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx/ListarDocumentos"
+        url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx/ListarDocumentos")
         if empresas is not None:
             if self._empresas is None:
                 self._empresas = self.empresas()
