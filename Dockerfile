@@ -1,23 +1,36 @@
-FROM python:3.13-slim-trixie
+FROM python:3.14-slim-trixie
 
 ENV PYTHONUNBUFFERED=1
-ARG DEV_BUILD
+ENV PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 
-RUN apt update \
-  && apt upgrade -y \
-  && apt install -y aria2 build-essential python3-dev wget \
-  && apt purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-  && apt clean \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y aria2 build-essential libxml2-dev libxslt1-dev python3-dev zlib1g-dev && \
+    apt purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN addgroup --gid ${GID:-1000} python \
-  && adduser --disabled-password --gecos "" --home /app --uid ${UID:-1000} --gid ${GID:-1000} python \
-  && chown -R python:python /app
+RUN addgroup --gid ${GID:-1000} python && \
+    adduser --disabled-password --gecos "" --home /app --uid ${UID:-1000} --gid ${GID:-1000} python && \
+    chown -R python:python /app
 
 COPY requirements.txt /app/
-COPY requirements-development.txt /app/
-RUN pip install --no-cache-dir -U pip \
-    && pip install --no-cache-dir -r /app/requirements-development.txt
+RUN --mount=type=cache,target=/var/cache/pip \
+  pip install --cache-dir /var/cache/pip -U pip && \
+  pip install --cache-dir /var/cache/pip -Ur /app/requirements.txt
 
-COPY . /app/
+ARG ENV_TYPE=production
+ENV ENV_TYPE=${ENV_TYPE}
+
+COPY requirements-development.txt /app/
+RUN --mount=type=cache,target=/car/cache/pip \
+  if [ "$(echo $ENV_TYPE | tr A-Z a-z)" != "production" ]; then \
+    pip install --cache-dir /var/cache/pip -Ur /app/requirements-development.txt; \
+    apt update && apt install -y git make && apt clean && rm -rf /var/lib/apt/lists/*; \
+  else \
+    rm /app/requirements-development.txt ; \
+  fi
+
+COPY --chown=python:python . /app/
+USER python

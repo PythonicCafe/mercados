@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        ENV_TYPE: "development"
     pull_policy: build
     image: mercados:latest
     volumes:
