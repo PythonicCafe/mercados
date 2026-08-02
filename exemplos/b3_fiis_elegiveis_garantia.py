@@ -12,6 +12,9 @@ Referências:
   <https://borainvestir.b3.com.br/tipos-de-investimentos/renda-variavel/fundos-investimento/b3-passa-a-aceitar-fundos-imobiliarios-como-garantia-em-operacoes/>
 - Página de garantias aceitas pela Câmara B3:
   <https://www.b3.com.br/pt_br/produtos-e-servicos/compensacao-e-liquidacao/clearing/administracao-de-riscos/garantias/garantias-aceitas/>
+- 029-2026-VNC-Ofício Circular - Aceitação de cota de fundo de investimento admitida à negociação na B3 como garantia
+  (05/05/2026)
+  <https://www.b3.com.br/data/files/90/A3/96/38/4D9FD910E7DB5DD9AC094EA8/OC%20029-2026-VNC%20ACEITACAO%20DE%20COTA%20DE%20FUNDO%20DE%20INVESTIMENTO%20ADMITIDA%20A%20NEGOCIACAO%20NA%20B3%20COMO%20GARANTIA.pdf>
 """
 
 import datetime
