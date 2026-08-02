@@ -6,3 +6,5 @@ disponíveis nessa pasta estão disponíveis sob a [licença CC0](https://creati
 (equivalente ao domínio público).
 
 Veja também o tutorial em [`docs/tutorial.md`](https://github.com/PythonicCafe/mercados/blob/develop/docs/tutorial.md).
+
+O exemplo `b3_ultimo_pregao.py` procura o ZIP diário mais recente disponível da B3 e exporta suas cotações para CSV.
