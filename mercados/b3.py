@@ -1321,9 +1321,7 @@ class B3:
         else:
             raise ValueError(f"Frequência inválida: {repr(frequencia)}")
 
-    def negociacao_bolsa(
-        self, frequencia: str, data: datetime.date
-    ) -> Generator[NegociacaoBolsa, Any, ValueError | None]:
+    def negociacao_bolsa(self, frequencia: str, data: datetime.date) -> Generator[NegociacaoBolsa, None, None]:
         """
         Baixa cotação para uma determinada data (dia, mês ou ano)
 
@@ -1342,10 +1340,8 @@ class B3:
         url = self.url_negociacao_bolsa(frequencia, data)
         # TODO: salvar arquivo em cache
         response = self.session.get(url, verify=False, timeout=self.timeout)
-        if len(response.content) == 0:  # Arquivo vazio (provavelmente dia sem pregão)
-            return ValueError(
-                f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou data no futuro)"
-            )
+        if not response.content:
+            raise ValueError(f"Data {data} possui arquivo de cotação vazio (provavelmente não teve pregão ou é futura)")
         zf = ZipFile(io.BytesIO(response.content))
         if len(zf.filelist) != 1:
             filenames = ", ".join(sorted(info.filename for info in zf.filelist))
