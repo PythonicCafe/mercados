@@ -1,4 +1,5 @@
-FROM python:3.14-slim-trixie
+ARG PYTHON_VERSION=3.14
+FROM python:${PYTHON_VERSION}-slim-trixie
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -24,7 +25,7 @@ ARG ENV_TYPE=production
 ENV ENV_TYPE=${ENV_TYPE}
 
 COPY requirements-development.txt /app/
-RUN --mount=type=cache,target=/car/cache/pip \
+RUN --mount=type=cache,target=/var/cache/pip \
   if [ "$(echo $ENV_TYPE | tr A-Z a-z)" != "production" ]; then \
     pip install --cache-dir /var/cache/pip -Ur /app/requirements-development.txt; \
     apt update && apt install -y git make && apt clean && rm -rf /var/lib/apt/lists/*; \

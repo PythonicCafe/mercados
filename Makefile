@@ -79,5 +79,22 @@ tags:					# Generate tags file for the entire project (requires universal-ctags)
 test:					# Execute `pytest` and coverage report inside `main` container
 	$(MAIN_RUN) bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
+test-py311:				# Execute tests with Python 3.11
+	$(COMPOSE_RUN) py311 bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
 
-.PHONY:	bash bash-root build clean cloc container-clean help kill lint release man shell smoke-test smoke-test-examples tags test-release test
+test-py312:				# Execute tests with Python 3.12
+	$(COMPOSE_RUN) py312 bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+
+test-py313:				# Execute tests with Python 3.13
+	$(COMPOSE_RUN) py313 bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+
+test-py314:				# Execute tests with Python 3.14
+	$(COMPOSE_RUN) py314 bash -c 'coverage run -m pytest $(TEST_ARGS) && coverage report'
+
+test-all: test-py311 test-py312 test-py313 test-py314	# Execute tests with all supported Python versions
+
+typecheck:				# Verify strict types with Python 3.14
+	$(MAIN_RUN) mypy --strict mercados tests
+
+
+.PHONY:	bash bash-root build clean cloc container-clean help kill lint release man shell smoke-test smoke-test-examples tags test test-all test-py311 test-py312 test-py313 test-py314 test-release typecheck

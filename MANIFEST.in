@@ -2,6 +2,7 @@ global-exclude *.pyc
 global-exclude __pycache__
 include LICENSE
 include README.md
+include mercados/py.typed
 include docs/mercados.1
 include docs/tutorial.md
 prune tests/

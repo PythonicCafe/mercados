@@ -15,9 +15,9 @@ que sejam abertos/gratuitos. Por isso, não possui dados que são vendidos (como
 implementada de maneira a usar o mínimo de dependências possível (sem `pandas`, por exemplo) e da maneira mais
 Pythônica (idiomática) possível, em Português.
 
-A biblioteca é desenvolvida e testada em sistema Debian GNU/Linux com Python 3.11. É possível que funcione em versões
-mais recentes e em algumas anteriores sem problemas; como ela é feita totalmente em Python, também deve funcionar sem
-problemas em outros sistemas, como Windows e Mac OS X. Instale-a executando:
+A biblioteca é desenvolvida e testada em sistema Debian GNU/Linux com Python 3.11 a 3.14. Python 3.14 é a versão padrão
+do ambiente de desenvolvimento. Como ela é feita totalmente em Python, também deve funcionar sem problemas em outros
+sistemas, como Windows e Mac OS X. Instale-a executando:
 
 ```shell
 pip install mercados

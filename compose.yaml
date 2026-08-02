@@ -1,12 +1,54 @@
+x-main: &main
+  user: "${UID:-1000}:${GID:-1000}"
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      ENV_TYPE: "development"
+      PYTHON_VERSION: "${PYTHON_VERSION:-3.14}"
+  pull_policy: build
+  volumes:
+    - ${PWD}:/app
+
 services:
   main:
-    user: "${UID:-1000}:${GID:-1000}"
+    <<: *main
+    image: mercados:latest
+
+  py311:
+    <<: *main
+    profiles: [matriz]
+    image: mercados:py311
     build:
       context: .
       dockerfile: Dockerfile
       args:
         ENV_TYPE: "development"
-    pull_policy: build
-    image: mercados:latest
-    volumes:
-      - ${PWD}:/app
+        PYTHON_VERSION: "3.11"
+
+  py312:
+    <<: *main
+    profiles: [matriz]
+    image: mercados:py312
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV_TYPE: "development"
+        PYTHON_VERSION: "3.12"
+
+  py313:
+    <<: *main
+    profiles: [matriz]
+    image: mercados:py313
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV_TYPE: "development"
+        PYTHON_VERSION: "3.13"
+
+  py314:
+    <<: *main
+    profiles: [matriz]
+    image: mercados:py314

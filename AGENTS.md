@@ -7,11 +7,12 @@
 - Construir ambiente: `make build`
 - Testes com cobertura: `make test`; teste selecionado: `TEST_ARGS="-k nome_do_teste" make test`
 - Lint e formatação: `make lint` (altera arquivos: _autoflake_ -> _isort_ -> _black_ -> _flake8_)
-- Verificação de tipos obrigatória: `mypy --strict mercados tests scripts`
+- Verificação de tipos obrigatória: `make typecheck` (`mypy --strict mercados tests`)
+- Matriz de testes: `make test-all` (Python 3.11, 3.12, 3.13 e 3.14; 3.14 é o padrão)
 - _Smoke tests_ com rede: `make smoke-test`; exemplos: `make smoke-test-examples`
 - Ajuda da CLI: `python -m mercados --help`; regenerar o manual após mudar a CLI: `make man`
 
-Com `ENV_TYPE=development`, os alvos que executam a aplicação rodam diretamente no ambiente atual; nos demais ambientes, usam o serviço `main` do _Docker Compose_. Não considere a alteração pronta sem rodar os testes, o lint e `mypy --strict` aplicáveis; informe explicitamente o que não foi executado.
+Com `ENV_TYPE=development`, os alvos que executam a aplicação rodam diretamente no ambiente atual; nos demais ambientes, usam o serviço `main` do _Docker Compose_. A biblioteca suporta Python 3.11 a 3.14; Python 3.7 a 3.10 não são suportados. Não considere a alteração pronta sem rodar os testes, o lint e `mypy --strict` aplicáveis; informe explicitamente o que não foi executado.
 
 ## Código e dados
 
