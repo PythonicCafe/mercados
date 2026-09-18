@@ -93,7 +93,9 @@ class FundosNet:
     def session(self):
         if self._session is None:
             self._session = create_session(user_agent=self._user_agent, proxy=self._proxy)
-            self._session.headers["CSRFToken"] = self.get_csrf_token()
+            csrf_token = self.get_csrf_token()
+            if csrf_token:
+                self._session.headers["CSRFToken"] = csrf_token
         return self._session
 
     def baixa_xml(self, url: str, timeout: float | None = None, max_tries: int = 5, wait_between_errors: float = 0.5):
@@ -143,12 +145,20 @@ class FundosNet:
         return response.text
 
     def get_csrf_token(self):
-        # TODO: expires crsf_token after some time
-        matches = _REGEXP_CSRF_TOKEN.findall(self.main_page)
-        if not matches:
-            raise RuntimeError("Cannot find CSRF token")
+        # TODO: expires csrf_token after some time
+        try:
+            tree = document_fromstring(self.main_page)
+            tokens = tree.xpath("//meta[@name='_csrf']/@content")
+            if tokens and str(tokens[0]).strip():
+                return str(tokens[0]).strip()
+        except Exception:
+            pass
 
-        return matches[0]
+        matches = _REGEXP_CSRF_TOKEN.findall(self.main_page)
+        if matches and str(matches[0]).strip():
+            return str(matches[0]).strip()
+
+        return None
 
     @cached_property
     def categories(self):
