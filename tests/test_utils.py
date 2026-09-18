@@ -3,7 +3,9 @@ from decimal import Decimal
 from io import StringIO
 from textwrap import dedent
 
-from mercados.utils import dicts_to_file
+import pytest
+
+from mercados.utils import dicts_to_file, remove_espacos
 
 data = [
     {"data": date(2024, 11, 2)},
@@ -70,3 +72,22 @@ def test_dicts_to_file_md():
     """)
     assert_dicts_to_file(data, "md", esperado)
     assert_dicts_to_file(data, "markdown", esperado)
+
+
+@pytest.mark.parametrize(
+    "entrada, esperado",
+    [
+        ("  texto simples  ", "texto simples"),
+        ("texto   com    muitos     espaços", "texto com muitos espaços"),
+        ("texto\ncom\nquebra\nde\nlinha", "texto com quebra de linha"),
+        ("texto\tcom\ttabulação", "texto com tabulação"),
+        (
+            "\r\n  Emissor Estrangeiro  (entidade de investimentos)\r\n  ",
+            "Emissor Estrangeiro (entidade de investimentos)",
+        ),
+        ("", ""),
+        ("   ", ""),
+    ],
+)
+def test_remove_espacos(entrada: str, esperado: str) -> None:
+    assert remove_espacos(entrada) == esperado
