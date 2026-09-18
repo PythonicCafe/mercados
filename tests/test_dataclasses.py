@@ -6,34 +6,34 @@ import string
 import types
 from dataclasses import fields, is_dataclass
 from decimal import Decimal
-from typing import Union, get_args, get_origin, get_type_hints
+from typing import Any, Union, get_args, get_origin, get_type_hints
 
 import pytest
 
 from mercados import b3, bcb, cvm, fundosnet, ibge
 
 
-def rand_str(n):
+def rand_str(n: int) -> str:
     return "".join(random.choice(string.ascii_letters + string.digits + " ") for _ in range(random.randint(0, n)))
 
 
-def rand_int(minimo=0, maximo=1000):
+def rand_int(minimo: int = 0, maximo: int = 1000) -> int:
     return random.randint(minimo, maximo)
 
 
-def rand_float(maximo):
+def rand_float(maximo: float) -> float:
     return random.random() * maximo
 
 
-def rand_decimal(maximo):
+def rand_decimal(maximo: float) -> Decimal:
     return Decimal(str(rand_float(maximo)))
 
 
-def rand_date(ano_minimo=1990, ano_maximo=2025):
+def rand_date(ano_minimo: int = 1990, ano_maximo: int = 2025) -> datetime.date:
     return datetime.date(random.randint(ano_minimo, ano_maximo), random.randint(1, 12), random.randint(1, 28))
 
 
-def rand_datetime(ano_minimo=1990, ano_maximo=2025):
+def rand_datetime(ano_minimo: int = 1990, ano_maximo: int = 2025) -> datetime.datetime:
     return datetime.datetime(
         random.randint(ano_minimo, ano_maximo),
         random.randint(1, 12),
@@ -56,7 +56,7 @@ def _unwrap_optional(field_type: type) -> tuple[type, bool]:
     return field_type, False
 
 
-def _cria_valor_falso(field_type: type):
+def _cria_valor_falso(field_type: type) -> Any:
     if field_type is bool:
         return random.random() > 0.5
     elif field_type is str:
@@ -80,7 +80,7 @@ def _cria_valor_falso(field_type: type):
         raise TypeError(f"Tipo não suportado: {field_type!r}")
 
 
-def cria_objeto_com_dados_falsos(DataClass):
+def cria_objeto_com_dados_falsos(DataClass: type[Any]) -> Any:
     row = {}
     for field_name, field_type in get_type_hints(DataClass).items():
         field_type, is_optional = _unwrap_optional(field_type)
@@ -90,11 +90,11 @@ def cria_objeto_com_dados_falsos(DataClass):
     return DataClass(**row)
 
 
-def lista_dataclasses(modulo):
-    resultado = []
+def lista_dataclasses(modulo: types.ModuleType) -> list[type[Any]]:
+    resultado: list[type[Any]] = []
     for atributo in dir(modulo):
         obj = getattr(modulo, atributo)
-        if is_dataclass(obj):
+        if isinstance(obj, type) and is_dataclass(obj):
             resultado.append(obj)
     return resultado
 
@@ -103,7 +103,7 @@ def lista_dataclasses(modulo):
     "modulo, DataClass",
     [(modulo, DataClass) for modulo in (b3, bcb, cvm, fundosnet, ibge) for DataClass in lista_dataclasses(modulo)],
 )
-def test_dataclasses_serialize(modulo, DataClass):
+def test_dataclasses_serialize(modulo: types.ModuleType, DataClass: type[Any]) -> None:
     obj = cria_objeto_com_dados_falsos(DataClass)
     row = obj.serialize()
     dataclass_field_names = [field.name for field in fields(DataClass)]
