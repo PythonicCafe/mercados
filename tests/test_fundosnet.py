@@ -6,7 +6,7 @@ from mercados.fundosnet import FundosNet
 from mercados.utils import BRT
 
 
-def test_dados_protocolo_977453():
+def test_dados_protocolo_977453() -> None:
     filename = Path(__file__).parent / "data" / "protocolo_977453.html"
     with filename.open(mode="rb") as fobj:
         content = fobj.read()
