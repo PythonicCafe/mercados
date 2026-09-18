@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import argparse
 import csv
 import datetime
 import io
@@ -22,7 +25,7 @@ class TituloRendaFixa:
     preco_venda: Decimal
 
     @classmethod
-    def from_dict(cls, row: dict):
+    def from_dict(cls, row: dict[str, str]) -> TituloRendaFixa:
         nome = row.pop("Tipo Titulo")
         indexador = None
         if nome == "Tesouro Selic":
@@ -68,7 +71,7 @@ class Tesouro:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
         self.timeout = timeout
 
-    def historico_titulos(self) -> list:
+    def historico_titulos(self) -> list[TituloRendaFixa]:
         """
         Baixa histórico de preços de títulos diários do Tesouro
 
@@ -84,7 +87,7 @@ class Tesouro:
         return dados
 
 
-def _configura_parser_cli(parser) -> None:
+def _configura_parser_cli(parser: argparse.ArgumentParser) -> None:
     from mercados.utils import EXPORT_FORMATS, extrai_nome_arquivo, parse_iso_date
 
     subparsers = parser.add_subparsers(dest="comando", metavar="comando", required=True)
@@ -137,7 +140,7 @@ def _configura_parser_cli(parser) -> None:
     )
 
 
-def main(args) -> int:
+def main(args: argparse.Namespace) -> int:
     import sys
 
     from mercados.utils import define_formato, dicts_to_file
@@ -176,7 +179,6 @@ def main(args) -> int:
 
 
 if __name__ == "__main__":
-    import argparse
     import sys
 
     parser = argparse.ArgumentParser(description=_DESCRICAO_CLI)
