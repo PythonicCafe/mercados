@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -7,7 +9,7 @@ from mercados.ibge import IBGE
 DATA_PATH = Path(__file__).parent / "data"
 
 
-def assert_data(arquivo: Path, ultimo_disponivel: datetime.date):
+def assert_data(arquivo: Path, ultimo_disponivel: datetime.date) -> None:
     # Os arquivos foram baixados em 2025-09-29
     with arquivo.open(mode="rb") as fobj:
         content = fobj.read()
@@ -28,13 +30,13 @@ def assert_data(arquivo: Path, ultimo_disponivel: datetime.date):
     assert len(resultado) == meses
 
 
-def test_extrai_planilha_indice_ipca():
+def test_extrai_planilha_indice_ipca() -> None:
     assert_data(arquivo=DATA_PATH / "ipca_SerieHist.zip", ultimo_disponivel=datetime.date(2025, 8, 15))
 
 
-def test_extrai_planilha_indice_ipca15():
+def test_extrai_planilha_indice_ipca15() -> None:
     assert_data(arquivo=DATA_PATH / "ipca-15_SerieHist.zip", ultimo_disponivel=datetime.date(2025, 9, 15))
 
 
-def test_extrai_planilha_indice_inpc():
+def test_extrai_planilha_indice_inpc() -> None:
     assert_data(arquivo=DATA_PATH / "inpc_SerieHist.zip", ultimo_disponivel=datetime.date(2025, 8, 15))
