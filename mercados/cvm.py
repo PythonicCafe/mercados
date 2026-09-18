@@ -16,13 +16,13 @@ from lxml.html import document_fromstring
 from mercados.utils import (
     BRT,
     REGEXP_CNPJ_SEPARATORS,
-    REGEXP_SPACES,
     USER_AGENT,
     create_session,
     download_files,
     parse_date,
     parse_iso_date,
     parse_iso_month,
+    remove_espacos,
     slug,
 )
 
@@ -537,6 +537,9 @@ class DocumentoEmpresa:
         del row["campo_11"]
         del row["campo_12"]
         row = {key: value if value not in ("", "-", None) else None for key, value in row.items()}
+        for key in ("categoria", "subcategoria", "situacao", "modalidade", "especie", "tipo"):
+            if row[key]:
+                row[key] = remove_espacos(row[key])
         return cls(**row)
 
 
@@ -576,7 +579,7 @@ class RAD:
         for option in tree.xpath("//select[@id = 'cboCategorias']//option"):
             value = option.xpath(".//@value")[0]
             label = " ".join(item.strip() for item in option.xpath(".//text()") if item.strip())
-            options[REGEXP_SPACES.sub(" ", label)] = value
+            options[remove_espacos(label)] = value
         return options
 
     # TODO: pegar código da empresa a partir de outros dados (CNPJ, razão social)
