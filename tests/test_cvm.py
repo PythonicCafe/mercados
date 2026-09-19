@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import MagicMock
 
 import pytest
@@ -127,3 +128,28 @@ def test_uuid_com_e_sem_espacos_multiplos_sao_iguais() -> None:
     doc_com_espacos = DocumentoEmpresa.from_data(registro_com_espacos)
     doc_sem_espacos = DocumentoEmpresa.from_data(registro_sem_espacos)
     assert doc_com_espacos.uuid == doc_sem_espacos.uuid
+
+
+def test_rad_busca_categorias_none_envia_filtro_vazio() -> None:
+    rad = RAD()
+    rad.session.post = MagicMock(return_value=MagicMock(json=lambda: {"d": {"dados": "", "msgErro": ""}}))
+    list(rad.busca(datetime.date(2026, 9, 1), datetime.date(2026, 9, 2), categorias=None))
+    form_enviado = rad.session.post.call_args[1]["json"]
+    assert form_enviado["categoria"] == ""
+
+
+def test_rad_busca_categorias_vazia_envia_filtro_vazio() -> None:
+    rad = RAD()
+    rad.session.post = MagicMock(return_value=MagicMock(json=lambda: {"d": {"dados": "", "msgErro": ""}}))
+    list(rad.busca(datetime.date(2026, 9, 1), datetime.date(2026, 9, 2), categorias=[]))
+    form_enviado = rad.session.post.call_args[1]["json"]
+    assert form_enviado["categoria"] == ""
+
+
+def test_rad_busca_categorias_todas_filtra_alguns_documentos() -> None:
+    rad = RAD()
+    rad._categorias = {"TODAS": "-1"}
+    rad.session.post = MagicMock(return_value=MagicMock(json=lambda: {"d": {"dados": "", "msgErro": ""}}))
+    list(rad.busca(datetime.date(2026, 9, 1), datetime.date(2026, 9, 2), categorias=["TODAS"]))
+    form_enviado = rad.session.post.call_args[1]["json"]
+    assert form_enviado["categoria"] == "IPE_-1_-1_-1"

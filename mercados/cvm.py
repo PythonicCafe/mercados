@@ -435,7 +435,11 @@ class DocumentoEmpresa:
 
     @property
     def uuid(self):
-        "Usa URLid do Brasil.IO para criar um ID único offline, mesmo que o documento não tenha ID próprio"
+        """Gera identificador único offline via URLid do Brasil.IO para o documento.
+
+        O identificador é gerado a partir de diversos campos do documento, como ID, código da empresa, modalidade,
+        categoria, tipo, espécie e data/hora de entrega, de forma a ser um conjunto realmente único.
+        """
         unique_data = [
             self.id,
             self.codigo_empresa,
@@ -451,6 +455,21 @@ class DocumentoEmpresa:
 
     @classmethod
     def from_data(cls, data):
+        """Instancia DocumentoEmpresa a partir de um registro bruto retornado pelo RAD.
+
+        Formato do registro:
+        - Os registros são delimitados por "$&&*" e os campos por "$&".
+        - Ordem dos campos: codigo_empresa, empresa, categoria, subcategoria, assunto, datahora_referencia,
+          datahora_entrega, situacao, versao, modalidade, campo_11, campo_12.
+        - Os campos 11 e 12 contêm trechos de HTML com funções JavaScript (ex.: OpenDownloadDocumentos e OpenPopUpVer),
+          dos quais são extraídos identificadores, protocolos e URLs.
+
+        Normalização de rótulos:
+        - Campos categóricos (categoria, subcategoria, situacao, modalidade, especie e tipo) têm espaços consecutivos
+          removidos via `remove_espacos()`. Isso garante correspondência exata de string com as chaves retornadas por
+          `RAD.categorias()`.
+        - Textos livres (assunto e detalhe_publicacao) preservam seu espaçamento original.
+        """
         header = [
             "codigo_empresa",
             "empresa",
@@ -544,6 +563,23 @@ class DocumentoEmpresa:
 
 
 class RAD:
+    """Consulta e coleta dados do sistema RAD (Recebimento Automático de Documentos) da CVM.
+
+    Comportamento e peculiaridades do backend da CVM (ENETWeb):
+    - Ausência de paginação server-side: o endpoint de busca devolve todos os documentos da janela em um único payload
+      de texto.
+    - Limites de volume e timeout: consultas com janelas longas falham com frequência no backend (janelas de ~8,5 meses
+      geram HTTP 500 constante e janelas maiores resultam em timeout de leitura). Recomenda-se fatiar o intervalo em
+      janelas curtas (ex.: ~7 dias).
+    - Falhas intermitentes: o backend pode responder com erro de memória no campo `msgErro` ("Exception of type
+      'System.OutOfMemoryException' was thrown.") mesmo em períodos curtos. Aplicações consumidoras devem verificar o
+      erro e executar retentativas.
+    - Respostas vazias: quando nenhum documento é encontrado ou se o servidor responder vazio, a busca devolve lista
+      vazia sem sinalização de erro, tornando indistinguível a ausência real de dados de um retorno vazio do backend.
+    - Rótulos parciais no dropdown: o endpoint de categorias pode ocasionalmente retornar apenas opções agrupadoras
+      caso a página da CVM venha incompleta.
+    """
+
     # TODO: métodos deveriam ser movidos para classe CVM?
     def __init__(self, user_agent: str = USER_AGENT, proxy: str | None = None, timeout: float = 15.0) -> None:
         self.session = create_session(user_agent=user_agent, proxy=proxy)
@@ -571,6 +607,17 @@ class RAD:
         return result
 
     def categorias(self):
+        """Mapeia rótulos normalizados das categorias para os códigos internos da CVM.
+
+        Lê o `<select id="cboCategorias">` da página de consulta e normaliza os espaços dos rótulos via
+        `remove_espacos()`, assegurando compatibilidade direta com os valores de `DocumentoEmpresa.categoria`.
+
+        Peculiaridade de códigos EST (FRE):
+        - No JavaScript da CVM (`frmConsultaExternaCVM.js`), selecionar a categoria "FRE - Formulário de Referência"
+          (código `EST_2`) faz o script anexar automaticamente os códigos internos `,EST_8,EST_9`. A busca filtrando
+          apenas pelo rótulo FRE não inclui esses códigos adicionais. Para consultar todos os documentos sem essa
+          omissão, passe `categorias=[]` em `busca()`.
+        """
         url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx")
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
@@ -593,7 +640,22 @@ class RAD:
         hora_inicio="00:00",
         hora_fim="23:59",
     ):
-        """Busca documentos disponíveis no RAD/CVM (desde março/1998)"""
+        """Busca documentos disponíveis no RAD/CVM (desde março/1998).
+
+        Semântica do parâmetro `categorias`:
+        - `None` (padrão) ou `[]` (lista vazia): envia `categoria=""`, desativando o filtro de categoria no servidor. É
+          o modo recomendado para obter o conjunto completo de documentos no intervalo (incluindo FRE e documentos
+          omitidos por `["TODAS"]`).
+        - `["TODAS"]`: apesar de aparecer na interface, esse valor descarta categorias reais (como FCA, DFP, ITR e
+          Código de Governança). Evite.
+        - `list[str]`: lista de rótulos exatos (conforme retornados por `categorias()`) a consultar.
+
+        Paginação e limites do backend:
+        - O servidor não possui paginação server-side: devolve todos os registros do intervalo no campo `d.dados`. A
+          paginação vista na interface web é puramente client-side.
+        - Janelas extensas sobrecarregam o servidor (HTTP 500 em ~8,5 meses ou timeout em janelas maiores).
+          Recomenda-se segmentar as consultas em janelas curtas (ex.: 7 dias).
+        """
         url = urljoin(RAD_BASE_URL, "frmConsultaExternaCVM.aspx/ListarDocumentos")
         if empresas is not None:
             if self._empresas is None:
@@ -603,7 +665,7 @@ class RAD:
             codigos_empresas = ""
 
         if categorias is None:
-            categorias = ["TODAS"]
+            categorias = []
         if self._categorias is None:
             self._categorias = self.categorias()
         codigos_categorias = []
