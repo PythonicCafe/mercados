@@ -226,7 +226,14 @@ def create_session(user_agent: str = USER_AGENT, proxy: Optional[str] = None):
 
     urllib3.disable_warnings()
     session = requests.Session()
-    adapter = HTTPAdapter(max_retries=Retry(total=7, backoff_factor=0.1))
+    adapter = HTTPAdapter(
+        max_retries=Retry(
+            total=7,
+            backoff_factor=0.5,
+            status_forcelist=(429, 500, 502, 503, 504),
+            raise_on_status=False,
+        )
+    )
     session.headers["User-Agent"] = user_agent
     session.headers["Accept"] = (
         "application/json,text/html,application/xhtml+xml,application/xml,application/pdf,text/csv,application/zip,application/x-zip-compressed"

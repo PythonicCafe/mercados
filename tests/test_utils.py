@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import pytest
 
-from mercados.utils import dicts_to_file, remove_espacos
+from mercados.utils import create_session, dicts_to_file, remove_espacos
 
 data = [
     {"data": date(2024, 11, 2)},
@@ -91,3 +91,12 @@ def test_dicts_to_file_md():
 )
 def test_remove_espacos(entrada: str, esperado: str) -> None:
     assert remove_espacos(entrada) == esperado
+
+
+def test_create_session_configura_retry_com_status_forcelist() -> None:
+    session = create_session()
+    adapter = session.adapters["https://"]
+    assert adapter.max_retries.total == 7
+    assert adapter.max_retries.backoff_factor == 0.5
+    assert set(adapter.max_retries.status_forcelist) == {429, 500, 502, 503, 504}
+    assert adapter.max_retries.raise_on_status is False
