@@ -2,7 +2,10 @@ import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from mercados.fundosnet import FundosNet
+import pytest
+import requests
+
+from mercados.fundosnet import FundosNet, FundosNetError
 from mercados.utils import BRT
 
 
@@ -81,3 +84,120 @@ def test_get_csrf_token_legado_script():
 
     assert fnet.get_csrf_token() == "token-legado-script-67890"
     assert fnet.session.headers.get("CSRFToken") == "token-legado-script-67890"
+
+
+def test_paginate_retry_sucesso_apos_504():
+    fnet = FundosNet()
+    resposta_504 = MagicMock(status_code=504, text="Gateway Timeout")
+    resposta_200 = MagicMock(
+        status_code=200,
+        text='{"recordsTotal": 1, "data": [{"id": 1}]}',
+        json=MagicMock(return_value={"recordsTotal": 1, "data": [{"id": 1}]}),
+    )
+    fnet.request = MagicMock(side_effect=[resposta_504, resposta_200])
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == [{"id": 1}]
+    assert fnet.request.call_count == 2
+
+
+def test_paginate_retry_sucesso_apos_resposta_200_com_erro():
+    fnet = FundosNet()
+    resposta_erro = MagicMock(
+        status_code=200,
+        text='{"error": "Internal error"}',
+        json=MagicMock(return_value={"error": "Internal error"}),
+    )
+    resposta_valida = MagicMock(
+        status_code=200,
+        text='{"recordsTotal": 1, "data": [{"id": 2}]}',
+        json=MagicMock(return_value={"recordsTotal": 1, "data": [{"id": 2}]}),
+    )
+    fnet.request = MagicMock(side_effect=[resposta_erro, resposta_valida])
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == [{"id": 2}]
+    assert fnet.request.call_count == 2
+
+
+def test_paginate_esgotamento_de_tentativas_lanca_fundosnet_error():
+    fnet = FundosNet()
+    resposta_500 = MagicMock(status_code=500, text="Internal Server Error")
+    fnet.request = MagicMock(return_value=resposta_500)
+
+    with pytest.raises(FundosNetError) as exc_info:
+        list(fnet.paginate("pesquisar", max_retries=3, retry_delay=0.0))
+
+    erro = exc_info.value
+    erro_msg = str(erro)
+    assert "pesquisar" in erro_msg
+    assert "s=0" in erro_msg
+    assert "l=200" in erro_msg
+    assert "status=500" in erro_msg
+    assert "Internal Server Error" in erro_msg
+    assert erro.status_code == 500
+    assert erro.url is not None and erro.url.endswith("pesquisar")
+    assert erro.params == {"s": 0, "l": 200, "_": erro.params["_"]}
+    assert fnet.request.call_count == 3
+
+
+def test_paginate_retry_sucesso_apos_json_invalido():
+    fnet = FundosNet()
+    resposta_invalida = MagicMock(
+        status_code=200,
+        text="<html>Bad Gateway</html>",
+        json=MagicMock(side_effect=ValueError("Expecting value")),
+    )
+    resposta_valida = MagicMock(
+        status_code=200,
+        text='{"recordsTotal": 1, "data": [{"id": 3}]}',
+        json=MagicMock(return_value={"recordsTotal": 1, "data": [{"id": 3}]}),
+    )
+    fnet.request = MagicMock(side_effect=[resposta_invalida, resposta_valida])
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == [{"id": 3}]
+    assert fnet.request.call_count == 2
+
+
+def test_paginate_retry_sucesso_apos_request_exception():
+    fnet = FundosNet()
+    resposta_valida = MagicMock(
+        status_code=200,
+        text='{"recordsTotal": 1, "data": [{"id": 4}]}',
+        json=MagicMock(return_value={"recordsTotal": 1, "data": [{"id": 4}]}),
+    )
+    fnet.request = MagicMock(side_effect=[requests.exceptions.ConnectionError("Connection aborted"), resposta_valida])
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == [{"id": 4}]
+    assert fnet.request.call_count == 2
+
+
+def test_paginate_retry_sucesso_apos_chave_faltante():
+    fnet = FundosNet()
+    resposta_sem_total = MagicMock(
+        status_code=200,
+        text='{"draw": 1}',
+        json=MagicMock(return_value={"draw": 1}),
+    )
+    resposta_valida = MagicMock(
+        status_code=200,
+        text='{"recordsTotal": 1, "data": [{"id": 5}]}',
+        json=MagicMock(return_value={"recordsTotal": 1, "data": [{"id": 5}]}),
+    )
+    fnet.request = MagicMock(side_effect=[resposta_sem_total, resposta_valida])
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == [{"id": 5}]
+    assert fnet.request.call_count == 2
+
+
+def test_paginate_termina_em_404():
+    fnet = FundosNet()
+    resposta_404 = MagicMock(status_code=404, text="Not Found")
+    fnet.request = MagicMock(return_value=resposta_404)
+
+    itens = list(fnet.paginate("pesquisar", retry_delay=0.0))
+    assert itens == []
+    assert fnet.request.call_count == 1

@@ -2,8 +2,10 @@ import datetime
 import re
 import time
 from functools import cached_property
+from typing import Any
 from urllib.parse import urljoin
 
+import requests
 from lxml.html import document_fromstring
 
 from mercados import choices
@@ -69,6 +71,24 @@ def format_document_path(pattern: str, doc: DocumentMeta, content_type: str):
 
 # TODO: implementar crawler/parser para antes de 2016
 # <https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/ResultListaPartic.aspx?TPConsulta=9>
+
+
+class FundosNetError(RuntimeError):
+    """Exceção levantada quando ocorre um erro na comunicação ou resposta do FundosNet."""
+
+    def __init__(
+        self,
+        message: str,
+        url: str | None = None,
+        status_code: int | None = None,
+        response_text: str | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.url = url
+        self.status_code = status_code
+        self.response_text = response_text
+        self.params = params
 
 
 class FundosNet:
@@ -203,24 +223,100 @@ class FundosNet:
                     result[categoria_id].append(row)
         return result
 
-    def paginate(self, path, params=None, xhr=True, items_per_page=200):
-        params = params or {}
+    def _requisita_pagina(
+        self,
+        path: str,
+        params: dict[str, Any],
+        xhr: bool,
+        max_retries: int,
+        retry_delay: float,
+        primeira_pagina: bool,
+    ) -> dict[str, Any] | None:
+        url = urljoin(self.base_url, path)
+        ultimo_erro: Exception | str | None = None
+        ultimo_status = None
+        ultimo_corpo = ""
+
+        for tentativa in range(1, max_retries + 1):
+            try:
+                response = self.request("GET", path, params=params, xhr=xhr)
+            except requests.exceptions.RequestException as exc:
+                ultimo_erro = exc
+                ultimo_status = None
+                ultimo_corpo = str(exc)
+            else:
+                ultimo_status = response.status_code
+                ultimo_corpo = response.text[:500] if response.text else ""
+
+                if response.status_code == 404:  # Finished (wrong page?)
+                    return None
+
+                if response.status_code >= 500 or response.status_code == 429:
+                    ultimo_erro = f"HTTP {response.status_code}"
+                else:
+                    try:
+                        dados = response.json()
+                    except (ValueError, requests.exceptions.JSONDecodeError) as exc:
+                        ultimo_erro = exc
+                    else:
+                        if not isinstance(dados, dict):
+                            ultimo_erro = f"Resposta JSON não é um dicionário: {type(dados).__name__}"
+                        elif "error" in dados:
+                            ultimo_erro = f"Erro retornado pelo servidor: {dados['error']}"
+                        elif primeira_pagina and "recordsTotal" not in dados:
+                            ultimo_erro = "Chave 'recordsTotal' ausente na resposta da primeira página"
+                        elif "data" not in dados:
+                            ultimo_erro = "Chave 'data' ausente na resposta"
+                        else:
+                            return dados
+
+            if tentativa < max_retries:
+                espera = retry_delay * (2 ** (tentativa - 1))
+                if espera > 0:
+                    time.sleep(espera)
+
+        raise FundosNetError(
+            f"Falha ao paginar {url} após {max_retries} tentativas "
+            f"(parâmetros: s={params.get('s')}, l={params.get('l')}, "
+            f"status={ultimo_status}, erro={ultimo_erro}): {ultimo_corpo}",
+            url=url,
+            status_code=ultimo_status,
+            response_text=ultimo_corpo,
+            params=params,
+        )
+
+    def paginate(
+        self,
+        path: str,
+        params: dict[str, Any] | None = None,
+        xhr: bool = True,
+        items_per_page: int = 200,
+        max_retries: int = 5,
+        retry_delay: float = 1.0,
+    ):
+        params = params.copy() if params else {}
         params["s"] = 0  # rows to skip
         params["l"] = items_per_page  # page length
-        params["_"] = int(time.time() * 1000)
-        total_rows, finished = None, False
-        while not finished:
-            response = self.request("GET", path, params=params, xhr=xhr)
-            if response.status_code == 404:  # Finished (wrong page?)
+        total_rows = None
+        while True:
+            params["_"] = int(time.time() * 1000)
+            dados = self._requisita_pagina(
+                path=path,
+                params=params,
+                xhr=xhr,
+                max_retries=max_retries,
+                retry_delay=retry_delay,
+                primeira_pagina=total_rows is None,
+            )
+            if dados is None:
                 return
-            response_data = response.json()
             if total_rows is None:
-                total_rows = response_data["recordsTotal"]
-            data = response_data["data"]
+                total_rows = dados["recordsTotal"]
+            data = dados["data"]
             yield from data
             params["s"] += len(data)
-            params["_"] = int(time.time() * 1000)
-            finished = params["s"] >= total_rows
+            if params["s"] >= total_rows or not data:
+                break
 
     def fundos(self):
         yield from self._listar_fundos(certs=False)
